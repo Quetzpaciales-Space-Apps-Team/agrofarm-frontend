@@ -1,0 +1,116 @@
+name: CD
+
+# Rollback instructions: see deploy/rollback.md
+# gcloud run services update-traffic frontend-<env> --to-revisions=<previous-revision>=100 --region="$GCP_REGION" --project="$GCP_PROJECT_ID"
+
+"on":
+  push:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    name: Deploy frontend to Cloud Run (staging)
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-24.04
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_CI_DEPLOYER }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${{ secrets.GCP_REGION }}-docker.pkg.dev" --quiet
+
+      - name: Build and push frontend image tagged with commit SHA
+        env:
+          IMAGE_URI: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/frontend:${{ github.sha }}
+        run: |
+          docker build -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+
+      - name: Deploy new revision to Cloud Run staging
+        env:
+          IMAGE_URI: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/frontend:${{ github.sha }}
+        run: |
+          gcloud run services update frontend-staging \
+            --project="${{ secrets.GCP_PROJECT_ID }}" \
+            --region="${{ secrets.GCP_REGION }}" \
+            --image="$IMAGE_URI" \
+            --quiet
+
+      - name: Run post-deploy smoke test
+        run: |
+          SERVICE_URL="$(gcloud run services describe frontend-staging \
+            --project="${{ secrets.GCP_PROJECT_ID }}" \
+            --region="${{ secrets.GCP_REGION }}" \
+            --format='value(status.url)')"
+          echo "::add-mask::$SERVICE_URL"
+          curl -fsS --retry 5 --retry-delay 3 "$SERVICE_URL/healthz" >/dev/null
+
+  deploy-production:
+    name: Deploy frontend to Cloud Run (production)
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_CI_DEPLOYER }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${{ secrets.GCP_REGION }}-docker.pkg.dev" --quiet
+
+      - name: Ensure commit SHA image exists in Artifact Registry
+        env:
+          IMAGE_URI: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/frontend:${{ github.sha }}
+        run: |
+          if ! gcloud artifacts docker images describe "$IMAGE_URI" --quiet >/dev/null 2>&1; then
+            docker build -t "$IMAGE_URI" .
+            docker push "$IMAGE_URI"
+          fi
+
+      - name: Deploy image to Cloud Run production
+        env:
+          IMAGE_URI: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/frontend:${{ github.sha }}
+        run: |
+          gcloud run services update frontend-prod \
+            --project="${{ secrets.GCP_PROJECT_ID }}" \
+            --region="${{ secrets.GCP_REGION }}" \
+            --image="$IMAGE_URI" \
+            --quiet
+
+      - name: Run post-deploy smoke test
+        run: |
+          SERVICE_URL="$(gcloud run services describe frontend-prod \
+            --project="${{ secrets.GCP_PROJECT_ID }}" \
+            --region="${{ secrets.GCP_REGION }}" \
+            --format='value(status.url)')"
+          echo "::add-mask::$SERVICE_URL"
+          curl -fsS --retry 5 --retry-delay 3 "$SERVICE_URL/healthz" >/dev/null
