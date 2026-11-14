@@ -10,6 +10,19 @@ Part of AgroFarm, a crop growth and rotation simulator for farmers. The tool sup
 - **Tasks:** the GitHub issues of this repository. Issues labeled `agent-ready` can be given to an agent. Issues labeled `needs-human` need a person.
 - **Shared plan and dataset catalog:** the `agrofarm-docs` repository.
 
+## Development Setup
+
+- **Node.js:** `>=20`
+- **Package manager:** `npm` (committed lockfile: `package-lock.json`)
+
+```bash
+npm ci
+cp .env.example .env
+make dev        # Start local Vite dev server
+make check      # Run lint, typecheck and tests
+make build      # Build production bundle
+```
+
 ## The short version of the rules
 
 1. Everything is written in English.
@@ -20,9 +33,9 @@ Part of AgroFarm, a crop growth and rotation simulator for farmers. The tool sup
 
 ## Repositories
 
-| Repo | Service(s) |
-|---|---|
-| `agrofarm-frontend` | `frontend` |
-| `agrofarm-api` | `core-api` |
+| Repo                | Service(s)                   |
+| ------------------- | ---------------------------- |
+| `agrofarm-frontend` | `frontend`                   |
+| `agrofarm-api`      | `core-api`                   |
 | `agrofarm-analytic` | `ml-service`, `data-service` |
-| `agrofarm-docs` | documentation only |
+| `agrofarm-docs`     | documentation only           |
