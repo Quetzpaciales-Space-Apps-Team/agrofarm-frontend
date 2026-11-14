@@ -8,8 +8,8 @@ AI coding assistants were used as tools to write and review code, tests, CI work
 
 ## Tools
 
-| Tool | Model | Used by | Used for |
-|---|---|---|---|
+| Tool        | Model              | Used by   | Used for                                                                         |
+| ----------- | ------------------ | --------- | -------------------------------------------------------------------------------- |
 | Claude Code | `claude-fable-5-2` | `eldmark` | Repository rules, CI, scaffolds, connectors, tests, documentation, data analysis |
 
 Team members who used another tool add a row here in their next pull request (rule G11.3).
