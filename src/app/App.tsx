@@ -1,8 +1,15 @@
+import { useTranslation } from 'react-i18next';
+
 export function App() {
+  const { t } = useTranslation();
+
   return (
     <main>
-      <h1>AgroFarm</h1>
-      <p>Decision support for crop growth and rotation planning.</p>
+      <h1>{t('app.shell.title')}</h1>
+      <p>{t('app.shell.tagline')}</p>
+      <footer>
+        <small>{t('app.shell.disclaimer')}</small>
+      </footer>
     </main>
   );
 }

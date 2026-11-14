@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import boundaries from 'eslint-plugin-boundaries';
+import i18next from 'eslint-plugin-i18next';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -17,6 +18,7 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       boundaries,
+      i18next,
     },
     settings: {
       'boundaries/include': ['src/**/*'],
@@ -144,6 +146,18 @@ export default tseslint.config(
               },
             },
           ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/**/*.tsx'],
+    ignores: ['src/**/__tests__/**', 'src/**/*.{test,spec}.tsx'],
+    rules: {
+      'i18next/no-literal-string': [
+        'error',
+        {
+          mode: 'jsx-text-only',
         },
       ],
     },

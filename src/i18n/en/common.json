@@ -1,0 +1,9 @@
+{
+  "app": {
+    "shell": {
+      "title": "AgroFarm",
+      "tagline": "Decision support for crop growth and rotation planning.",
+      "disclaimer": "This tool supports farmers and local experts. It never replaces local agronomic judgment."
+    }
+  }
+}
