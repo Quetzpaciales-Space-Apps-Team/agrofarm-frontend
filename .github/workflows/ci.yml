@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Enforces the branch flow of rule G8. Keep this job.
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch flow
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then
+            echo "Not a pull request, nothing to check."
+            exit 0
+          fi
+          if [ "$BASE" = "main" ]; then
+            case "$HEAD" in
+              develop|hotfix/*) ;;
+              *) echo "::error::Pull requests into main must come from develop or hotfix/*. Target develop instead."; exit 1 ;;
+            esac
+          fi
+          case "$HEAD" in
+            develop|feat/*|fix/*|chore/*|docs/*|test/*|refactor/*|ci/*|hotfix/*|dependabot/*) ;;
+            *) echo "::error::Branch '$HEAD' does not follow the naming rule (feat/, fix/, chore/, docs/, test/, refactor/, ci/, hotfix/)."; exit 1 ;;
+          esac
+
+  # The single required status check (rule G3). Keep the job name stable.
+  # Add every new job to `needs`. A skipped job counts as passed, so path
+  # filters (rule G3.1) never block or bypass this gate.
+  ci-gate:
+    if: always()
+    needs: [policy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results of all jobs
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "::error::A required job ended with '$result'."; exit 1 ;;
+            esac
+          done
