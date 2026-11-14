@@ -8,3 +8,5 @@ CLAUDE.md
 Dockerfile
 .dockerignore
 docker
+docs/contract/openapi.yaml
+src/infrastructure/api/schema.d.ts

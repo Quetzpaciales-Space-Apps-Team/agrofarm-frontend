@@ -60,6 +60,10 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
+      - name: Verify generated OpenAPI types are up to date
+        run: |
+          npm run types
+          git diff --exit-code src/infrastructure/api/schema.d.ts
       - run: npm run typecheck
 
   test:

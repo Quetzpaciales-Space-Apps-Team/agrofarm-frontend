@@ -1,6 +1,6 @@
 export PATH := $(PATH):/home/angc_/.nvm/versions/node/v24.17.0/bin
 
-.PHONY: dev test lint typecheck build check
+.PHONY: dev test lint typecheck build types check
 
 dev:
 	npm run dev
@@ -16,5 +16,8 @@ typecheck:
 
 build:
 	npm run build
+
+types:
+	npm run types
 
 check: lint typecheck test
