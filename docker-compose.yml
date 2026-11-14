@@ -1,0 +1,17 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      PORT: '8080'
+      API_BASE_URL: '${API_BASE_URL:-http://localhost:8000}'
+      USE_MOCKS: '${USE_MOCKS:-true}'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
