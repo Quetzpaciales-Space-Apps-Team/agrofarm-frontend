@@ -24,8 +24,6 @@ describe('GitHub Actions CI workflow (FE-004)', () => {
 
     expect(ciYml).toContain('--coverage');
     expect(ciYml).toContain('256000');
-    expect(ciYml).toContain(
-      'needs: [policy, lint, typecheck, test, build, docker-build, trivy]',
-    );
+    expect(ciYml).toContain('needs: [policy, lint, typecheck, test, build, docker-build, trivy]');
   });
 });
