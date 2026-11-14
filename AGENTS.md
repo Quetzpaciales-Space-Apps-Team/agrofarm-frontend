@@ -134,6 +134,26 @@ Cloud Run (services and jobs), Cloud SQL for PostgreSQL, Artifact Registry, Secr
 
 Recommendations are decision support. Every recommendation, in the API and in the UI, must carry reasons, evidence, data gaps, risks and uncertainty. Never present model output as certain. Never remove the disclaimer.
 
+## G11. AI use traceability
+
+The NASA Space Apps submission rules require that we say where and how AI tools were used, in descriptive text and in metadata. Every agent and every person who uses an AI tool leaves this trace. No trace, no merge.
+
+1. **Commit metadata.** Every commit written with AI help ends with one trailer per tool:
+   `Assisted-by: <tool> (<model id>)`, for example `Assisted-by: Claude Code (claude-fable-5-2)`.
+   A commit written without AI has no trailer. Never add the trailer to work the tool did not touch, and never leave it out.
+2. **Pull request text.** Every pull request fills the "AI use" section of the template: the tool and model, what it was used for (code, tests, docs, review, data analysis, translation), what it was **not** used for, and which person reviewed the output. "None" is a valid answer only if it is true. A squash merge keeps the `Assisted-by` trailers in the final commit message.
+3. **Repository text.** `AI_USAGE.md` at the root of each repo is the public statement: the tools the team used in this repo, for what, and how to list the AI-assisted commits and pull requests. The README links to it. Whoever uses a tool that is not listed there adds it in the same pull request.
+4. **Generated files.** A file that is mostly AI output and is not source code (a dataset, a table of crop traits, a long text) says so in its first lines or in its manifest (`generated_by`, `reviewed_by`).
+5. **Media.** AI-generated images and videos carry a visible watermark ("AI-generated"). AI-generated audio is acknowledged in the text next to it and in the file metadata. No NASA logo, flag or mission identifier in generated content.
+6. **Limits.** AI tools speed up the work. They do not choose the idea of the solution, and a person on the team reviews everything that is merged (rule G8). Never paste secrets, credentials or personal data into an AI tool.
+7. **Machine learning inside the product** is not covered by this rule. It is documented by the model card and the provenance fields (rule G10).
+
+## G12. Public access for judges
+
+- Every link in the submission opens in a private browser window with no password, no permission request and no registration. This includes the repositories, the demo and the live application.
+- The live application has an entry that works without login (a public demo mode with example data). Login stays available for real farm data and is never the only way in.
+- Credentials, including demo credentials, are never written in documentation, slides or the submission form.
+
 ---
 
 # PART B: Frontend rules
