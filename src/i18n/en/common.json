@@ -223,6 +223,98 @@
       "risks": "Risks to check locally"
     },
     "source": "Source: {{source}}",
-    "riskReview": "(needs local review)"
+    "riskReview": "(needs local review)",
+    "viewDetails": "View details",
+    "viewDetailsFor": "View details: {{name}}",
+    "drawer": {
+      "closeLabel": "Close details",
+      "intro": "Everything below comes from a rule-based comparison that uses a provisional table of crop traits. The traits have not been reviewed by an agronomist yet. Use this as support for your decision, and check it with a local expert before you change what you plant.",
+      "scoresHeading": "How it scores",
+      "sourceLink": "Open source document: {{source}}",
+      "sourceLinkHint": "(opens in a new tab)",
+      "noLink": "No link is available for this source.",
+      "termsHeading": "Terms used in this comparison",
+      "termsHint": "Hover, focus or tap a term to see what it means.",
+      "glossaryNote": "These plain-language definitions are drafts and still need an agronomist's review."
+    }
+  },
+  "glossary": {
+    "terms": {
+      "evapotranspiration": {
+        "label": "Evapotranspiration",
+        "definition": "The water that leaves the field in two ways at once: it evaporates from the soil and the crop's leaves release it as vapor. It is measured in millimeters (mm) of water, like rain."
+      },
+      "ndvi": {
+        "label": "NDVI",
+        "definition": "A vegetation index: a number from satellite images that shows how green and healthy the plants in a field look. Low values mean bare soil or stressed plants, high values mean thick, healthy plants."
+      },
+      "soil_moisture_anomaly": {
+        "label": "Soil moisture anomaly",
+        "definition": "How much wetter or drier the soil is than it usually is at this time of year. A negative value means drier than normal."
+      },
+      "frost_risk": {
+        "label": "Frost risk",
+        "definition": "The chance that temperatures fall low enough to damage crops. It depends on the place and on the season, so local knowledge matters."
+      },
+      "water_balance": {
+        "label": "Water balance",
+        "definition": "Rain and irrigation that come in, minus the water the crops and soil use up or lose. When more leaves than comes in, plants can run short."
+      }
+    }
+  },
+  "priorities": {
+    "title": "Your priorities for this farm",
+    "intro": "Tell us what matters most. These values change the scores in the comparison below. They are saved for this farm only.",
+    "starting": "All priorities start at 50 out of 100. Use Reset to defaults to go back to the starting values.",
+    "decision": "The scores support your decision. They do not replace your own knowledge or a local expert.",
+    "loading": "Loading your priorities...",
+    "weightsLegend": "How much does each one matter?",
+    "valueText": "{{value}} out of 100",
+    "scale": "0 means it does not matter, 100 means it matters most.",
+    "weights": {
+      "water_use": {
+        "hint": "Prefer strategies that use less water."
+      },
+      "income": {
+        "hint": "Prefer strategies with more expected income."
+      },
+      "soil_structure": {
+        "hint": "Prefer strategies that keep the soil loose, covered and alive."
+      },
+      "forage_value": {
+        "hint": "Prefer strategies that give feed for animals."
+      },
+      "nitrogen_fixing": {
+        "hint": "Prefer crops that add nitrogen to the soil, so you need less fertilizer."
+      },
+      "erosion_reduction": {
+        "hint": "Prefer strategies that keep soil from washing away."
+      },
+      "market_suitability": {
+        "hint": "Prefer crops that are easy to sell in your area."
+      }
+    },
+    "constraintsLegend": "Limits on your farm",
+    "water": {
+      "label": "Water available",
+      "hint": "Choose Low if water is limited on your farm. The comparison then favors strategies that need less water.",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "equipment": {
+      "legend": "Equipment you have",
+      "hint": "Tick everything you can use. You can leave all of them empty.",
+      "hand_tools": "Hand tools",
+      "animal_traction": "Animal traction",
+      "tractor": "Tractor",
+      "irrigation": "Irrigation"
+    },
+    "save": "Save priorities",
+    "saving": "Saving...",
+    "saved": "Priorities saved. The comparison is updating.",
+    "saveError": "We could not save your priorities. Your changes are still here. Try again.",
+    "reset": "Reset to defaults",
+    "resetDone": "Priorities reset to the starting values. Save to keep them."
   }
 }

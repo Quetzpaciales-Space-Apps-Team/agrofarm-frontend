@@ -144,7 +144,9 @@ describe('Strategy detail drawer (FE-404)', () => {
     });
     await ready();
     await openFirst();
-    const why = within(screen.getByRole('dialog')).getByText(/in the dry season/i);
+    const why = within(screen.getByRole('dialog'))
+      .getByText(/in the dry season/i)
+      .closest('li') as HTMLElement;
     expect(within(why).getByRole('button', { name: 'NDVI' })).toBeInTheDocument();
   });
 

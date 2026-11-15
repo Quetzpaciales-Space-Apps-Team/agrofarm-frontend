@@ -185,6 +185,8 @@ describe('RotationsSection (FE-402)', () => {
       const after = screen.getAllByRole('article').map((a) => a.textContent);
       expect(after).not.toEqual(before);
     });
-    expect(within(screen.getAllByRole('article')[0]).getByText(/out of 100/i)).toBeInTheDocument();
+    expect(
+      within(screen.getAllByRole('article')[0]).getAllByText(/out of 100/i)[0],
+    ).toBeInTheDocument();
   });
 });

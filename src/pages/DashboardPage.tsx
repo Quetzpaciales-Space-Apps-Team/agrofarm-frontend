@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
-import { RotationComparison } from '../features/rotations/components/RotationComparison';
+import { RotationsSection } from '../features/rotations/components/RotationsSection';
 import { ScenarioPanel } from '../features/simulation/components/ScenarioPanel';
 import { ScenarioProvider, useScenario } from '../features/simulation/state/scenario';
 
@@ -12,7 +12,7 @@ function Sections({ farmId }: { farmId: string }) {
     <>
       <FarmDashboard farmId={farmId} />
       <ScenarioPanel farmId={farmId} />
-      <RotationComparison
+      <RotationsSection
         farmId={farmId}
         scenario={{
           rainfall_change_pct: debounced.rainfall_change_pct,

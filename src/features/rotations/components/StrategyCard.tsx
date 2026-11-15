@@ -1,7 +1,10 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { humanizeId } from '../../../domain/months';
-import { PRIORITY_KEYS, toPercent, type RotationStrategy } from '../../../domain/strategies';
+import { Drawer } from '../../../components/Drawer';
+import { toPercent, type RotationStrategy } from '../../../domain/strategies';
+import { PriorityScores } from './PriorityScores';
+import { StrategyDetail } from './StrategyDetail';
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -21,6 +24,7 @@ export function StrategyCard({
 }) {
   const { t } = useTranslation();
   const titleId = useId();
+  const [open, setOpen] = useState(false);
   const sequence = strategy.sequence.map(humanizeId).join(t('rotations.sequenceJoin'));
 
   return (
@@ -49,20 +53,7 @@ export function StrategyCard({
             high: toPercent(strategy.uncertainty.high),
           })}
         </p>
-        <ul className="priority-scores" aria-label={t('rotations.priorityScores')}>
-          {PRIORITY_KEYS.map((key) => {
-            const value = toPercent(strategy.scores[key]);
-            return (
-              <li key={key}>
-                <span className="priority-name">{t(`rotations.priority.${key}`)}</span>{' '}
-                <span className="priority-value">{t('rotations.outOf100', { value })}</span>
-                <span className="priority-bar" aria-hidden="true">
-                  <span className="priority-fill" style={{ width: `${value}%` }} />
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+        <PriorityScores scores={strategy.scores} />
       </div>
 
       <Block title={t('rotations.blocks.why')}>
@@ -108,6 +99,26 @@ export function StrategyCard({
           ))}
         </ul>
       </Block>
+      <div>
+        <button
+          type="button"
+          className="button button--secondary"
+          aria-haspopup="dialog"
+          aria-label={t('rotations.viewDetailsFor', { name: strategy.name })}
+          onClick={() => setOpen(true)}
+        >
+          {t('rotations.viewDetails')}
+        </button>
+      </div>
+      {open ? (
+        <Drawer
+          title={strategy.name}
+          closeLabel={t('rotations.drawer.closeLabel')}
+          onClose={() => setOpen(false)}
+        >
+          <StrategyDetail strategy={strategy} />
+        </Drawer>
+      ) : null}
     </article>
   );
 }
