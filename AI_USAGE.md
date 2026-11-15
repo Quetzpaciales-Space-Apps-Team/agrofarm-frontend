@@ -13,10 +13,14 @@ AI coding assistants were used as tools to write and review code, tests, CI work
 | Claude Code | `claude-fable-5-2`  | `eldmark` | Repository rules, CI, scaffolds, connectors, tests, documentation, data analysis                       |
 | Claude Code | `claude-sonnet-5-5` | `eldmark` | Auth screens, session restore, API client middlewares and their tests (FE-101, FE-103, FE-104, FE-105) |
 | Claude Code | `claude-sonnet-5-5` | `eldmark` | Upload wizard (FE-401): code and tests                                                                 |
+| Google Gemini | `Gemini` | `team member` | Visual UI/UX edits, dashboard shell styling and responsive layout refinements |
+| OpenAI Codex | `GPT-5.6-luna` | `team member` | Issue tracking, architecture review, merge-conflict resolution, test updates, lint/typecheck verification and UI review |
 
 Team members who used another tool add a row here in their next pull request (rule G11.3).
 
 OpenAI Codex (`GPT-6`), used by `eldmark`, assisted with the maize-leaf photo screen, binary API transport, tests, contract synchronization and deployment verification. It did not choose the feature idea, generate the source photos or perform the agronomy review.
+
+For the visual redesign work, Google Gemini edited the frontend implementation under team direction. OpenAI Codex reviewed the changes, tracked issue scope, resolved integration conflicts, updated tests and verified the resulting checks. The team member reviewed the final output before merge.
 
 ## How to trace each use
 
