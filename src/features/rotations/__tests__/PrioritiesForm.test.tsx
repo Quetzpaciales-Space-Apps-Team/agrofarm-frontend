@@ -80,13 +80,19 @@ describe('PrioritiesForm (FE-402)', () => {
   });
 
   it('shows the error state with retry when loading fails, then recovers', async () => {
+    // The client retries a GET on a 503 (first try plus two retries), so the outage has to last
+    // for all three attempts before the error reaches the screen. Later calls use the stub.
+    let calls = 0;
     server.use(
-      http.get('*/v1/farms/:id/priorities', () => problemResponse(503, 'unavailable', 'Busy.'), {
-        once: true,
+      http.get('*/v1/farms/:id/priorities', () => {
+        calls += 1;
+        return calls <= 3 ? problemResponse(503, 'unavailable', 'Busy.') : undefined;
       }),
     );
     renderForm();
-    expect(await screen.findByRole('alert')).toHaveTextContent(/busy right now/i);
+    expect(await screen.findByRole('alert', {}, { timeout: 4000 })).toHaveTextContent(
+      /busy right now/i,
+    );
     await userEvent.click(screen.getByRole('button', { name: /try again/i }));
     expect(await screen.findByRole('slider', { name: /water use/i })).toBeInTheDocument();
   });
