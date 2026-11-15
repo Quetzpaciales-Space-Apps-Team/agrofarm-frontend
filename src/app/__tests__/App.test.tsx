@@ -73,13 +73,19 @@ describe('Landing and guest demo entry (FE-090)', () => {
     renderApp();
     await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
     await userEvent.click(screen.getByRole('link', { name: /explore scenarios/i }));
-    expect(await screen.findByRole('heading', { name: /what if the weather changes/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /what if the weather changes/i }),
+    ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('link', { name: /recommendations/i }));
-    expect(await screen.findByRole('heading', { name: /compare rotation strategies/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /compare rotation strategies/i }),
+    ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('link', { name: /climate/i }));
     expect(await screen.findByRole('heading', { name: /climate history/i })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('link', { name: /farm data/i }));
-    expect(await screen.findByRole('heading', { name: /upload your farm data/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /upload your farm data/i }),
+    ).toBeInTheDocument();
   });
 
   it('shows the busy state while the session starts', async () => {
