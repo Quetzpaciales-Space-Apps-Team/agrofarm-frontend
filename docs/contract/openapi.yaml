@@ -22,6 +22,64 @@ security:
   - bearerAuth: []
 
 paths:
+  /v1/farms/{farm_id}/leaves/assess:
+    post:
+      tags: [farms]
+      operationId: assessFarmMaizeLeaf
+      summary: Screen a maize leaf photo for supported conditions
+      description: >-
+        JPEG or PNG bytes, at most 5 MiB. Requires ownership of the farm or admin role.
+        Photos are forwarded in memory to the private ML service and are not saved.
+        Returns candidate classes and uncalibrated scores, not a confirmed diagnosis.
+        No saved or generative diagnosis is substituted if the classifier is unavailable.
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema: {type: string, format: binary}
+          image/png:
+            schema: {type: string, format: binary}
+      responses:
+        "200":
+          description: Candidate conditions with local-review guidance and provenance
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [assessment, candidate, scores, score_interpretation, needs_local_review, guidance, limits, provenance, disclaimer]
+                properties:
+                  assessment: {enum: [possible_condition, uncertain]}
+                  candidate: {type: [string, "null"]}
+                  scores: {type: object, additionalProperties: {type: number, minimum: 0, maximum: 1}}
+                  score_interpretation: {type: string}
+                  needs_local_review: {const: true}
+                  guidance: {type: object}
+                  limits: {type: array, items: {type: string}}
+                  provenance: {type: object}
+                  disclaimer: {type: string}
+              example:
+                assessment: uncertain
+                candidate: null
+                scores: {common_rust: 0.2, corn_leaf_blight: 0.2, gray_leaf_spot: 0.2, healthy: 0.2, insect_damage: 0.2}
+                score_interpretation: Model scores are not calibrated probabilities.
+                needs_local_review: true
+                guidance: {status: needs_local_review, next_steps: [Seek local agronomy confirmation.], sources: []}
+                limits: [Only supported maize-leaf classes can be considered.]
+                provenance: {model_version: example-only, data_versions: {}, input_hash: example-only}
+                disclaimer: Decision support only. Does not replace farmers or local agronomists.
+        "400": {$ref: "#/components/responses/Problem"}
+        "401": {$ref: "#/components/responses/Problem"}
+        "404": {$ref: "#/components/responses/Problem"}
+        "413": {$ref: "#/components/responses/Problem"}
+        "415": {$ref: "#/components/responses/Problem"}
+        "422": {$ref: "#/components/responses/Problem"}
+        "502": {$ref: "#/components/responses/Problem"}
+        "503": {$ref: "#/components/responses/Problem"}
   /healthz:
     get:
       tags: [health]

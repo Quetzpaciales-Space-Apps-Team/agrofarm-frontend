@@ -14,6 +14,8 @@ AI coding assistants were used as tools to write and review code, tests, CI work
 
 Team members who used another tool add a row here in their next pull request (rule G11.3).
 
+OpenAI Codex (`GPT-6`), used by `eldmark`, assisted with the maize-leaf photo screen, binary API transport, tests, contract synchronization and deployment verification. It did not choose the feature idea, generate the source photos or perform the agronomy review.
+
 ## How to trace each use
 
 - **Commits.** From 2026-11-14, every AI-assisted commit ends with an `Assisted-by: <tool> (<model>)` trailer:

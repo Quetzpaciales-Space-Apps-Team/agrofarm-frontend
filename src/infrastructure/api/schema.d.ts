@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/v1/farms/{farm_id}/leaves/assess": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Screen a maize leaf photo for supported conditions
+         * @description JPEG or PNG bytes, at most 5 MiB. Requires ownership of the farm or admin role. Photos are forwarded in memory to the private ML service and are not saved. Returns candidate classes and uncalibrated scores, not a confirmed diagnosis. No saved or generative diagnosis is substituted if the classifier is unavailable.
+         */
+        post: operations["assessFarmMaizeLeaf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/healthz": {
         parameters: {
             query?: never;
@@ -696,6 +716,86 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    assessFarmMaizeLeaf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "image/jpeg": string;
+                "image/png": string;
+            };
+        };
+        responses: {
+            /** @description Candidate conditions with local-review guidance and provenance */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "assessment": "uncertain",
+                     *       "candidate": null,
+                     *       "scores": {
+                     *         "common_rust": 0.2,
+                     *         "corn_leaf_blight": 0.2,
+                     *         "gray_leaf_spot": 0.2,
+                     *         "healthy": 0.2,
+                     *         "insect_damage": 0.2
+                     *       },
+                     *       "score_interpretation": "Model scores are not calibrated probabilities.",
+                     *       "needs_local_review": true,
+                     *       "guidance": {
+                     *         "status": "needs_local_review",
+                     *         "next_steps": [
+                     *           "Seek local agronomy confirmation."
+                     *         ],
+                     *         "sources": []
+                     *       },
+                     *       "limits": [
+                     *         "Only supported maize-leaf classes can be considered."
+                     *       ],
+                     *       "provenance": {
+                     *         "model_version": "example-only",
+                     *         "data_versions": {},
+                     *         "input_hash": "example-only"
+                     *       },
+                     *       "disclaimer": "Decision support only. Does not replace farmers or local agronomists."
+                     *     }
+                     */
+                    "application/json": {
+                        /** @enum {unknown} */
+                        assessment: "possible_condition" | "uncertain";
+                        candidate: string | null;
+                        scores: {
+                            [key: string]: number;
+                        };
+                        score_interpretation: string;
+                        /** @constant */
+                        needs_local_review: true;
+                        guidance: Record<string, never>;
+                        limits: string[];
+                        provenance: Record<string, never>;
+                        disclaimer: string;
+                    };
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+            502: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
+        };
+    };
     healthz: {
         parameters: {
             query?: never;
