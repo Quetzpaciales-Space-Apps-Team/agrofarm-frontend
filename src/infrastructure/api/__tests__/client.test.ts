@@ -73,6 +73,25 @@ describe('api client against MSW handlers', () => {
     expect(result.scenario.p50).toBe(9);
   });
 
+  it('sends photo bytes unchanged through the authenticated middleware chain', async () => {
+    let seen: number[] = [];
+    server.use(
+      http.post(`${BASE}/photo`, async ({ request }) => {
+        expect(request.headers.get('Content-Type')).toBe('image/png');
+        expect(request.headers.get('Authorization')).toBe('Bearer photo-token');
+        seen = [...new Uint8Array(await request.arrayBuffer())];
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+    const { client, tokens } = makeClient();
+    tokens.set('photo-token');
+    await client.post('/photo', {
+      rawBody: new Uint8Array([0, 1, 255]).buffer,
+      contentType: 'image/png',
+    });
+    expect(seen).toEqual([0, 1, 255]);
+  });
+
   it('turns a 401 into an ApiError with code unauthorized and the problem request id', async () => {
     const { client } = makeClient();
     const error = await failure(client.get('/v1/me'));

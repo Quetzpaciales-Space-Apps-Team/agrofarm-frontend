@@ -50,7 +50,13 @@ describe('api client uploads', () => {
     tokens.set('fake.token');
     const client = createApiClient({ baseUrl: 'http://api.test', tokens });
     await client.post('/v1/up', {
-      upload: { field: 'file', file: new File(['x,y\n1,2'], 'data.csv', { type: 'text/csv' }) },
+      ...(await (async () => {
+        const { body, contentType } = await encodeMultipartFile(
+          'file',
+          new File(['x,y\n1,2'], 'data.csv', { type: 'text/csv' }),
+        );
+        return { rawBody: body.buffer, contentType };
+      })()),
       headers: { 'Idempotency-Key': 'key-1' },
     });
     expect(seen).toEqual({

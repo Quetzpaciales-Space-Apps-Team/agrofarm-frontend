@@ -1,4 +1,5 @@
 import type { ApiClient } from '../infrastructure/api/client';
+import { encodeMultipartFile } from '../infrastructure/api/multipart';
 import type {
   DemoSession,
   EnsoSeries,
@@ -49,14 +50,17 @@ export const fetchRecommendations = (
   });
 
 /** `POST /v1/farms/{farm_id}/uploads`: one CSV or GeoJSON file, validated again by the server. */
-export const createUpload = (
+export async function createUpload(
   client: ApiClient,
   farmId: string,
   file: File,
   options: { idempotencyKey?: string; signal?: AbortSignal } = {},
-) =>
-  client.post<UploadResult>(`/v1/farms/${encodeURIComponent(farmId)}/uploads`, {
-    upload: { field: 'file', file },
+) {
+  const { body, contentType } = await encodeMultipartFile('file', file);
+  return client.post<UploadResult>(`/v1/farms/${encodeURIComponent(farmId)}/uploads`, {
+    rawBody: body.buffer,
+    contentType,
     headers: options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : undefined,
     signal: options.signal,
   });
+}
