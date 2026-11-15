@@ -29,6 +29,11 @@ export function LandingPage() {
           {t(errorKey)}
         </p>
       ) : null}
+      <p className="auth-links">
+        <span>{t('landing.accountNote')}</span>
+        <a href="#/login">{t('landing.login')}</a>
+        <a href="#/register">{t('landing.register')}</a>
+      </p>
     </section>
   );
 }

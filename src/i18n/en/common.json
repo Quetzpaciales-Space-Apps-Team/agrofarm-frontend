@@ -21,7 +21,10 @@
     "intro": "AgroFarm compares crop rotations under different rainfall, temperature and El Nino conditions. It gives ranges, not promises.",
     "demoNote": "The demo uses example data for a pilot farm near Guatemala City. You do not need an account.",
     "tryDemo": "Try the demo",
-    "starting": "Starting the demo..."
+    "starting": "Starting the demo...",
+    "accountNote": "Have your own farm data?",
+    "login": "Log in",
+    "register": "Create an account"
   },
   "auth": {
     "demo": {
@@ -29,6 +32,52 @@
       "rateLimited": "Too many demo requests from your network. Wait a minute and try again.",
       "full": "The demo is full right now (at capacity). Try again in a few minutes.",
       "failed": "The demo could not be started. Try again."
+    },
+    "restoring": "Restoring your session...",
+    "optionalDemo": "Or try the demo without an account",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "Use at least 10 characters. 72 bytes at most (accented letters count as 2 bytes)."
+    },
+    "validation": {
+      "email": {
+        "required": "Enter your email address.",
+        "invalid": "Enter a valid email address, like name@example.com.",
+        "tooLong": "The email address is too long (254 characters at most)."
+      },
+      "password": {
+        "required": "Enter your password.",
+        "tooShort": "The password needs at least 10 characters.",
+        "tooLong": "The password is too long (72 bytes at most). Accented letters count as 2 bytes."
+      },
+      "name": {
+        "required": "Enter your name.",
+        "tooLong": "The name is too long (120 characters at most)."
+      }
+    },
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "failed": "The email or password is not correct. Check them and try again.",
+      "rateLimited": "Too many login attempts. Wait a minute and try again.",
+      "noAccount": "Create an account"
+    },
+    "register": {
+      "title": "Create an account",
+      "submit": "Create account",
+      "submitting": "Creating your account...",
+      "emailTaken": "This email cannot be used for a new account. If it is yours, log in instead.",
+      "rejected": "The account could not be created with these details. Check them and try again.",
+      "createdNotLoggedIn": "Your account was created, but we could not log you in. Use the log in page.",
+      "haveAccount": "Log in"
+    },
+    "account": {
+      "title": "Your account",
+      "signedInAs": "You are signed in as {{name}}.",
+      "noFarm": "You do not have a farm yet. Adding a farm is not available in this version."
     }
   },
   "errors": {
@@ -44,7 +93,9 @@
     "title": "Your demo farm",
     "leave": "Leave the demo",
     "climate": "Climate",
-    "scenarioTitle": "Scenario"
+    "scenarioTitle": "Scenario",
+    "titleAccount": "Your farm",
+    "logout": "Log out"
   },
   "farm": {
     "loading": "Loading farm...",

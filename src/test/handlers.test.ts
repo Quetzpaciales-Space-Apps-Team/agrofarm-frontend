@@ -6,7 +6,14 @@ import path from 'node:path';
 import { http } from 'msw';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { components } from '../infrastructure/api/schema';
-import { DEMO_FARM_ID, problemResponse, resetStubState } from './handlers';
+import {
+  DEMO_FARM_ID,
+  problemResponse,
+  resetStubState,
+  setRefreshCookie,
+  TAKEN_EMAIL,
+  TEST_LOGIN,
+} from './handlers';
 import { server } from './server';
 
 type Schemas = components['schemas'];
@@ -383,6 +390,63 @@ describe('Typed MSW stub handlers (core-api contract)', () => {
       expect(res.headers.get('x-stub')).toBe('true');
       const body = (await res.json()) as Schemas['Problem'];
       expect(body).toMatchObject({ status: 500, code: 'internal_error' });
+    });
+  });
+
+  describe('Auth handlers (FE-103, FE-104, FE-105)', () => {
+    const post = (pathname: string, body?: unknown) =>
+      call(
+        pathname,
+        { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) },
+        false,
+      );
+    const valid = { email: 'new@example.test', password: 'fake-test-pass-01', name: 'New Farmer' };
+
+    it('registers a valid account with 201 and a User body', async () => {
+      const res = await post('/v1/auth/register', valid);
+      expect(res.status).toBe(201);
+      const user = (await res.json()) as Schemas['User'];
+      expect(user).toMatchObject({ email: valid.email, name: valid.name, role: 'farmer' });
+      expect(user).not.toHaveProperty('password');
+    });
+
+    it('answers 422 problem+json with field errors for the backend rules', async () => {
+      const res = await post('/v1/auth/register', { email: 'x', password: 'short', name: '' });
+      expect(res.status).toBe(422);
+      expect(res.headers.get('Content-Type')).toContain('application/problem+json');
+      const problem = (await res.json()) as Schemas['Problem'];
+      expect(problem.errors?.map((e) => e.field).sort()).toEqual(['email', 'name', 'password']);
+    });
+
+    it('answers 422 for a password over 72 bytes and 409 for a taken email', async () => {
+      const long = await post('/v1/auth/register', { ...valid, password: '\u00e9'.repeat(37) });
+      expect(long.status).toBe(422);
+      const taken = await post('/v1/auth/register', { ...valid, email: TAKEN_EMAIL });
+      expect(taken.status).toBe(409);
+    });
+
+    it('logs in with the fake test login and refuses anything else with 401', async () => {
+      const ok = await post('/v1/auth/login', TEST_LOGIN);
+      expect(ok.status).toBe(200);
+      expect(((await ok.json()) as Schemas['TokenResponse']).token_type).toBe('bearer');
+      const bad = await post('/v1/auth/login', { ...TEST_LOGIN, password: 'nope-nope-nope' });
+      expect(bad.status).toBe(401);
+    });
+
+    it('refreshes only while the stub refresh cookie is set, and logout clears it', async () => {
+      expect((await post('/v1/auth/refresh')).status).toBe(401);
+      setRefreshCookie(true);
+      expect((await post('/v1/auth/refresh')).status).toBe(200);
+      expect((await post('/v1/auth/logout')).status).toBe(204);
+      expect((await post('/v1/auth/refresh')).status).toBe(401);
+    });
+
+    it('sets the refresh cookie stand-in on login and on the demo session', async () => {
+      await post('/v1/auth/login', TEST_LOGIN);
+      expect((await post('/v1/auth/refresh')).status).toBe(200);
+      resetStubState();
+      await post('/v1/auth/demo');
+      expect((await post('/v1/auth/refresh')).status).toBe(200);
     });
   });
 });

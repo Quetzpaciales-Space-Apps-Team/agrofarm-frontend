@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import i18n from 'i18next';
 import './i18n';
 import { createTokenStore } from './infrastructure/api/auth';
 import { createApiClient } from './infrastructure/api/client';
@@ -20,7 +21,12 @@ async function bootstrap() {
     await startMockWorker();
   }
   const tokens = createTokenStore();
-  const client = createApiClient({ baseUrl: config.apiBaseUrl, tokens });
+  const client = createApiClient({
+    baseUrl: config.apiBaseUrl,
+    tokens,
+    getLocale: () => i18n.language,
+    log: { enabled: import.meta.env.DEV },
+  });
   root.render(
     <StrictMode>
       <App client={client} tokens={tokens} />
