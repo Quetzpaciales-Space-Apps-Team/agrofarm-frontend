@@ -5,23 +5,46 @@ import { Navigation } from '../app/Navigation';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
-  const { status } = useSession();
+  const { status, isDemoGuest, leave } = useSession();
+  const isAuthenticated = status === 'active';
+
   return (
-    <>
+    <div className={`app-root ${isAuthenticated ? 'app-root--internal' : 'app-root--public'}`}>
       <a className="skip-link" href="#main">
         {t('app.shell.skipLink')}
       </a>
-      <header className="app-header">
-        <h1>{t('app.shell.title')}</h1>
-        <p>{t('app.shell.tagline')}</p>
+      <header className="app-header app-shell-header">
+        <div className="app-header__branding">
+          <a href="#/" className="app-header__logo-link">
+            <h1>{t('app.shell.title')}</h1>
+          </a>
+          <p className="app-header__tagline">{t('app.shell.tagline')}</p>
+        </div>
+        {isAuthenticated ? (
+          <div className="app-header__actions">
+            {isDemoGuest ? <span className="demo-badge">{t('app.shell.demo')}</span> : null}
+            <button type="button" className="header-action" onClick={leave}>
+              {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
+            </button>
+          </div>
+        ) : null}
       </header>
-      {status === 'active' ? <Navigation /> : null}
-      <main id="main" className="app-main">
-        {children}
-      </main>
-      <footer className="app-footer">
+      <div className="app-body">
+        {isAuthenticated ? <Navigation /> : null}
+        <main
+          id="main"
+          className={`app-main app-shell-main ${isAuthenticated ? 'app-main--internal' : 'app-main--public'}`}
+        >
+          {children}
+        </main>
+      </div>
+      <footer className="app-footer app-shell-footer">
         <p>{t('app.shell.disclaimer')}</p>
+        <span className="app-footer__links">
+          <a href="#/climate">{t('app.shell.sources')}</a>
+          <a href="#/">{t('app.shell.aboutDemo')}</a>
+        </span>
       </footer>
-    </>
+    </div>
   );
 }

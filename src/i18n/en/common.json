@@ -4,7 +4,11 @@
       "title": "AgroFarm",
       "tagline": "Decision support for crop growth and rotation planning.",
       "disclaimer": "This tool supports farmers and local experts. It never replaces local agronomic judgment.",
-      "skipLink": "Skip to main content"
+      "skipLink": "Skip to main content",
+      "disclaimerShort": "Supports your decisions. Consult a local agronomist.",
+      "sources": "Sources",
+      "aboutDemo": "About the demo",
+      "demo": "Demo"
     },
     "errorBoundary": {
       "title": "Something went wrong",
@@ -24,7 +28,23 @@
     "starting": "Starting the demo...",
     "accountNote": "Have your own farm data?",
     "login": "Log in",
-    "register": "Create an account"
+    "register": "Create an account",
+    "eyebrow": "Decision support for agriculture",
+    "benefits": {
+      "evidence": {
+        "title": "Evidence-based advice",
+        "description": "Ground-level soil data, NASA POWER weather statistics, and satellite vegetation indices tailored to your farm."
+      },
+      "uncertainty": {
+        "title": "Honest uncertainty ranges",
+        "description": "Simulations clearly present confidence intervals and probabilistic projections rather than false certainties."
+      },
+      "support": {
+        "title": "Supports local experts",
+        "description": "Empowers agronomists and farmers with clear risk indicators and explicit reminders for local validation."
+      }
+    },
+    "badge": "Agroforestry & Crops"
   },
   "auth": {
     "demo": {
@@ -63,7 +83,8 @@
       "submitting": "Logging in...",
       "failed": "The email or password is not correct. Check them and try again.",
       "rateLimited": "Too many login attempts. Wait a minute and try again.",
-      "noAccount": "Create an account"
+      "noAccount": "Create an account",
+      "intro": "Access your farm workspace and saved decisions."
     },
     "register": {
       "title": "Create an account",
@@ -95,16 +116,45 @@
     "climate": "Climate",
     "scenarioTitle": "Scenario",
     "titleAccount": "Your farm",
-    "logout": "Log out"
+    "logout": "Log out",
+    "sections": {
+      "farm": "Overview",
+      "data": "Farm data",
+      "scenarios": "Explore scenarios",
+      "recommendations": "Recommendations",
+      "climate": "Climate"
+    },
+    "quickLinksLabel": "Next steps",
+    "quickLinks": {
+      "open": "Open section",
+      "data": {
+        "title": "Upload data",
+        "description": "Upload files and review what was accepted."
+      },
+      "scenarios": {
+        "title": "Explore scenarios",
+        "description": "Adjust weather assumptions and compare outcomes."
+      },
+      "recommendations": {
+        "title": "Compare rotations",
+        "description": "Review strategies, evidence and local risks."
+      },
+      "climate": {
+        "title": "View climate",
+        "description": "Review rainfall, temperature and ENSO history."
+      }
+    }
   },
   "navigation": {
     "label": "Main navigation",
     "comingSoon": "This section is ready for the next step in your farm review.",
     "items": {
-      "overview": "Overview",
+      "overview": "My farm",
       "farm": "My farm",
       "data": "Farm data",
       "scenario": "Explore scenarios",
+      "scenarios": "Explore scenarios",
+      "climate": "Climate",
       "results": "Results",
       "recommendations": "Recommendations"
     }

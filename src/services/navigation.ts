@@ -4,11 +4,27 @@ import { useSyncExternalStore } from 'react';
  * A tiny hash-based navigation (no router library, to keep the bundle small). The location is
  * `#/path?next=/return-path`. State lives in `window.location`, so reload and the back button work.
  */
-export type AppPath = '/' | '/login' | '/register' | '/farm';
+export type AppPath =
+  '/' | '/login' | '/register' | '/farm' | '/data' | '/scenarios' | '/recommendations' | '/climate';
 
-const PATHS: readonly AppPath[] = ['/', '/login', '/register', '/farm'];
+const PATHS: readonly AppPath[] = [
+  '/',
+  '/login',
+  '/register',
+  '/farm',
+  '/data',
+  '/scenarios',
+  '/recommendations',
+  '/climate',
+];
 /** Paths a login may send the user back to. Never the auth pages themselves. */
-const RETURN_PATHS: readonly AppPath[] = ['/farm'];
+const RETURN_PATHS: readonly AppPath[] = [
+  '/farm',
+  '/data',
+  '/scenarios',
+  '/recommendations',
+  '/climate',
+];
 
 export interface Route {
   path: AppPath;

@@ -30,7 +30,7 @@ function FarmArea() {
 function Views() {
   const { status } = useSession();
   const { path, next } = useRoute();
-  if (path === '/farm') {
+  if (['/farm', '/data', '/scenarios', '/recommendations', '/climate'].includes(path)) {
     return (
       <RequireAuth>
         <FarmArea />
