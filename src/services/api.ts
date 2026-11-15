@@ -1,6 +1,10 @@
 import type { ApiClient } from '../infrastructure/api/client';
 import type {
   DemoSession,
+  LoginRequest,
+  RegisterRequest,
+  TokenResponse,
+  User,
   EnsoSeries,
   Farm,
   NasaPowerSeries,
@@ -10,6 +14,20 @@ import type {
 } from './types';
 
 export const startDemoSession = (client: ApiClient) => client.post<DemoSession>('/v1/auth/demo');
+
+export const registerAccount = (client: ApiClient, body: RegisterRequest) =>
+  client.post<User>('/v1/auth/register', { body });
+
+export const loginAccount = (client: ApiClient, body: LoginRequest) =>
+  client.post<TokenResponse>('/v1/auth/login', { body });
+
+export const logoutAccount = (client: ApiClient) => client.post<void>('/v1/auth/logout');
+
+export const fetchMe = (client: ApiClient, signal?: AbortSignal) =>
+  client.get<User>('/v1/me', { signal });
+
+export const fetchFarmIds = async (client: ApiClient, signal?: AbortSignal) =>
+  (await client.get<{ items: Farm[] }>('/v1/farms', { signal })).items.map((farm) => farm.id);
 
 export const fetchFarm = (client: ApiClient, farmId: string, signal?: AbortSignal) =>
   client.get<Farm>(`/v1/farms/${encodeURIComponent(farmId)}`, { signal });
