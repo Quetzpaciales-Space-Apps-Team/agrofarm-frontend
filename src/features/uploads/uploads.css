@@ -1,0 +1,71 @@
+.upload-note {
+  margin: 0;
+}
+.upload-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: upload-step;
+}
+.upload-steps li {
+  counter-increment: upload-step;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-muted);
+}
+.upload-steps li::before {
+  content: counter(upload-step) '. ';
+}
+.upload-steps li[aria-current='step'] {
+  font-weight: 700;
+  color: #fff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.upload-table-wrap {
+  overflow-x: auto;
+}
+.upload-table {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: 0.9rem;
+}
+.upload-table caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.25rem;
+}
+.upload-table th,
+.upload-table td {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border-soft);
+  text-align: left;
+  white-space: nowrap;
+}
+.upload-table td:last-child {
+  white-space: normal;
+}
+.upload-empty {
+  color: var(--color-muted);
+  font-style: italic;
+}
+.upload-facts {
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+input[type='file'] {
+  max-width: 100%;
+  font: inherit;
+}
+.upload-wizard :focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}

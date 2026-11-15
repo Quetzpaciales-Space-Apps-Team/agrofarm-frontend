@@ -22,3 +22,5 @@ export type ScenarioInput = {
   temperature_change_c: number;
   enso_phase: EnsoPhase;
 };
+export type UploadResult = Schemas['Upload'];
+export type UploadRowError = Schemas['RowError'];

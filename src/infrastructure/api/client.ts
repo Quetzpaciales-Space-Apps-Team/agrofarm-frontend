@@ -11,6 +11,8 @@ import { timeout } from './timeout';
 export interface RequestOptions {
   query?: Record<string, string | number | undefined>;
   body?: unknown;
+  /** Extra request headers, for example `Idempotency-Key`. */
+  headers?: Record<string, string>;
   rawBody?: ArrayBuffer;
   contentType?: string;
   signal?: AbortSignal;
@@ -110,6 +112,7 @@ export function createApiClient({
     if (options.rawBody !== undefined)
       headers['Content-Type'] = options.contentType ?? 'application/octet-stream';
     else if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+    Object.assign(headers, options.headers);
 
     const response = await fetcher(`${root}${path}${queryString ? `?${queryString}` : ''}`, {
       method,

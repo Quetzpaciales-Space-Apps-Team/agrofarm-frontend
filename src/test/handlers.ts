@@ -444,6 +444,129 @@ function isValidPriorities(value: unknown): value is Schemas['Priorities'] {
   );
 }
 
+/** Stub limit, same as core-api (2 MiB). */
+export const STUB_UPLOAD_MAX_BYTES = 2 * 1024 * 1024;
+const UPLOAD_REQUIRED_COLUMNS = [
+  'parcel_id',
+  'season_year',
+  'crop',
+  'sowing_date',
+  'area_ha',
+  'latitude',
+  'longitude',
+];
+
+/**
+ * Reads the `file` part of a multipart request as text. `request.formData()` does not work in the
+ * jsdom test environment (its File class is not the one undici expects), so the body is parsed here.
+ */
+export async function readMultipartFile(
+  request: Request,
+): Promise<{ name: string; text: string } | null> {
+  const boundary = /boundary=([^;]+)/.exec(request.headers.get('Content-Type') ?? '')?.[1];
+  if (!boundary) return null;
+  const body = await request.text();
+  for (const part of body.split(`--${boundary}`)) {
+    const split = part.indexOf('\r\n\r\n');
+    if (split < 0) continue;
+    const head = part.slice(0, split);
+    if (!/name="file"/.test(head)) continue;
+    const name = /filename="([^"]*)"/.exec(head)?.[1] ?? '';
+    return { name, text: part.slice(split + 4).replace(/\r\n$/, '') };
+  }
+  return null;
+}
+
+/**
+ * Stub for `POST /v1/farms/{farm_id}/uploads`. It is NOT the DEC-005 validator: it only checks
+ * the required columns and an empty `parcel_id`, with its own simple line splitting, so tests
+ * do not depend on the client parser. Nothing is stored.
+ */
+async function stubUpload(request: Request, farmId: string | readonly string[] | undefined) {
+  if (!isAuthorized(request)) return unauthorized();
+  if (farmId !== DEMO_FARM_ID) return farmNotFound();
+  const declared = Number(request.headers.get('Content-Length') ?? 0);
+  if (declared > STUB_UPLOAD_MAX_BYTES) {
+    return problemResponse(413, 'payload_too_large', 'Uploaded file exceeds size limit.');
+  }
+  const file = await readMultipartFile(request);
+  if (!file) {
+    return problemResponse(422, 'validation_error', "Missing 'file' field in multipart payload.");
+  }
+  const name = file.name.toLowerCase();
+  const format: Schemas['Upload']['format'] = /\.(geojson|json)$/.test(name) ? 'geojson' : 'csv';
+  if (!/\.(csv|geojson|json)$/.test(name)) {
+    return problemResponse(
+      422,
+      'validation_error',
+      'Unsupported file format. Only .csv and .geojson are accepted.',
+    );
+  }
+  const base = {
+    id: '99999999-9999-4999-8999-999999999999',
+    farm_id: DEMO_FARM_ID,
+    filename: file.name,
+    format,
+    created_at: '2026-11-15T10:00:00Z',
+  };
+  if (format === 'geojson') {
+    return ok(
+      {
+        ...base,
+        status: 'accepted',
+        rows_total: 1,
+        rows_accepted: 1,
+        errors: [],
+      } satisfies Schemas['Upload'],
+      201,
+    );
+  }
+  const lines = file.text.split(/\r?\n/).filter((line) => line.trim() !== '');
+  const header = (lines[0] ?? '').split(',').map((cell) => cell.trim());
+  const missing = UPLOAD_REQUIRED_COLUMNS.filter((column) => !header.includes(column));
+  if (missing.length > 0) {
+    return ok(
+      {
+        ...base,
+        status: 'rejected',
+        rows_total: 0,
+        rows_accepted: 0,
+        errors: missing.map((column) => ({
+          row: 1,
+          column,
+          message: 'Missing required column.',
+        })),
+      } satisfies Schemas['Upload'],
+      201,
+    );
+  }
+  const idColumn = header.indexOf('parcel_id');
+  const errors: Schemas['RowError'][] = [];
+  lines.slice(1).forEach((line, index) => {
+    if ((line.split(',')[idColumn] ?? '').trim() === '') {
+      errors.push({
+        row: index + 1,
+        column: 'parcel_id',
+        message: 'Required; 1-64 chars matching [a-zA-Z0-9_-].',
+      });
+    }
+  });
+  const total = lines.length - 1;
+  const accepted = total - errors.length;
+  const status: Schemas['Upload']['status'] =
+    accepted === 0 ? 'rejected' : errors.length > 0 ? 'accepted_with_errors' : 'accepted';
+  return ok(
+    {
+      ...base,
+      status,
+      rows_total: total,
+      rows_accepted: accepted,
+      errors,
+    } satisfies Schemas['Upload'],
+    201,
+  );
+}
+
 const farmNotFound = () => problemResponse(404, 'not_found', 'Farm not found.');
 
 export const handlers = [
@@ -636,4 +759,8 @@ export const handlers = [
     if (payload.farm_id !== DEMO_FARM_ID) return farmNotFound();
     return ok({ crop: payload.crop, ...simulateStub(payload.scenario ?? {}) });
   }),
+
+  http.post('*/v1/farms/:farmId/uploads', ({ request, params }) =>
+    stubUpload(request, params.farmId),
+  ),
 ];
