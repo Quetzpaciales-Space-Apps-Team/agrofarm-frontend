@@ -999,6 +999,8 @@ td:first-child {
   display: grid;
   gap: 0.75rem;
   height: 100%;
+  min-width: 0; /* a grid item may not grow past its column because of its content */
+  overflow-wrap: anywhere; /* evidence sources such as rule_constant:bare_fallow_erosion_penalty have no spaces */
 }
 .strategy h4,
 .strategy h5 {
@@ -1064,7 +1066,7 @@ td:first-child {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .strategies {
-    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
   }
   .attributions li {
     grid-template-columns: 16rem minmax(6rem, 1fr) 14rem;
