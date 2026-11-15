@@ -1,10 +1,16 @@
 import { AppShell } from '../components/AppShell';
+import { Redirect } from '../components/Redirect';
+import { RequireAuth } from '../features/auth/components/RequireAuth';
 import { SessionProvider, useSession } from '../features/auth/state/session';
 import type { TokenStore } from '../infrastructure/api/auth';
 import type { ApiClient } from '../infrastructure/api/client';
+import { AccountPage } from '../pages/AccountPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { LandingPage } from '../pages/LandingPage';
+import { LoginPage } from '../pages/LoginPage';
+import { RegisterPage } from '../pages/RegisterPage';
 import { ApiProvider } from '../services/ApiContext';
+import { useRoute } from '../services/navigation';
 import { ErrorBoundary } from './ErrorBoundary';
 
 export interface AppProps {
@@ -12,14 +18,33 @@ export interface AppProps {
   tokens: TokenStore;
 }
 
-/** A tiny state-based view switch: the session decides between landing and dashboard (no router library). */
-function Views() {
-  const { status, farmId, leave } = useSession();
-  return status === 'active' && farmId ? (
-    <DashboardPage farmId={farmId} onLeave={leave} />
+function FarmArea() {
+  const { farmId, isDemoGuest, leave } = useSession();
+  return farmId ? (
+    <DashboardPage farmId={farmId} onLeave={leave} isDemoGuest={isDemoGuest} />
   ) : (
-    <LandingPage />
+    <AccountPage />
   );
+}
+
+/**
+ * A tiny state-based view switch (no router library): the hash route and the session decide the view.
+ * A signed-in user never sits on the start, login or register page.
+ */
+function Views() {
+  const { status } = useSession();
+  const { path, next } = useRoute();
+  if (path === '/farm') {
+    return (
+      <RequireAuth>
+        <FarmArea />
+      </RequireAuth>
+    );
+  }
+  if (status === 'active') return <Redirect to={path === '/' ? '/farm' : (next ?? '/farm')} />;
+  if (path === '/login') return <LoginPage />;
+  if (path === '/register') return <RegisterPage />;
+  return <LandingPage />;
 }
 
 export function App({ client, tokens }: AppProps) {
