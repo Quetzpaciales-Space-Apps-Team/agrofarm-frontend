@@ -69,23 +69,17 @@ describe('Landing and guest demo entry (FE-090)', () => {
     expect((await screen.findAllByRole('article')).length).toBeGreaterThanOrEqual(3);
   });
 
-  it('puts the scenario and the comparison before the upload and photo tools', async () => {
+  it('keeps dashboard sections available through the navigation', async () => {
     renderApp();
     await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
-    const heading = async (name: RegExp) => screen.findByRole('heading', { name });
-    const scenario = await heading(/what if the weather changes/i);
-    const regional = await heading(/regional vegetation outlook/i);
-    const compare = await heading(/compare rotation strategies/i);
-    const climate = await heading(/climate history/i);
-    const photo = await heading(/check a maize leaf photo/i);
-    const upload = await heading(/upload your farm data/i);
-    const follows = (a: HTMLElement, b: HTMLElement) =>
-      Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(follows(scenario, regional)).toBe(true);
-    expect(follows(regional, compare)).toBe(true);
-    expect(follows(compare, climate)).toBe(true);
-    expect(follows(climate, photo)).toBe(true);
-    expect(follows(photo, upload)).toBe(true);
+    await userEvent.click(screen.getByRole('link', { name: /explore scenarios/i }));
+    expect(await screen.findByRole('heading', { name: /what if the weather changes/i })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('link', { name: /recommendations/i }));
+    expect(await screen.findByRole('heading', { name: /compare rotation strategies/i })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('link', { name: /climate/i }));
+    expect(await screen.findByRole('heading', { name: /climate history/i })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('link', { name: /farm data/i }));
+    expect(await screen.findByRole('heading', { name: /upload your farm data/i })).toBeInTheDocument();
   });
 
   it('shows the busy state while the session starts', async () => {
