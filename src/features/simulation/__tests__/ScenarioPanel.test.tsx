@@ -122,6 +122,34 @@ describe('ScenarioPanel (FE-304)', () => {
     });
   });
 
+  it('names the drivers in plain words for the feature names the live service returns', async () => {
+    server.use(
+      http.post('*/v1/scenarios/simulate', async ({ request }) => {
+        const body = (await request.json()) as {
+          crop: string;
+          scenario: Parameters<typeof simulateStub>[0];
+        };
+        const result = simulateStub(body.scenario);
+        return HttpResponse.json({
+          ...result,
+          crop: body.crop,
+          attributions: [
+            { feature: 'rainfall_change_pct', contribution: -27 },
+            { feature: 'temperature_change_c', contribution: -7.5 },
+            { feature: 'enso_phase', contribution: -4 },
+          ],
+        });
+      }),
+    );
+    await ready();
+    const list = await screen.findByRole('list', { name: /what drives the change/i });
+    const items = within(list).getAllByRole('listitem');
+    expect(items[0]).toHaveTextContent(/^Rainfall change/);
+    expect(items[1]).toHaveTextContent(/^Temperature change/);
+    expect(items[2]).toHaveTextContent(/^El Nino or La Nina phase/);
+    expect(list).not.toHaveTextContent(/\bpct\b/i);
+  });
+
   it('warns about inputs outside the training range and names them', async () => {
     await ready();
     expect(screen.queryByText(/outside the range/i)).not.toBeInTheDocument();

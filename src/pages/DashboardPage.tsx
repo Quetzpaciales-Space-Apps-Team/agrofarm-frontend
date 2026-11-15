@@ -14,8 +14,6 @@ function Sections({ farmId }: { farmId: string }) {
   return (
     <>
       <FarmDashboard farmId={farmId} />
-      <UploadWizard farmId={farmId} />
-      <LeafAssessmentPanel key={farmId} farmId={farmId} />
       <ScenarioPanel farmId={farmId} />
       <VegetationPanel key={`vegetation-${farmId}`} farmId={farmId} scenario={debounced} />
       <RotationsSection
@@ -27,6 +25,8 @@ function Sections({ farmId }: { farmId: string }) {
         }}
       />
       <ClimatePanel />
+      <LeafAssessmentPanel key={farmId} farmId={farmId} />
+      <UploadWizard farmId={farmId} />
     </>
   );
 }

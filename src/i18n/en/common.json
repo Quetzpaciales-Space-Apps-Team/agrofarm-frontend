@@ -216,7 +216,10 @@
     "feature": {
       "rainfall_anomaly_jja": "Summer rainfall (June to August)",
       "temperature_anomaly_jja": "Summer temperature (June to August)",
-      "enso_roni_lag3": "El Nino or La Nina, 3 months earlier"
+      "enso_roni_lag3": "El Nino or La Nina, 3 months earlier",
+      "rainfall_change_pct": "Rainfall change",
+      "temperature_change_c": "Temperature change",
+      "enso_phase": "El Nino or La Nina phase"
     },
     "chart": {
       "title": "Baseline and scenario compared",
