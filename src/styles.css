@@ -87,6 +87,37 @@ p {
   background: var(--color-primary);
   color: #fff;
 }
+
+.app-nav {
+  border-bottom: 1px solid var(--line, #d8e2d8);
+  background: var(--surface, #ffffff);
+}
+
+.app-nav ul {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0 auto;
+  max-width: 72rem;
+  overflow-x: auto;
+  padding: 0.65rem 1rem;
+  list-style: none;
+}
+
+.app-nav a {
+  display: block;
+  border-radius: 999px;
+  color: var(--ink, #173b2b);
+  padding: 0.55rem 0.85rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-nav a:hover,
+.app-nav a:focus-visible,
+.app-nav a.active {
+  background: var(--accent-soft, #fff3b0);
+  color: var(--ink, #173b2b);
+}
 .app-header h1,
 .app-header p {
   margin: 0;

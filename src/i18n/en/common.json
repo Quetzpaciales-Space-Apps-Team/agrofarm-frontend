@@ -97,6 +97,18 @@
     "titleAccount": "Your farm",
     "logout": "Log out"
   },
+  "navigation": {
+    "label": "Main navigation",
+    "comingSoon": "This section is ready for the next step in your farm review.",
+    "items": {
+      "overview": "Overview",
+      "farm": "My farm",
+      "data": "Farm data",
+      "scenario": "Explore scenarios",
+      "results": "Results",
+      "recommendations": "Recommendations"
+    }
+  },
   "farm": {
     "loading": "Loading farm...",
     "area": "Area",

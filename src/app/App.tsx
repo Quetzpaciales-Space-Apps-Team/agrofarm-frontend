@@ -27,10 +27,6 @@ function FarmArea() {
   );
 }
 
-/**
- * A tiny state-based view switch (no router library): the hash route and the session decide the view.
- * A signed-in user never sits on the start, login or register page.
- */
 function Views() {
   const { status } = useSession();
   const { path, next } = useRoute();

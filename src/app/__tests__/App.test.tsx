@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../App';
 import { problemResponse } from '../../test/handlers';
 import { expectNoAxeViolations } from '../../test/axe';
@@ -105,6 +105,27 @@ describe('Landing and guest demo entry (FE-090)', () => {
     await screen.findByRole('heading', { name: /Pilot Farm/ });
     await userEvent.click(screen.getByRole('button', { name: /leave the demo/i }));
     expect(screen.getByRole('button', { name: /try the demo/i })).toBeInTheDocument();
+  });
+});
+
+describe('Application navigation (FE-108)', () => {
+  beforeEach(() => window.history.pushState({}, '', '/'));
+
+  it('shows the primary sections after entering the demo and routes to a section', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
+    await screen.findByRole('navigation', { name: /main navigation/i });
+
+    expect(screen.getByRole('link', { name: 'My farm' })).toHaveAttribute('href', '#/farm');
+    expect(screen.getByRole('link', { name: 'My farm' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('returns to the landing view when leaving the demo', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
+    await screen.findByRole('heading', { name: /Guatemala Pilot Farm/ });
+    await userEvent.click(screen.getByRole('button', { name: /leave the demo/i }));
+    expect(await screen.findByRole('button', { name: /try the demo/i })).toBeInTheDocument();
   });
 });
 
