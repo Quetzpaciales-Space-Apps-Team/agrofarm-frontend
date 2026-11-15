@@ -3,7 +3,123 @@
     "shell": {
       "title": "AgroFarm",
       "tagline": "Decision support for crop growth and rotation planning.",
-      "disclaimer": "This tool supports farmers and local experts. It never replaces local agronomic judgment."
+      "disclaimer": "This tool supports farmers and local experts. It never replaces local agronomic judgment.",
+      "skipLink": "Skip to main content"
+    },
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "body": "This page could not be shown. Reload the page to try again.",
+      "reload": "Reload the page"
     }
+  },
+  "common": {
+    "retry": "Try again",
+    "loading": "Loading..."
+  },
+  "landing": {
+    "title": "See how weather and El Nino could change your crops",
+    "intro": "AgroFarm compares crop rotations under different rainfall, temperature and El Nino conditions. It gives ranges, not promises.",
+    "demoNote": "The demo uses example data for a pilot farm near Guatemala City. You do not need an account.",
+    "tryDemo": "Try the demo",
+    "starting": "Starting the demo..."
+  },
+  "auth": {
+    "demo": {
+      "disabled": "Demo mode is turned off on this server. Try again later or ask the team for access.",
+      "rateLimited": "Too many demo requests from your network. Wait a minute and try again.",
+      "full": "The demo is full right now (at capacity). Try again in a few minutes.",
+      "failed": "The demo could not be started. Try again."
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong while loading this. Try again.",
+    "network": "The server could not be reached. Check your connection and try again.",
+    "timeout": "The server took too long to answer. Try again.",
+    "unauthorized": "Your demo session expired. Start the demo again from the start page.",
+    "notFound": "This information was not found.",
+    "rateLimited": "Too many requests. Wait a moment and try again.",
+    "unavailable": "The service is busy right now. Try again in a moment."
+  },
+  "dashboard": {
+    "title": "Your demo farm",
+    "leave": "Leave the demo",
+    "climate": "Climate"
+  },
+  "farm": {
+    "loading": "Loading farm...",
+    "area": "Area",
+    "rotation": "Current rotation",
+    "noRotation": "No rotation recorded for this farm yet."
+  },
+  "climate": {
+    "title": "Climate history",
+    "intro": "Monthly rainfall and temperature near the farm. Pick the months you want to look at.",
+    "loading": "Loading climate data...",
+    "empty": "No climate data is available for this location yet.",
+    "from": "From",
+    "to": "To",
+    "noData": "No data",
+    "noDataShort": "no data",
+    "chart": {
+      "title": "Monthly rainfall and temperature, {{start}} to {{end}}",
+      "description": "Bars show rainfall in mm per month, from {{rainMin}} to {{rainMax}}. Lines show mean, minimum and maximum temperature in °C, from {{tempMin}} to {{tempMax}}.",
+      "gaps_zero": "Every month has data.",
+      "gaps_one": "{{count}} month has no data and is left blank.",
+      "gaps_other": "{{count}} months have no data and are left blank."
+    },
+    "axis": {
+      "rain": "Rainfall (mm per month)",
+      "temp": "Temperature (°C)"
+    },
+    "legend": {
+      "title": "Chart legend",
+      "rain": "Rainfall (mm per month), bars",
+      "mean": "Mean temperature (°C), solid line",
+      "min": "Minimum temperature (°C), dashed line",
+      "max": "Maximum temperature (°C), dotted line",
+      "noData": "No data, hatched band"
+    },
+    "missing": {
+      "title": "Months with no data",
+      "none": "Every month in this range has data.",
+      "item": "{{month}}: {{series}}"
+    },
+    "series": {
+      "rainfall_mm": "rainfall",
+      "temperature_mean_c": "mean temperature",
+      "temperature_min_c": "minimum temperature",
+      "temperature_max_c": "maximum temperature"
+    },
+    "table": {
+      "show": "Show data table",
+      "hide": "Hide data table",
+      "caption": "Monthly climate data",
+      "month": "Month",
+      "rain": "Rainfall (mm per month)",
+      "mean": "Mean temperature (°C)",
+      "min": "Minimum temperature (°C)",
+      "max": "Maximum temperature (°C)"
+    },
+    "source": {
+      "title": "Data source",
+      "dataset": "Source",
+      "link": "NASA POWER website",
+      "attribution": "Attribution",
+      "resolution": "Resolution",
+      "disclaimer": "Disclaimer"
+    }
+  },
+  "enso": {
+    "title": "El Nino and La Nina phases",
+    "intro": "El Nino and La Nina change rainfall patterns in Central America. Each box is one month of the range above.",
+    "listLabel": "El Nino and La Nina phase by month",
+    "legend": "Phase key",
+    "phase": {
+      "el_nino": "El Nino",
+      "la_nina": "La Nina",
+      "neutral": "Neutral",
+      "none": "No data"
+    },
+    "source": "Source: {{source}}. A month counts as El Nino when the ocean temperature index is {{threshold}} °C or higher, and as La Nina at minus {{threshold}} °C or lower."
   }
 }
