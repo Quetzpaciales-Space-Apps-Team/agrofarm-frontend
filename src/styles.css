@@ -541,11 +541,34 @@ input[type='password'] {
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
-.overview-link__header { display: flex; align-items: center; gap: .75rem; }
-.overview-link__icon { display: inline-flex; width: 2.25rem; height: 2.25rem; align-items: center; justify-content: center; border-radius: 50%; background: var(--color-accent-soft); color: var(--color-primary); flex: 0 0 auto; }
-.overview-link__icon svg { width: 1.2rem; height: 1.2rem; }
-.overview-link__title { color: var(--color-primary); font-size: .98rem; }
-.overview-link__desc { color: var(--color-muted); font-size: .88rem; }
+.overview-link__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.overview-link__icon {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-primary);
+  flex: 0 0 auto;
+}
+.overview-link__icon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.overview-link__title {
+  color: var(--color-primary);
+  font-size: 0.98rem;
+}
+.overview-link__desc {
+  color: var(--color-muted);
+  font-size: 0.88rem;
+}
 .overview-link:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
