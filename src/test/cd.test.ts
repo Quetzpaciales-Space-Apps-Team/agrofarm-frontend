@@ -27,7 +27,11 @@ describe('GitHub Actions CD workflow (FE-007)', () => {
     expect(cdYml).toContain('environment: production');
     expect(cdYml).toContain('frontend-staging');
     expect(cdYml).toContain('frontend-prod');
-    expect(cdYml).toContain('/healthz');
+    // Cloud Run answers 404 for /healthz from outside, so the smoke test loads the app shell.
+    expect(cdYml).not.toContain('"$SERVICE_URL/healthz"');
+    expect(
+      cdYml.match(/curl -fsS[^\n]*"\$SERVICE_URL\/" \| grep -qi "<!doctype html"/g),
+    ).toHaveLength(2);
     expect(cdYml).toContain('::add-mask::');
   });
 

@@ -40,6 +40,6 @@ SERVICE_URL="$(gcloud run services describe "frontend-${ENV}" \
   --region="${GCP_REGION}" \
   --project="${GCP_PROJECT_ID}" \
   --format='value(status.url)')"
-curl -fsS "${SERVICE_URL}/healthz"
+curl -fsS "${SERVICE_URL}/" | grep -qi "<!doctype html"  # /healthz answers 404 from outside Cloud Run
 curl -fsS "${SERVICE_URL}/config.json"
 ```
