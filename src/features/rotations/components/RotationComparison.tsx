@@ -47,12 +47,14 @@ function Comparison({ set, busy }: { set: RecommendationSet; busy: boolean }) {
 export function RotationComparison({
   farmId,
   scenario,
+  revision = 0,
 }: {
   farmId: string;
   scenario: ScenarioInput;
+  revision?: number;
 }) {
   const { t } = useTranslation();
-  const { resource, reload, stale } = useRecommendations(farmId, scenario);
+  const { resource, reload, stale } = useRecommendations(farmId, scenario, revision);
 
   let body;
   if (resource.status === 'error') body = <ErrorState error={resource.error} onRetry={reload} />;

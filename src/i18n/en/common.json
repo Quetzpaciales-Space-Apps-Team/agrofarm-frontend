@@ -21,7 +21,10 @@
     "intro": "AgroFarm compares crop rotations under different rainfall, temperature and El Nino conditions. It gives ranges, not promises.",
     "demoNote": "The demo uses example data for a pilot farm near Guatemala City. You do not need an account.",
     "tryDemo": "Try the demo",
-    "starting": "Starting the demo..."
+    "starting": "Starting the demo...",
+    "accountNote": "Have your own farm data?",
+    "login": "Log in",
+    "register": "Create an account"
   },
   "auth": {
     "demo": {
@@ -29,6 +32,52 @@
       "rateLimited": "Too many demo requests from your network. Wait a minute and try again.",
       "full": "The demo is full right now (at capacity). Try again in a few minutes.",
       "failed": "The demo could not be started. Try again."
+    },
+    "restoring": "Restoring your session...",
+    "optionalDemo": "Or try the demo without an account",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "Use at least 10 characters. 72 bytes at most (accented letters count as 2 bytes)."
+    },
+    "validation": {
+      "email": {
+        "required": "Enter your email address.",
+        "invalid": "Enter a valid email address, like name@example.com.",
+        "tooLong": "The email address is too long (254 characters at most)."
+      },
+      "password": {
+        "required": "Enter your password.",
+        "tooShort": "The password needs at least 10 characters.",
+        "tooLong": "The password is too long (72 bytes at most). Accented letters count as 2 bytes."
+      },
+      "name": {
+        "required": "Enter your name.",
+        "tooLong": "The name is too long (120 characters at most)."
+      }
+    },
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "failed": "The email or password is not correct. Check them and try again.",
+      "rateLimited": "Too many login attempts. Wait a minute and try again.",
+      "noAccount": "Create an account"
+    },
+    "register": {
+      "title": "Create an account",
+      "submit": "Create account",
+      "submitting": "Creating your account...",
+      "emailTaken": "This email cannot be used for a new account. If it is yours, log in instead.",
+      "rejected": "The account could not be created with these details. Check them and try again.",
+      "createdNotLoggedIn": "Your account was created, but we could not log you in. Use the log in page.",
+      "haveAccount": "Log in"
+    },
+    "account": {
+      "title": "Your account",
+      "signedInAs": "You are signed in as {{name}}.",
+      "noFarm": "You do not have a farm yet. Adding a farm is not available in this version."
     }
   },
   "errors": {
@@ -44,7 +93,9 @@
     "title": "Your demo farm",
     "leave": "Leave the demo",
     "climate": "Climate",
-    "scenarioTitle": "Scenario"
+    "scenarioTitle": "Scenario",
+    "titleAccount": "Your farm",
+    "logout": "Log out"
   },
   "navigation": {
     "label": "Main navigation",
@@ -235,7 +286,217 @@
       "risks": "Risks to check locally"
     },
     "source": "Source: {{source}}",
-    "riskReview": "(needs local review)"
+    "riskReview": "(needs local review)",
+    "viewDetails": "View details",
+    "viewDetailsFor": "View details: {{name}}",
+    "drawer": {
+      "closeLabel": "Close details",
+      "intro": "Everything below comes from a rule-based comparison that uses a provisional table of crop traits. The traits have not been reviewed by an agronomist yet. Use this as support for your decision, and check it with a local expert before you change what you plant.",
+      "scoresHeading": "How it scores",
+      "sourceLink": "Open source document: {{source}}",
+      "sourceLinkHint": "(opens in a new tab)",
+      "noLink": "No link is available for this source.",
+      "termsHeading": "Terms used in this comparison",
+      "termsHint": "Hover, focus or tap a term to see what it means.",
+      "glossaryNote": "These plain-language definitions are drafts and still need an agronomist's review."
+    }
+  },
+  "glossary": {
+    "terms": {
+      "evapotranspiration": {
+        "label": "Evapotranspiration",
+        "definition": "The water that leaves the field in two ways at once: it evaporates from the soil and the crop's leaves release it as vapor. It is measured in millimeters (mm) of water, like rain."
+      },
+      "ndvi": {
+        "label": "NDVI",
+        "definition": "A vegetation index: a number from satellite images that shows how green and healthy the plants in a field look. Low values mean bare soil or stressed plants, high values mean thick, healthy plants."
+      },
+      "soil_moisture_anomaly": {
+        "label": "Soil moisture anomaly",
+        "definition": "How much wetter or drier the soil is than it usually is at this time of year. A negative value means drier than normal."
+      },
+      "frost_risk": {
+        "label": "Frost risk",
+        "definition": "The chance that temperatures fall low enough to damage crops. It depends on the place and on the season, so local knowledge matters."
+      },
+      "water_balance": {
+        "label": "Water balance",
+        "definition": "Rain and irrigation that come in, minus the water the crops and soil use up or lose. When more leaves than comes in, plants can run short."
+      }
+    }
+  },
+  "priorities": {
+    "title": "Your priorities for this farm",
+    "intro": "Tell us what matters most. These values change the scores in the comparison below. They are saved for this farm only.",
+    "starting": "All priorities start at 50 out of 100. Use Reset to defaults to go back to the starting values.",
+    "decision": "The scores support your decision. They do not replace your own knowledge or a local expert.",
+    "loading": "Loading your priorities...",
+    "weightsLegend": "How much does each one matter?",
+    "valueText": "{{value}} out of 100",
+    "scale": "0 means it does not matter, 100 means it matters most.",
+    "weights": {
+      "water_use": {
+        "hint": "Prefer strategies that use less water."
+      },
+      "income": {
+        "hint": "Prefer strategies with more expected income."
+      },
+      "soil_structure": {
+        "hint": "Prefer strategies that keep the soil loose, covered and alive."
+      },
+      "forage_value": {
+        "hint": "Prefer strategies that give feed for animals."
+      },
+      "nitrogen_fixing": {
+        "hint": "Prefer crops that add nitrogen to the soil, so you need less fertilizer."
+      },
+      "erosion_reduction": {
+        "hint": "Prefer strategies that keep soil from washing away."
+      },
+      "market_suitability": {
+        "hint": "Prefer crops that are easy to sell in your area."
+      }
+    },
+    "constraintsLegend": "Limits on your farm",
+    "water": {
+      "label": "Water available",
+      "hint": "Choose Low if water is limited on your farm. The comparison then favors strategies that need less water.",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "equipment": {
+      "legend": "Equipment you have",
+      "hint": "Tick everything you can use. You can leave all of them empty.",
+      "hand_tools": "Hand tools",
+      "animal_traction": "Animal traction",
+      "tractor": "Tractor",
+      "irrigation": "Irrigation"
+    },
+    "save": "Save priorities",
+    "saving": "Saving...",
+    "saved": "Priorities saved. The comparison is updating.",
+    "saveError": "We could not save your priorities. Your changes are still here. Try again.",
+    "reset": "Reset to defaults",
+    "resetDone": "Priorities reset to the starting values. Save to keep them."
+  },
+  "uploads": {
+    "title": "Upload your farm data",
+    "intro": "Send a CSV or GeoJSON file with your parcels and seasons. The server checks it and stores the rows that pass.",
+    "notice": "Uploaded data is checked and stored, but it is not used yet. Recommendations, scenarios and model results do not change because of it. This tool supports decisions and does not replace local agronomic judgment.",
+    "steps": {
+      "label": "Upload steps",
+      "template": "Template",
+      "choose": "File",
+      "review": "Check",
+      "send": "Send",
+      "result": "Result",
+      "current": "(current step)"
+    },
+    "template": {
+      "heading": "Get the template",
+      "body": "The template is a CSV file with one column for each field the server reads. A cell left empty means the value is not known. It is never read as zero.",
+      "download": "Download the CSV template",
+      "examples": "The template has two example rows. Replace the example values with your own data.",
+      "columns": "Dates use YYYY-MM-DD. Numbers use a decimal point. Units: area in ha, yield in kg/ha, rainfall in mm, soil nutrients in mg/kg, organic matter in %.",
+      "continue": "Continue"
+    },
+    "choose": {
+      "heading": "Choose your file",
+      "label": "File to upload",
+      "hint": "CSV (.csv) or GeoJSON (.geojson or .json), up to 2 MB, UTF-8 text.",
+      "reading": "Reading {{name}}...",
+      "cannotSend": "This file cannot be sent. {{count}} problem(s) stop the whole file.",
+      "back": "Back to the template"
+    },
+    "fileProblem": {
+      "type": "Only .csv and .geojson files can be uploaded (.json is read as GeoJSON).",
+      "empty": "This file is empty.",
+      "size": "This file is too large ({{size}}). The limit is 2 MB.",
+      "encoding": "This file is not valid UTF-8 text. Save it as UTF-8 and try again.",
+      "read": "This file could not be read. Try choosing it again."
+    },
+    "review": {
+      "heading": "Check your file",
+      "fileLine": "{{name}} ({{size}})",
+      "rowsRead_one": "{{count}} row read: {{valid}} without problems, {{invalid}} with problems.",
+      "rowsRead_other": "{{count}} rows read: {{valid}} without problems, {{invalid}} with problems.",
+      "clientNote": "This check runs in your browser. The server checks the file again and its answer is the one that counts. Rows with problems are not stored.",
+      "send": "Send to the server",
+      "another": "Choose another file",
+      "previewCaption": "Preview of the first {{count}} rows",
+      "previewHint": "Row 1 is the first row below the header. Empty cells are shown as empty and are not read as zero.",
+      "empty": "(empty)",
+      "rowColumn": "Row",
+      "noneSendable": "No row passed the check, so there is nothing to send."
+    },
+    "issues": {
+      "clientCaption": "Problems found in your file",
+      "serverCaption": "Problems found by the server",
+      "row": "Row",
+      "column": "Column",
+      "problem": "Problem",
+      "wholeFile": "(whole row or file)",
+      "truncated": "Showing the first {{shown}} of {{total}} problems.",
+      "serverSays": "From the server"
+    },
+    "rule": {
+      "required": "A value is required.",
+      "parcel_id": "Use 1 to 64 letters, digits, underscores or hyphens.",
+      "integer": "Use a whole number, for example 2025.",
+      "year_range": "Use a year from 1980 to 2030.",
+      "date_format": "Use the date format YYYY-MM-DD.",
+      "date_invalid": "This date does not exist in the calendar.",
+      "harvest_before_sowing": "The harvest date cannot be before the sowing date.",
+      "number": "Use a number with a decimal point, for example 2.5.",
+      "gt": "Use a number greater than {{min}}.",
+      "min": "Use a number of at least {{min}}.",
+      "max": "Use a number of at most {{max}}.",
+      "irrigation": "Use one of: {{values}}. Or leave it empty.",
+      "too_long": "Use at most {{max}} characters.",
+      "extra_cells": "This row has more cells than the header has columns ({{expected}}). A comma inside text needs quotes.",
+      "geometry": "The shape must be a closed Polygon or MultiPolygon in longitude, latitude order.",
+      "missing_column": "Missing required column.",
+      "no_rows": "The file has no data rows.",
+      "unterminated_quote": "A quoted cell is never closed.",
+      "bad_json": "The file is not valid JSON.",
+      "not_feature_collection": "GeoJSON must be a FeatureCollection.",
+      "features_not_list": "The features entry must be a list.",
+      "not_feature": "This item is not a GeoJSON Feature."
+    },
+    "sending": {
+      "heading": "Sending",
+      "status": "Sending {{name}} ({{size}}). Waiting for the server to check it...",
+      "progress": "Sending the file",
+      "note": "The browser does not report how much of the file has left, so this bar does not show a percentage."
+    },
+    "error": {
+      "tooLarge": "The server says this file is too large. The limit is 2 MB.",
+      "rejected": "The server did not accept this file: {{message}}",
+      "maybeStored": "The server may have received the file before the connection failed. Check with the team before you send it again.",
+      "retry": "You can send the file again."
+    },
+    "result": {
+      "region": "Upload result",
+      "statusLine": "Upload finished: {{status}}.",
+      "accepted": "File accepted",
+      "accepted_with_errors": "File accepted with row errors",
+      "rejected": "File rejected",
+      "leadAccepted": "The server checked the file and stored every row.",
+      "leadPartial": "The server stored the rows that passed its checks. The rows with problems listed below were left out.",
+      "leadRejected": "No rows were stored. Fix the problems listed below and upload the file again.",
+      "file": "File name",
+      "format": "Format",
+      "formatCsv": "CSV",
+      "formatGeojson": "GeoJSON",
+      "rowsRead": "Rows read",
+      "rowsStored": "Rows stored",
+      "rowsLeftOut": "Rows not stored",
+      "problems": "Problems reported",
+      "kept": "The server keeps a record of this upload and a copy of the original file.",
+      "notUsed": "Uploaded data is not used yet. Recommendations, scenarios and model results do not change because of this upload.",
+      "another": "Upload another file"
+    }
   },
   "leaf": {
     "title": "Check a maize leaf photo",

@@ -2,8 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
+import { UploadWizard } from '../features/uploads/components/UploadWizard';
 import { LeafAssessmentPanel } from '../features/leaves/components/LeafAssessmentPanel';
-import { RotationComparison } from '../features/rotations/components/RotationComparison';
+import { RotationsSection } from '../features/rotations/components/RotationsSection';
 import { VegetationPanel } from '../features/vegetation/components/VegetationPanel';
 import { ScenarioPanel } from '../features/simulation/components/ScenarioPanel';
 import { ScenarioProvider, useScenario } from '../features/simulation/state/scenario';
@@ -13,10 +14,11 @@ function Sections({ farmId }: { farmId: string }) {
   return (
     <>
       <FarmDashboard farmId={farmId} />
+      <UploadWizard farmId={farmId} />
       <LeafAssessmentPanel key={farmId} farmId={farmId} />
       <ScenarioPanel farmId={farmId} />
       <VegetationPanel key={`vegetation-${farmId}`} farmId={farmId} scenario={debounced} />
-      <RotationComparison
+      <RotationsSection
         farmId={farmId}
         scenario={{
           rainfall_change_pct: debounced.rainfall_change_pct,
@@ -29,7 +31,14 @@ function Sections({ farmId }: { farmId: string }) {
   );
 }
 
-export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: () => void }) {
+interface DashboardPageProps {
+  farmId: string;
+  onLeave: () => void;
+  /** Guests see the demo wording; a signed-in farmer sees "Log out". */
+  isDemoGuest?: boolean;
+}
+
+export function DashboardPage({ farmId, onLeave, isDemoGuest = true }: DashboardPageProps) {
   const { t } = useTranslation();
   const headingRef = useFocusOnMount<HTMLHeadingElement>();
 
@@ -37,10 +46,10 @@ export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: ()
     <div className="stack">
       <div className="toolbar">
         <h2 ref={headingRef} tabIndex={-1}>
-          {t('dashboard.title')}
+          {t(isDemoGuest ? 'dashboard.title' : 'dashboard.titleAccount')}
         </h2>
         <button type="button" className="button button--secondary" onClick={onLeave}>
-          {t('dashboard.leave')}
+          {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
         </button>
       </div>
       <ScenarioProvider>

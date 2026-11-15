@@ -5,6 +5,7 @@ import type { ApiClient } from '../infrastructure/api/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AppRoutes } from './AppRoutes';
 import { ApiProvider } from '../services/ApiContext';
+import { useRoute } from '../services/navigation';
 import { ErrorBoundary } from './ErrorBoundary';
 
 export interface AppProps {
