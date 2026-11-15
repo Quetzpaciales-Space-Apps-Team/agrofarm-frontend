@@ -447,6 +447,14 @@ function isValidPriorities(value: unknown): value is Schemas['Priorities'] {
 const farmNotFound = () => problemResponse(404, 'not_found', 'Farm not found.');
 
 export const handlers = [
+  http.post('*/v1/farms/:farmId/leaves/assess', ({ request }) => {
+    if (!isAuthorized(request)) return unauthorized();
+    return problemResponse(
+      503,
+      'service_unavailable',
+      'Photo assessment requires the live model. Mock mode does not diagnose photos.',
+    );
+  }),
   http.get('*/healthz', () => ok({ status: 'ok' } satisfies Schemas['Health'])),
 
   http.post('*/v1/auth/demo', () => {

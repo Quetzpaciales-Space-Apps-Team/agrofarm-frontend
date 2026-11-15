@@ -41,7 +41,9 @@ function Result({ result, busy }: { result: SimulationResult; busy: boolean }) {
           crop: humanizeId(result.crop),
         })}
       </p>
-      <RangeChart baseline={result.baseline} scenario={result.scenario} unit={result.unit} />
+      <div className="chart-box">
+        <RangeChart baseline={result.baseline} scenario={result.scenario} unit={result.unit} />
+      </div>
       <p className="source">{t('simulation.chart.help')}</p>
 
       <div className="data-table-wrap">

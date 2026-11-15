@@ -275,5 +275,58 @@
     },
     "source": "Source: {{source}}",
     "riskReview": "(needs local review)"
+  },
+  "leaf": {
+    "title": "Check a maize leaf photo",
+    "intro": "Upload a clear photo to look for a possible match among supported maize leaf conditions.",
+    "review": "Photo screening supports inspection. It is not a confirmed diagnosis and has not been field validated in Guatemala.",
+    "choose": "Choose a maize leaf photo",
+    "privacy": "JPEG or PNG, up to 5 MiB. Your photo is processed for this request and is not saved or used for training.",
+    "preview": "Selected maize leaf photo",
+    "submit": "Assess photo",
+    "working": "Assessing the photo...",
+    "clear": "Clear photo",
+    "uncertain": "Could not identify a supported condition",
+    "possible": "Possible match: {{condition}}",
+    "scoresNote": "Model scores are not calibrated probabilities or diagnostic certainty. Other plants and conditions may be misclassified, even with a high score.",
+    "scores": "Scores for supported conditions",
+    "condition": "Condition",
+    "score": "Model score (0 to 100)",
+    "next": "What to check next",
+    "guidanceNote": "Guidance references need local review. A photo score does not select a pesticide or a treatment.",
+    "reference": "Read guidance reference {{number}}",
+    "limits": "Limits of this result",
+    "model": "Model: {{version}}",
+    "classes": {
+      "common_rust": "Common rust",
+      "corn_leaf_blight": "Corn leaf blight",
+      "gray_leaf_spot": "Gray leaf spot",
+      "healthy": "Healthy appearance",
+      "insect_damage": "Insect damage (species not identified)"
+    },
+    "errors": {
+      "type": "Choose a JPEG or PNG photo.",
+      "size": "The photo exceeds 5 MiB. Use a smaller photo.",
+      "unavailable": "The photo model is not available right now. Try again later."
+    }
+  },
+  "vegetation": {
+    "title": "Regional vegetation outlook (NDVI)",
+    "intro": "Estimate regional cropland greenness using the rainfall, temperature and ENSO controls above. This is a conditional scenario, not parcel yield, crop growth or an ENSO forecast. The original validation goal was not reached.",
+    "run": "Estimate regional greenness",
+    "loading": "Estimating regional greenness…",
+    "validation": "Whole-year validation ({{years}} years): {{skill}}% improvement against climatology; the {{goal}}% goal was not reached. Interval coverage: {{coverage}}% versus nominal 80%. Annual mean correlation: {{correlation}}. Local review is required.",
+    "caption": "Seasonal peak NDVI anomaly against the cell’s own normal (%)",
+    "low": "Low (p10)",
+    "mid": "Middle (p50)",
+    "high": "High (p90)",
+    "baseline": "Neutral baseline",
+    "scenario": "Selected scenario",
+    "cell": "Reference cropland cell: {{cell}}, {{distance}} km from the farm centre; approximately 0.05 degrees. This regional cell includes mixed land cover.",
+    "outside": "Outside training range: {{inputs}}. Treat this estimate with extra caution.",
+    "attributions": "What changed the median model estimate",
+    "explanation": "These SHAP differences explain the raw median model, not causes. Rainfall changes apply uniformly across the season. ENSO phases assume RONI +1, 0 or −1 in seasonal and preseason inputs. Quantile sorting can move the raw median.",
+    "delta": "Explained raw median change: {{delta}} percentage points.",
+    "limits": "Model limits and assumptions"
   }
 }
