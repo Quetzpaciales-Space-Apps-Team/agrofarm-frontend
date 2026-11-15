@@ -22,6 +22,122 @@ security:
   - bearerAuth: []
 
 paths:
+  /v1/farms/{farm_id}/vegetation/simulate:
+    post:
+      tags:
+      - farms
+      operationId: simulateFarmVegetation
+      summary: Estimate regional cropland greenness under a conditional scenario
+      description: Requires farm ownership or admin access. Trained regional NDVI quantiles
+        and raw median SHAP differences, not parcel yield or an ENSO forecast. Original
+        5% skill goal was not reached. No fixed-rule or cached fallback. Uses the nearest
+        trained cropland cell within 15 km. A service or location without a supported
+        estimate returns 503.
+      parameters:
+      - name: farm_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scenario'
+            example:
+              rainfall_change_pct: -30
+              temperature_change_c: 1
+              enso_phase: el_nino
+      responses:
+        '200':
+          description: Regional NDVI anomaly quantiles, attribution differences, validation
+            and caveats
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - target
+                - unit
+                - baseline
+                - scenario
+                - attributions
+                - validation
+                - limitations
+                - provenance
+                - disclaimer
+                - needs_local_review
+                properties:
+                  target:
+                    const: seasonal_peak_ndvi_anomaly_pct
+                  unit:
+                    const: '%'
+                  baseline:
+                    type: object
+                  scenario:
+                    type: object
+                  attributions:
+                    type: array
+                    items:
+                      type: object
+                  validation:
+                    type: object
+                  limitations:
+                    type: array
+                    items:
+                      type: string
+                  provenance:
+                    type: object
+                  disclaimer:
+                    type: string
+                  needs_local_review:
+                    const: true
+              example:
+                target: seasonal_peak_ndvi_anomaly_pct
+                unit: '%'
+                baseline:
+                  p10: -10
+                  p50: 0
+                  p90: 10
+                scenario:
+                  p10: -12
+                  p50: -3
+                  p90: 8
+                attributions:
+                - feature: rain_anom_pct
+                  contribution: -3
+                explained_median_delta: -3
+                out_of_range_inputs: []
+                reference_cell:
+                  cell_id: test
+                  distance_km: 1
+                  resolution_degrees: 0.05
+                validation:
+                  acceptance_rule_met: false
+                  skill_improvement_pct: 4.41
+                limitations:
+                - Not parcel yield
+                needs_local_review: true
+                provenance:
+                  model_version: ndvi-vegetation-outlook-0.1.0
+                  evaluation_verdict: no_skill_over_climatology
+                disclaimer: This tool supports decisions. It does not replace farmers
+                  or local agronomists.
+        '401':
+          description: Authentication required
+        '404':
+          description: Farm unavailable to this user
+        '422':
+          description: Invalid scenario
+        '502':
+          description: Invalid trained-model response
+        '503':
+          description: Trained inference or supported reference cell unavailable
+        '400':
+          description: Malformed request body
+
   /v1/farms/{farm_id}/leaves/assess:
     post:
       tags: [farms]
