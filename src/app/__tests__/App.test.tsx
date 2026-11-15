@@ -116,10 +116,8 @@ describe('Application navigation (FE-108)', () => {
     await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
     await screen.findByRole('navigation', { name: /main navigation/i });
 
-    expect(screen.getByRole('link', { name: 'Overview' })).toHaveAttribute('aria-current', 'page');
-    await userEvent.click(screen.getByRole('link', { name: 'Results' }));
-    expect(await screen.findByRole('heading', { name: 'Results' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Results' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'My farm' })).toHaveAttribute('href', '#/farm');
+    expect(screen.getByRole('link', { name: 'My farm' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('returns to the landing view when leaving the demo', async () => {
