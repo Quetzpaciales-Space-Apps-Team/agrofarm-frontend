@@ -11,8 +11,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Liveness probe */
-        get: operations["getHealthz"];
+        /** The process is alive */
+        get: operations["healthz"];
         put?: never;
         post?: never;
         delete?: never;
@@ -28,8 +28,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Readiness probe */
-        get: operations["getReadyz"];
+        /** The dependencies are reachable */
+        get: operations["readyz"];
         put?: never;
         post?: never;
         delete?: never;
@@ -47,8 +47,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Register a new farmer or agronomist account */
-        post: operations["registerUser"];
+        /** Create an account */
+        post: operations["register"];
         delete?: never;
         options?: never;
         head?: never;
@@ -64,8 +64,25 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Authenticate with email and password */
-        post: operations["loginUser"];
+        /** Log in. Sets the refresh token as an httpOnly cookie */
+        post: operations["login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an ephemeral demo guest session with a cloned pilot farm (only when DEMO_MODE=true) */
+        post: operations["demoLogin"];
         delete?: never;
         options?: never;
         head?: never;
@@ -81,8 +98,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Rotate refresh token cookie and issue a new short-lived access token */
-        post: operations["refreshAccessToken"];
+        /** Rotate the refresh cookie and return a new access token */
+        post: operations["refresh"];
         delete?: never;
         options?: never;
         head?: never;
@@ -98,8 +115,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Revoke current refresh token family and clear session cookie */
-        post: operations["logoutUser"];
+        /** Revoke the refresh token */
+        post: operations["logout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -113,8 +130,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get the authenticated user profile */
-        get: operations["getCurrentUser"];
+        /** The current user */
+        get: operations["me"];
         put?: never;
         post?: never;
         delete?: never;
@@ -130,10 +147,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List farms owned by the authenticated user */
+        /** Farms of the current user */
         get: operations["listFarms"];
         put?: never;
-        /** Create a farm with a reference point or GeoJSON polygon */
+        /** Create a farm */
         post: operations["createFarm"];
         delete?: never;
         options?: never;
@@ -141,17 +158,16 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/farms/{id}": {
+    "/v1/farms/{farm_id}": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
-        /** Get a farm by ID */
+        /** One farm */
         get: operations["getFarm"];
         put?: never;
         post?: never;
@@ -159,45 +175,43 @@ export interface paths {
         delete: operations["deleteFarm"];
         options?: never;
         head?: never;
-        /** Update a farm's name, current rotation, or geometry */
+        /** Change a farm */
         patch: operations["updateFarm"];
         trace?: never;
     };
-    "/v1/farms/{id}/uploads": {
+    "/v1/farms/{farm_id}/uploads": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
-        /** List uploaded farm history files and validation status */
-        get: operations["listFarmUploads"];
+        /** Files uploaded for a farm */
+        get: operations["listUploads"];
         put?: never;
-        /** Upload CSV or GeoJSON farm records with row-level validation */
-        post: operations["createFarmUpload"];
+        /** Upload farm records (CSV or GeoJSON). Errors are reported per row */
+        post: operations["createUpload"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/v1/farms/{id}/priorities": {
+    "/v1/farms/{farm_id}/priorities": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
-        /** Get farmer priorities and agronomic constraints for a farm */
-        get: operations["getFarmPriorities"];
-        /** Save farmer priorities and agronomic constraints for a farm */
-        put: operations["updateFarmPriorities"];
+        /** Farmer priorities and constraints */
+        get: operations["getPriorities"];
+        /** Replace farmer priorities and constraints */
+        put: operations["putPriorities"];
         post?: never;
         delete?: never;
         options?: never;
@@ -205,20 +219,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/farms/{id}/insights": {
+    "/v1/farms/{farm_id}/insights": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
-        /** Get bare-field periods and climate-vulnerable seasons for a farm */
-        get: operations["getFarmInsights"];
+        /** Bare-field periods and vulnerable seasons */
+        get: operations["getInsights"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/farms/{farm_id}/recommendations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: components["parameters"]["FarmId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compare at least three rotation strategies, including the current one */
+        post: operations["createRecommendations"];
         delete?: never;
         options?: never;
         head?: never;
@@ -232,7 +264,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List available map layers with metadata, legend, and source attribution */
+        /** Map layers with their source and a short-lived URL */
         get: operations["listLayers"];
         put?: never;
         post?: never;
@@ -249,8 +281,28 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get monthly NOAA CPC ONI and RONI values and ENSO phase classification */
-        get: operations["getEnsoSeries"];
+        /** Monthly ENSO index with the phase of each month */
+        get: operations["getEnso"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/climate/nasa-power": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Monthly NASA POWER climate series (reanalysis grid cell, not a station)
+         * @description Read-only monthly series built from NASA POWER daily data for one point at 14.59, -90.53. The value is a reanalysis grid cell of about 50 km, not a station measurement. `start` and `end` are inclusive months (`YYYY-MM`), both optional. A range without data gives an empty `items` list. A missing value is `null`, never 0 or -999. The data is a static snapshot shipped with the service, not read from the data-service.
+         */
+        get: operations["getNasaPower"];
         put?: never;
         post?: never;
         delete?: never;
@@ -268,28 +320,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Run a crop growth scenario simulation with quantile uncertainty ranges */
+        /** Simulate crop response under a scenario, always with an uncertainty range */
         post: operations["simulateScenario"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/farms/{id}/recommendations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
-            };
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Compare at least three crop rotation strategies including the current rotation */
-        post: operations["createFarmRecommendations"];
         delete?: never;
         options?: never;
         head?: never;
@@ -303,8 +335,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Trigram search across crops, places, and farms */
-        get: operations["searchCatalog"];
+        /** Typo-tolerant search by name */
+        get: operations["search"];
         put?: never;
         post?: never;
         delete?: never;
@@ -317,420 +349,334 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        HealthStatus: {
+        Health: {
             /** @enum {string} */
             status: "ok";
         };
-        ReadyStatus: {
+        Readiness: {
             /** @enum {string} */
             status: "ready";
+            checks: {
+                [key: string]: "ok" | "failed";
+            };
         };
-        ValidationErrorItem: {
-            loc: string[];
-            msg: string;
-            type: string;
-        };
-        /** @description RFC 7807 Problem Details with a stable machine-readable code */
         Problem: {
-            /** @default about:blank */
             type: string;
             title: string;
             status: number;
+            /** @description Stable machine-readable error code */
             code: string;
             detail?: string;
             request_id: string;
-            errors?: components["schemas"]["ValidationErrorItem"][];
-        };
-        PaginationMeta: {
-            limit: number;
-            next_cursor: string | null;
-        };
-        DatasetVersionRef: {
-            dataset_id: string;
-            version: string;
-            source: string;
-            date_range: string;
-            spatial_resolution: string;
-            /** @default false */
-            is_preliminary: boolean;
-        };
-        /** @description Full lineage of model and dataset versions that produced an output */
-        Provenance: {
-            model_name: string;
-            model_version: string;
-            data_versions: components["schemas"]["DatasetVersionRef"][];
-            input_hash: string;
-            /** Format: date-time */
-            generated_at: string;
-        };
-        /** @description Prediction range from quantile regression (p10 <= p50 <= p90) */
-        QuantileUncertainty: {
-            p10: number;
-            p50: number;
-            p90: number;
-            unit: string;
-            confidence_note: string;
+            errors?: {
+                field: string;
+                message: string;
+            }[];
+            checks?: {
+                [key: string]: string;
+            };
         };
         /** @enum {string} */
-        UserRole: "farmer" | "agronomist" | "admin";
+        Role: "farmer" | "agronomist" | "admin";
+        User: {
+            /** Format: uuid */
+            id: string;
+            /** Format: email */
+            email: string;
+            name: string;
+            role: components["schemas"]["Role"];
+            /** Format: date-time */
+            created_at: string;
+        };
         RegisterRequest: {
             /** Format: email */
             email: string;
-            /** @description Minimum 10 characters, maximum 72 UTF-8 bytes (bcrypt limit) */
+            /** @description 10 characters minimum. 72 bytes maximum (bcrypt limit). */
             password: string;
-            full_name: string;
-            /** @default farmer */
-            role: components["schemas"]["UserRole"];
+            name: string;
         };
         LoginRequest: {
             /** Format: email */
             email: string;
             password: string;
         };
-        UserProfile: {
-            id: string;
-            /** Format: email */
-            email: string;
-            full_name: string;
-            role: components["schemas"]["UserRole"];
-            /** Format: date-time */
-            created_at: string;
-        };
-        AuthTokenResponse: {
+        TokenResponse: {
             access_token: string;
             /** @enum {string} */
-            token_type: "Bearer";
-            /** @description Access token lifetime in seconds (900s = 15 minutes) */
+            token_type: "bearer";
+            /** @description Seconds */
             expires_in: number;
-            user: components["schemas"]["UserProfile"];
         };
-        GeoPoint: {
-            latitude: number;
-            longitude: number;
+        DemoAuthResponse: {
+            access_token: string;
+            /** @enum {string} */
+            token_type: "bearer";
+            /** @description Seconds */
+            expires_in: number;
+            /** Format: uuid */
+            farm_id: string;
+            is_demo_guest: boolean;
         };
-        GeoPolygon: {
+        /** @description GeoJSON Polygon in EPSG:4326, longitude first */
+        Polygon: {
             /** @enum {string} */
             type: "Polygon";
             coordinates: number[][][];
         };
         Farm: {
+            /** Format: uuid */
             id: string;
             name: string;
-            department: string;
-            municipality: string;
-            reference_point: components["schemas"]["GeoPoint"];
-            polygon?: components["schemas"]["GeoPolygon"] | null;
+            boundary: components["schemas"]["Polygon"];
+            /** @description Hectares */
             area_ha: number;
-            elevation_m: number;
+            /** @description Crop ids in order */
             current_rotation: string[];
-            station_reference?: string;
             /** Format: date-time */
             created_at: string;
-            /** Format: date-time */
-            updated_at: string;
         };
-        CreateFarmRequest: {
+        FarmCreate: {
             name: string;
-            department: string;
-            municipality: string;
-            reference_point: components["schemas"]["GeoPoint"];
-            polygon?: components["schemas"]["GeoPolygon"] | null;
-            area_ha: number;
-            /** @default 1502 */
-            elevation_m: number;
-            current_rotation: string[];
-        };
-        UpdateFarmRequest: {
-            name?: string;
-            area_ha?: number;
+            boundary: components["schemas"]["Polygon"];
             current_rotation?: string[];
-            polygon?: components["schemas"]["GeoPolygon"] | null;
         };
-        FarmListResponse: {
+        FarmUpdate: {
+            name?: string;
+            boundary?: components["schemas"]["Polygon"];
+            current_rotation?: string[];
+        };
+        FarmList: {
             items: components["schemas"]["Farm"][];
-            pagination: components["schemas"]["PaginationMeta"];
+            next_cursor: string | null;
         };
-        UploadRowError: {
+        RowError: {
             row: number;
-            column: string;
-            code: string;
+            column: string | null;
             message: string;
         };
-        FarmUpload: {
+        Upload: {
+            /** Format: uuid */
             id: string;
+            /** Format: uuid */
             farm_id: string;
             filename: string;
             /** @enum {string} */
             format: "csv" | "geojson";
             /** @enum {string} */
-            status: "validated" | "validated_with_errors" | "rejected";
-            total_rows: number;
-            valid_rows: number;
-            row_errors: components["schemas"]["UploadRowError"][];
+            status: "accepted" | "accepted_with_errors" | "rejected";
+            rows_total: number;
+            rows_accepted: number;
+            errors: components["schemas"]["RowError"][];
             /** Format: date-time */
             created_at: string;
         };
-        CreateFarmUploadRequest: {
-            filename: string;
-            /** @enum {string} */
-            format: "csv" | "geojson";
-            /** @description Raw CSV text or GeoJSON payload submitted for validation */
-            content: string;
+        UploadList: {
+            items: components["schemas"]["Upload"][];
+            next_cursor: string | null;
         };
-        FarmUploadListResponse: {
-            items: components["schemas"]["FarmUpload"][];
-            pagination: components["schemas"]["PaginationMeta"];
-        };
+        /** @description Weight of each farmer priority, 0 (does not matter) to 1 (matters most) */
         PriorityWeights: {
-            yield_stability: number;
-            soil_health: number;
-            water_efficiency: number;
-            income_diversification: number;
-            low_input_cost: number;
+            water_use: number;
+            income: number;
+            soil_structure: number;
+            forage_value: number;
+            nitrogen_fixing: number;
+            erosion_reduction: number;
+            market_suitability: number;
         };
-        FarmPriorities: {
-            farm_id: string;
+        Priorities: {
             weights: components["schemas"]["PriorityWeights"];
-            irrigation_available: boolean;
-            max_fallow_days: number;
-            excluded_crops: string[];
-            notes?: string;
+            constraints: {
+                /** @enum {string} */
+                water_availability: "low" | "medium" | "high";
+                equipment: ("hand_tools" | "animal_traction" | "tractor" | "irrigation")[];
+            };
+        };
+        Provenance: {
+            model_name: string;
+            model_version: string;
+            data_versions: {
+                [key: string]: string;
+            };
+            input_hash: string;
             /** Format: date-time */
-            updated_at: string;
+            generated_at: string;
         };
-        FarmPrioritiesUpdate: {
-            weights: components["schemas"]["PriorityWeights"];
-            irrigation_available: boolean;
-            max_fallow_days: number;
-            /** @default [] */
-            excluded_crops: string[];
-            notes?: string;
-        };
-        BareFieldPeriod: {
-            /** Format: date */
-            start_date: string;
-            /** Format: date */
-            end_date: string;
-            duration_days: number;
-            mean_ndvi: number;
-            /** @enum {string} */
-            erosion_exposure: "low" | "moderate" | "high";
-            explanation: string;
-        };
-        VulnerableSeason: {
-            season_name: string;
-            months: string;
-            /** @enum {string} */
-            primary_hazard: "dry_spell_canicula" | "extreme_rainfall" | "cold_night_frost" | "heat_stress";
-            enso_sensitivity: string;
-            recommended_watch: string;
-        };
-        FarmInsights: {
-            farm_id: string;
-            bare_field_periods: components["schemas"]["BareFieldPeriod"][];
-            vulnerable_seasons: components["schemas"]["VulnerableSeason"][];
+        Insights: {
+            /** @description False means there is not enough data */
+            data_available: boolean;
+            bare_field_periods: {
+                start_month: number;
+                end_month: number;
+                reason: string;
+                source: string;
+            }[];
+            vulnerable_seasons: {
+                start_month: number;
+                end_month: number;
+                /** @enum {string} */
+                hazard: "dry_spell" | "heavy_rain" | "heat" | "frost" | "water_stress";
+                reason: string;
+                source: string;
+            }[];
             provenance: components["schemas"]["Provenance"];
-            disclaimer: string;
         };
-        LayerLegendStop: {
-            value: number;
-            color: string;
-            label: string;
-        };
-        LayerLegend: {
-            unit: string;
-            palette_name: string;
-            color_blind_safe: boolean;
-            stops: components["schemas"]["LayerLegendStop"][];
-        };
-        LayerSourceBlock: {
-            provider: string;
-            dataset_id: string;
-            version: string;
-            spatial_resolution: string;
-            date_range: string;
-            /** @enum {string} */
-            measurement_type: "satellite_derived" | "ground_station" | "reanalysis_model" | "soil_prediction";
-            limitation_note: string;
-        };
-        MapLayer: {
+        Layer: {
             id: string;
             name: string;
             /** @enum {string} */
-            category: "climate" | "soil" | "vegetation" | "terrain" | "water_stress";
-            description: string;
-            tile_url_template: string;
-            legend: components["schemas"]["LayerLegend"];
-            source: components["schemas"]["LayerSourceBlock"];
+            kind: "raster" | "vector";
+            unit: string;
+            source: string;
+            /** @enum {string} */
+            measurement: "ground_station" | "satellite" | "satellite_and_stations" | "model_prediction";
+            resolution: string;
+            date_range: null | {
+                /** Format: date */
+                start: string;
+                /** Format: date */
+                end: string;
+            };
+            license: string;
+            /** Format: uri */
+            url: string;
+            /** Format: date-time */
+            url_expires_at: string;
+            legend: {
+                min: number;
+                max: number;
+                palette: string;
+            };
         };
-        LayerListResponse: {
-            items: components["schemas"]["MapLayer"][];
-            pagination: components["schemas"]["PaginationMeta"];
+        LayerList: {
+            items: components["schemas"]["Layer"][];
         };
         /** @enum {string} */
         EnsoPhase: "el_nino" | "la_nina" | "neutral";
-        EnsoMonthPoint: {
-            month: string;
-            oni_c: number;
-            roni_c: number;
-            phase: components["schemas"]["EnsoPhase"];
-            rainfall_anomaly_note: string;
-        };
-        EnsoSeriesResponse: {
-            /** @description Absolute anomaly threshold in degrees C (0.5 C) */
+        EnsoSeries: {
             threshold_c: number;
-            items: components["schemas"]["EnsoMonthPoint"][];
-            provenance: components["schemas"]["Provenance"];
+            source: string;
             disclaimer: string;
+            items: {
+                month: string;
+                oni: number | null;
+                roni: number | null;
+                phase: components["schemas"]["EnsoPhase"];
+            }[];
         };
-        ScenarioSimulationRequest: {
-            farm_id: string;
-            crop_id: string;
-            /**
-             * Format: date
-             * @default 2025-05-01
-             */
-            season_start: string;
-            /**
-             * Format: date
-             * @default 2025-10-31
-             */
-            season_end: string;
-            /** @description Simulated rainfall delta in percent relative to local climatology */
+        NasaPowerSeries: {
+            location: {
+                latitude: number;
+                longitude: number;
+            };
+            aggregation: {
+                [key: string]: string;
+            };
+            source: string;
+            source_url: string;
+            attribution: string;
+            resolution_note: string;
+            dataset_checksum_sha256: string;
+            processing_version: string;
+            disclaimer: string;
+            items: {
+                month: string;
+                rainfall_mm: number | null;
+                temperature_mean_c: number | null;
+                temperature_min_c: number | null;
+                temperature_max_c: number | null;
+                relative_humidity_pct: number | null;
+                solar_radiation_mj_m2: number | null;
+                wind_speed_kmh: number | null;
+            }[];
+        };
+        Scenario: {
+            /** @default 0 */
             rainfall_change_pct: number;
-            /** @description Simulated mean temperature delta in degrees C */
+            /** @default 0 */
             temperature_change_c: number;
-            enso_phase: components["schemas"]["EnsoPhase"];
+            enso_phase?: components["schemas"]["EnsoPhase"];
         };
-        FeatureAttribution: {
-            feature: string;
-            shap_value: number;
-            /** @enum {string} */
-            direction: "positive" | "negative" | "neutral";
-            explanation: string;
-        };
-        ScenarioTimelineStep: {
-            period: string;
-            baseline_p50: number;
-            scenario_p10: number;
-            scenario_p50: number;
-            scenario_p90: number;
-            water_balance_mm: number;
-        };
-        ScenarioSimulationResponse: {
+        SimulationRequest: {
+            /** Format: uuid */
             farm_id: string;
-            crop_id: string;
-            metric_name: string;
-            baseline: components["schemas"]["QuantileUncertainty"];
-            scenario: components["schemas"]["QuantileUncertainty"];
-            out_of_training_range: boolean;
-            range_warning: string | null;
-            top_attributions: components["schemas"]["FeatureAttribution"][];
-            timeline: components["schemas"]["ScenarioTimelineStep"][];
+            crop: string;
+            scenario: components["schemas"]["Scenario"];
+        };
+        /** @description p10 <= p50 <= p90. The range is part of the answer and must always be shown */
+        QuantileRange: {
+            p10: number;
+            p50: number;
+            p90: number;
+        };
+        SimulationResult: {
+            crop: string;
+            /** @description What the model predicts (label or proxy) */
+            target: string;
+            unit: string;
+            baseline: components["schemas"]["QuantileRange"];
+            scenario: components["schemas"]["QuantileRange"];
+            attributions: {
+                feature: string;
+                contribution: number;
+            }[];
+            /** @description Inputs outside the training range */
+            out_of_range_inputs: string[];
             provenance: components["schemas"]["Provenance"];
             disclaimer: string;
         };
         RecommendationRequest: {
-            /** @default la_nina */
-            enso_phase: components["schemas"]["EnsoPhase"];
-            /** @default 0 */
-            rainfall_change_pct: number;
-            /** @default 0 */
-            temperature_change_c: number;
+            scenario?: components["schemas"]["Scenario"];
         };
-        StrategyScores: {
-            overall: number;
-            yield_stability: number;
-            soil_health: number;
-            water_efficiency: number;
-            income_diversification: number;
-            low_input_cost: number;
-        };
-        /** @description A crop rotation strategy with agronomic justification, evidence, expected benefits, explicit data gaps, risks requiring local review, quantile uncertainty, and priority score breakdown (rule G10). */
-        RotationStrategy: {
+        Strategy: {
             id: string;
             name: string;
-            is_current_rotation: boolean;
+            is_current: boolean;
             sequence: string[];
+            overall_score: number;
+            scores: components["schemas"]["PriorityWeights"];
+            uncertainty: {
+                low: number;
+                high: number;
+            };
             why: string[];
-            evidence: string[];
+            evidence: {
+                statement: string;
+                source: string;
+            }[];
             benefits: string[];
             gaps: string[];
-            risks: string[];
+            risks: {
+                description: string;
+                needs_local_review: boolean;
+            }[];
             needs_local_review: boolean;
-            uncertainty: components["schemas"]["QuantileUncertainty"];
-            scores: components["schemas"]["StrategyScores"];
         };
-        /** @description Decision-support rotation comparison containing at least three strategies (including the current rotation), full provenance, and mandatory disclaimer. */
-        Recommendation: {
+        RecommendationSet: {
+            /** Format: uuid */
             id: string;
+            /** Format: uuid */
             farm_id: string;
-            scenario_summary: string;
-            strategies: components["schemas"]["RotationStrategy"][];
-            provenance: components["schemas"]["Provenance"];
             disclaimer: string;
+            strategies: components["schemas"]["Strategy"][];
+            provenance: components["schemas"]["Provenance"];
         };
-        /** @enum {string} */
-        SearchEntityType: "crop" | "place" | "farm";
-        SearchResultItem: {
-            id: string;
-            type: components["schemas"]["SearchEntityType"];
-            name: string;
-            aliases: string[];
-            similarity: number;
-            summary: string;
-        };
-        SearchResponse: {
-            query: string;
-            items: components["schemas"]["SearchResultItem"][];
-            pagination: components["schemas"]["PaginationMeta"];
+        SearchResults: {
+            items: {
+                /** @enum {string} */
+                type: "crop" | "place" | "farm";
+                id: string;
+                name: string;
+                /** @description The name or alias that matched */
+                matched: string;
+                similarity: number;
+            }[];
         };
     };
     responses: {
-        /** @description Authentication is required or failed */
-        UnauthorizedProblem: {
+        /** @description Error (RFC 7807) with a stable `code` */
+        Problem: {
             headers: {
-                "X-Request-Id": components["headers"]["XRequestId"];
-                [name: string]: unknown;
-            };
-            content: {
-                "application/problem+json": components["schemas"]["Problem"];
-            };
-        };
-        /** @description The requested resource was not found */
-        NotFoundProblem: {
-            headers: {
-                "X-Request-Id": components["headers"]["XRequestId"];
-                [name: string]: unknown;
-            };
-            content: {
-                "application/problem+json": components["schemas"]["Problem"];
-            };
-        };
-        /** @description The request conflicts with existing state */
-        ConflictProblem: {
-            headers: {
-                "X-Request-Id": components["headers"]["XRequestId"];
-                [name: string]: unknown;
-            };
-            content: {
-                "application/problem+json": components["schemas"]["Problem"];
-            };
-        };
-        /** @description Request validation failed */
-        ValidationProblem: {
-            headers: {
-                "X-Request-Id": components["headers"]["XRequestId"];
-                [name: string]: unknown;
-            };
-            content: {
-                "application/problem+json": components["schemas"]["Problem"];
-            };
-        };
-        /** @description A required upstream dependency is unavailable */
-        ServiceUnavailableProblem: {
-            headers: {
-                "X-Request-Id": components["headers"]["XRequestId"];
                 [name: string]: unknown;
             };
             content: {
@@ -739,27 +685,18 @@ export interface components {
         };
     };
     parameters: {
-        /** @description Unique farm identifier */
         FarmId: string;
-        /** @description Maximum number of items to return */
         Limit: number;
-        /** @description Opaque pagination cursor from the previous response */
         Cursor: string;
-        /** @description Optional client key to make retryable writes idempotent */
         IdempotencyKey: string;
     };
     requestBodies: never;
-    headers: {
-        /** @description Request correlation identifier echoed or generated by the server */
-        XRequestId: string;
-        /** @description Present and set to "true" when the response comes from a contract stub (rule G10) */
-        XStub: "true";
-    };
+    headers: never;
     pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getHealthz: {
+    healthz: {
         parameters: {
             query?: never;
             header?: never;
@@ -768,19 +705,23 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Process is alive */
+            /** @description Alive */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HealthStatus"];
+                    /**
+                     * @example {
+                     *       "status": "ok"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Health"];
                 };
             };
         };
     };
-    getReadyz: {
+    readyz: {
         parameters: {
             query?: never;
             header?: never;
@@ -789,51 +730,71 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Dependencies are reachable */
+            /** @description Ready */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReadyStatus"];
+                    /**
+                     * @example {
+                     *       "status": "ready",
+                     *       "checks": {
+                     *         "database": "ok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Readiness"];
                 };
             };
-            503: components["responses"]["ServiceUnavailableProblem"];
+            503: components["responses"]["Problem"];
         };
     };
-    registerUser: {
+    register: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Optional client key to make retryable writes idempotent */
-                "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "email": "ana@example.com",
+                 *       "password": "correct horse battery",
+                 *       "name": "Ana Lopez"
+                 *     }
+                 */
                 "application/json": components["schemas"]["RegisterRequest"];
             };
         };
         responses: {
-            /** @description Account registered and access token issued */
+            /** @description Account created */
             201: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuthTokenResponse"];
+                    /**
+                     * @example {
+                     *       "id": "0b9d1c0e-5a1f-4c57-9a41-2f6a1f0c7e11",
+                     *       "email": "ana@example.com",
+                     *       "name": "Ana Lopez",
+                     *       "role": "farmer",
+                     *       "created_at": "2026-11-14T15:00:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["User"];
                 };
             };
-            409: components["responses"]["ConflictProblem"];
-            422: components["responses"]["ValidationProblem"];
+            400: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+            429: components["responses"]["Problem"];
         };
     };
-    loginUser: {
+    login: {
         parameters: {
             query?: never;
             header?: never;
@@ -842,26 +803,39 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "email": "ana@example.com",
+                 *       "password": "correct horse battery"
+                 *     }
+                 */
                 "application/json": components["schemas"]["LoginRequest"];
             };
         };
         responses: {
-            /** @description Authenticated and access token issued */
+            /** @description Logged in */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuthTokenResponse"];
+                    /**
+                     * @example {
+                     *       "access_token": "stub.access.token",
+                     *       "token_type": "bearer",
+                     *       "expires_in": 900
+                     *     }
+                     */
+                    "application/json": components["schemas"]["TokenResponse"];
                 };
             };
-            401: components["responses"]["UnauthorizedProblem"];
-            422: components["responses"]["ValidationProblem"];
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+            429: components["responses"]["Problem"];
         };
     };
-    refreshAccessToken: {
+    demoLogin: {
         parameters: {
             query?: never;
             header?: never;
@@ -870,21 +844,58 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Access token refreshed */
-            200: {
+            /** @description Ephemeral demo guest session created with a provisional Guatemala City pilot farm */
+            201: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuthTokenResponse"];
+                    /**
+                     * @example {
+                     *       "access_token": "stub.access.token",
+                     *       "token_type": "bearer",
+                     *       "expires_in": 900,
+                     *       "farm_id": "22222222-2222-4222-8222-222222222222",
+                     *       "is_demo_guest": true
+                     *     }
+                     */
+                    "application/json": components["schemas"]["DemoAuthResponse"];
                 };
             };
-            401: components["responses"]["UnauthorizedProblem"];
+            404: components["responses"]["Problem"];
+            429: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
         };
     };
-    logoutUser: {
+    refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New access token */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "access_token": "stub.access.token",
+                     *       "token_type": "bearer",
+                     *       "expires_in": 900
+                     *     }
+                     */
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            401: components["responses"]["Problem"];
+        };
+    };
+    logout: {
         parameters: {
             query?: never;
             header?: never;
@@ -896,15 +907,13 @@ export interface operations {
             /** @description Logged out */
             204: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content?: never;
             };
         };
     };
-    getCurrentUser: {
+    me: {
         parameters: {
             query?: never;
             header?: never;
@@ -913,26 +922,31 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Current user profile */
+            /** @description Current user */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserProfile"];
+                    /**
+                     * @example {
+                     *       "id": "0b9d1c0e-5a1f-4c57-9a41-2f6a1f0c7e11",
+                     *       "email": "ana@example.com",
+                     *       "name": "Ana Lopez",
+                     *       "role": "farmer",
+                     *       "created_at": "2026-11-14T15:00:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["User"];
                 };
             };
-            401: components["responses"]["UnauthorizedProblem"];
+            401: components["responses"]["Problem"];
         };
     };
     listFarms: {
         parameters: {
             query?: {
-                /** @description Maximum number of items to return */
                 limit?: components["parameters"]["Limit"];
-                /** @description Opaque pagination cursor from the previous response */
                 cursor?: components["parameters"]["Cursor"];
             };
             header?: never;
@@ -941,25 +955,67 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Paginated list of farms */
+            /** @description A page of farms */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FarmListResponse"];
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *           "name": "Finca La Esperanza",
+                     *           "boundary": {
+                     *             "type": "Polygon",
+                     *             "coordinates": [
+                     *               [
+                     *                 [
+                     *                   -90.535,
+                     *                   14.585
+                     *                 ],
+                     *                 [
+                     *                   -90.525,
+                     *                   14.585
+                     *                 ],
+                     *                 [
+                     *                   -90.525,
+                     *                   14.595
+                     *                 ],
+                     *                 [
+                     *                   -90.535,
+                     *                   14.595
+                     *                 ],
+                     *                 [
+                     *                   -90.535,
+                     *                   14.585
+                     *                 ]
+                     *               ]
+                     *             ]
+                     *           },
+                     *           "area_ha": 119.4,
+                     *           "current_rotation": [
+                     *             "maize",
+                     *             "fallow"
+                     *           ],
+                     *           "created_at": "2026-11-14T15:05:00Z"
+                     *         }
+                     *       ],
+                     *       "next_cursor": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["FarmList"];
                 };
             };
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
     createFarm: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Optional client key to make retryable writes idempotent */
                 "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
             };
             path?: never;
@@ -967,22 +1023,97 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateFarmRequest"];
+                /**
+                 * @example {
+                 *       "name": "Finca La Esperanza",
+                 *       "boundary": {
+                 *         "type": "Polygon",
+                 *         "coordinates": [
+                 *           [
+                 *             [
+                 *               -90.535,
+                 *               14.585
+                 *             ],
+                 *             [
+                 *               -90.525,
+                 *               14.585
+                 *             ],
+                 *             [
+                 *               -90.525,
+                 *               14.595
+                 *             ],
+                 *             [
+                 *               -90.535,
+                 *               14.595
+                 *             ],
+                 *             [
+                 *               -90.535,
+                 *               14.585
+                 *             ]
+                 *           ]
+                 *         ]
+                 *       },
+                 *       "current_rotation": [
+                 *         "maize",
+                 *         "fallow"
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["FarmCreate"];
             };
         };
         responses: {
             /** @description Farm created */
             201: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *       "name": "Finca La Esperanza",
+                     *       "boundary": {
+                     *         "type": "Polygon",
+                     *         "coordinates": [
+                     *           [
+                     *             [
+                     *               -90.535,
+                     *               14.585
+                     *             ],
+                     *             [
+                     *               -90.525,
+                     *               14.585
+                     *             ],
+                     *             [
+                     *               -90.525,
+                     *               14.595
+                     *             ],
+                     *             [
+                     *               -90.535,
+                     *               14.595
+                     *             ],
+                     *             [
+                     *               -90.535,
+                     *               14.585
+                     *             ]
+                     *           ]
+                     *         ]
+                     *       },
+                     *       "area_ha": 119.4,
+                     *       "current_rotation": [
+                     *         "maize",
+                     *         "fallow"
+                     *       ],
+                     *       "created_at": "2026-11-14T15:05:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Farm"];
                 };
             };
-            422: components["responses"]["ValidationProblem"];
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
     getFarm: {
@@ -990,26 +1121,63 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Farm details */
+            /** @description The farm */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *       "name": "Finca La Esperanza",
+                     *       "boundary": {
+                     *         "type": "Polygon",
+                     *         "coordinates": [
+                     *           [
+                     *             [
+                     *               -90.535,
+                     *               14.585
+                     *             ],
+                     *             [
+                     *               -90.525,
+                     *               14.585
+                     *             ],
+                     *             [
+                     *               -90.525,
+                     *               14.595
+                     *             ],
+                     *             [
+                     *               -90.535,
+                     *               14.595
+                     *             ],
+                     *             [
+                     *               -90.535,
+                     *               14.585
+                     *             ]
+                     *           ]
+                     *         ]
+                     *       },
+                     *       "area_ha": 119.4,
+                     *       "current_rotation": [
+                     *         "maize",
+                     *         "fallow"
+                     *       ],
+                     *       "created_at": "2026-11-14T15:05:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Farm"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
     deleteFarm: {
@@ -1017,24 +1185,22 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Farm deleted */
+            /** @description Deleted */
             204: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
     updateFarm: {
@@ -1042,317 +1208,625 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateFarmRequest"];
+                /**
+                 * @example {
+                 *       "name": "Finca La Esperanza"
+                 *     }
+                 */
+                "application/json": components["schemas"]["FarmUpdate"];
             };
         };
         responses: {
-            /** @description Updated farm */
+            /** @description The updated farm */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *       "name": "Finca La Esperanza",
+                     *       "boundary": {
+                     *         "type": "Polygon",
+                     *         "coordinates": [
+                     *           [
+                     *             [
+                     *               -90.535,
+                     *               14.585
+                     *             ],
+                     *             [
+                     *               -90.525,
+                     *               14.585
+                     *             ],
+                     *             [
+                     *               -90.525,
+                     *               14.595
+                     *             ],
+                     *             [
+                     *               -90.535,
+                     *               14.595
+                     *             ],
+                     *             [
+                     *               -90.535,
+                     *               14.585
+                     *             ]
+                     *           ]
+                     *         ]
+                     *       },
+                     *       "area_ha": 119.4,
+                     *       "current_rotation": [
+                     *         "maize",
+                     *         "fallow"
+                     *       ],
+                     *       "created_at": "2026-11-14T15:05:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Farm"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
-    listFarmUploads: {
+    listUploads: {
         parameters: {
             query?: {
-                /** @description Maximum number of items to return */
                 limit?: components["parameters"]["Limit"];
-                /** @description Opaque pagination cursor from the previous response */
                 cursor?: components["parameters"]["Cursor"];
             };
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Paginated list of uploads for the farm */
+            /** @description A page of uploads */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FarmUploadListResponse"];
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "3c8f6f2e-7a54-4f0b-9c1a-5a8b9f3d2e10",
+                     *           "farm_id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *           "filename": "harvests_2020_2025.csv",
+                     *           "format": "csv",
+                     *           "status": "accepted_with_errors",
+                     *           "rows_total": 12,
+                     *           "rows_accepted": 11,
+                     *           "errors": [
+                     *             {
+                     *               "row": 7,
+                     *               "column": "yield_t_ha",
+                     *               "message": "Must be a number greater than or equal to 0."
+                     *             }
+                     *           ],
+                     *           "created_at": "2026-11-14T15:10:00Z"
+                     *         }
+                     *       ],
+                     *       "next_cursor": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["UploadList"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
-    createFarmUpload: {
+    createUpload: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Optional client key to make retryable writes idempotent */
                 "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
             };
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateFarmUploadRequest"];
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
             };
         };
         responses: {
-            /** @description Upload processed with validation summary and row-level errors */
+            /** @description File parsed */
             201: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FarmUpload"];
+                    /**
+                     * @example {
+                     *       "id": "3c8f6f2e-7a54-4f0b-9c1a-5a8b9f3d2e10",
+                     *       "farm_id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *       "filename": "harvests_2020_2025.csv",
+                     *       "format": "csv",
+                     *       "status": "accepted_with_errors",
+                     *       "rows_total": 12,
+                     *       "rows_accepted": 11,
+                     *       "errors": [
+                     *         {
+                     *           "row": 7,
+                     *           "column": "yield_t_ha",
+                     *           "message": "Must be a number greater than or equal to 0."
+                     *         }
+                     *       ],
+                     *       "created_at": "2026-11-14T15:10:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Upload"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
-    getFarmPriorities: {
+    getPriorities: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Priorities and constraints for the farm */
+            /** @description Priorities */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FarmPriorities"];
+                    /**
+                     * @example {
+                     *       "weights": {
+                     *         "water_use": 0.9,
+                     *         "income": 0.7,
+                     *         "soil_structure": 0.5,
+                     *         "forage_value": 0.1,
+                     *         "nitrogen_fixing": 0.6,
+                     *         "erosion_reduction": 0.8,
+                     *         "market_suitability": 0.4
+                     *       },
+                     *       "constraints": {
+                     *         "water_availability": "low",
+                     *         "equipment": [
+                     *           "hand_tools",
+                     *           "animal_traction"
+                     *         ]
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Priorities"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
-    updateFarmPriorities: {
+    putPriorities: {
         parameters: {
             query?: never;
-            header?: {
-                /** @description Optional client key to make retryable writes idempotent */
-                "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
-            };
+            header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["FarmPrioritiesUpdate"];
+                /**
+                 * @example {
+                 *       "weights": {
+                 *         "water_use": 0.9,
+                 *         "income": 0.7,
+                 *         "soil_structure": 0.5,
+                 *         "forage_value": 0.1,
+                 *         "nitrogen_fixing": 0.6,
+                 *         "erosion_reduction": 0.8,
+                 *         "market_suitability": 0.4
+                 *       },
+                 *       "constraints": {
+                 *         "water_availability": "low",
+                 *         "equipment": [
+                 *           "hand_tools",
+                 *           "animal_traction"
+                 *         ]
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["Priorities"];
             };
         };
         responses: {
-            /** @description Saved priorities and constraints */
+            /** @description Stored priorities */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FarmPriorities"];
+                    /**
+                     * @example {
+                     *       "weights": {
+                     *         "water_use": 0.9,
+                     *         "income": 0.7,
+                     *         "soil_structure": 0.5,
+                     *         "forage_value": 0.1,
+                     *         "nitrogen_fixing": 0.6,
+                     *         "erosion_reduction": 0.8,
+                     *         "market_suitability": 0.4
+                     *       },
+                     *       "constraints": {
+                     *         "water_availability": "low",
+                     *         "equipment": [
+                     *           "hand_tools",
+                     *           "animal_traction"
+                     *         ]
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Priorities"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
-    getFarmInsights: {
+    getInsights: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Bare-field periods, vulnerable seasons, provenance, and disclaimer */
+            /** @description Insights */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FarmInsights"];
+                    /**
+                     * @example {
+                     *       "data_available": true,
+                     *       "bare_field_periods": [
+                     *         {
+                     *           "start_month": 12,
+                     *           "end_month": 4,
+                     *           "reason": "Low vegetation index after the maize harvest.",
+                     *           "source": "modis_ndvi"
+                     *         }
+                     *       ],
+                     *       "vulnerable_seasons": [
+                     *         {
+                     *           "start_month": 7,
+                     *           "end_month": 8,
+                     *           "hazard": "dry_spell",
+                     *           "reason": "Mid-summer dry spell during maize flowering.",
+                     *           "source": "insivumeh_daily"
+                     *         }
+                     *       ],
+                     *       "provenance": {
+                     *         "model_name": "agrofarm-stub",
+                     *         "model_version": "stub-0.1.0",
+                     *         "data_versions": {
+                     *           "insivumeh_daily": "2026-11-14",
+                     *           "enso_monthly": "2026-11"
+                     *         },
+                     *         "input_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                     *         "generated_at": "2026-11-14T15:20:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Insights"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
-    listLayers: {
-        parameters: {
-            query?: {
-                /** @description Maximum number of items to return */
-                limit?: components["parameters"]["Limit"];
-                /** @description Opaque pagination cursor from the previous response */
-                cursor?: components["parameters"]["Cursor"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Paginated list of map layers */
-            200: {
-                headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LayerListResponse"];
-                };
-            };
-            422: components["responses"]["ValidationProblem"];
-        };
-    };
-    getEnsoSeries: {
-        parameters: {
-            query?: {
-                /** @description Start month in YYYY-MM format */
-                start_month?: string;
-                /** @description End month in YYYY-MM format */
-                end_month?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description ENSO monthly series with provenance */
-            200: {
-                headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EnsoSeriesResponse"];
-                };
-            };
-            422: components["responses"]["ValidationProblem"];
-        };
-    };
-    simulateScenario: {
+    createRecommendations: {
         parameters: {
             query?: never;
             header?: {
-                /** @description Optional client key to make retryable writes idempotent */
-                "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScenarioSimulationRequest"];
-            };
-        };
-        responses: {
-            /** @description Baseline and scenario predictions with quantile uncertainty and provenance */
-            200: {
-                headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScenarioSimulationResponse"];
-                };
-            };
-            422: components["responses"]["ValidationProblem"];
-        };
-    };
-    createFarmRecommendations: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Optional client key to make retryable writes idempotent */
                 "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
             };
             path: {
-                /** @description Unique farm identifier */
-                id: components["parameters"]["FarmId"];
+                farm_id: components["parameters"]["FarmId"];
             };
             cookie?: never;
         };
         requestBody?: {
             content: {
+                /**
+                 * @example {
+                 *       "scenario": {
+                 *         "rainfall_change_pct": -20,
+                 *         "temperature_change_c": 1,
+                 *         "enso_phase": "el_nino"
+                 *       }
+                 *     }
+                 */
                 "application/json": components["schemas"]["RecommendationRequest"];
             };
         };
         responses: {
-            /** @description Rotation comparison with why, evidence, benefits, gaps, risks, uncertainty, scores, provenance, and disclaimer */
-            200: {
+            /** @description Strategies with explanations. Decision support, never certain */
+            201: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Recommendation"];
+                    /**
+                     * @example {
+                     *       "id": "9d2b7c44-0f6e-4b0b-8a3f-7c1e5d9a6b21",
+                     *       "farm_id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *       "disclaimer": "This tool supports decisions. It does not replace farmers or local agronomists.",
+                     *       "strategies": [
+                     *         {
+                     *           "id": "current",
+                     *           "name": "Maize, then fallow",
+                     *           "is_current": true,
+                     *           "sequence": [
+                     *             "maize",
+                     *             "fallow"
+                     *           ],
+                     *           "overall_score": 0.48,
+                     *           "scores": {
+                     *             "water_use": 0.5,
+                     *             "income": 0.6,
+                     *             "soil_structure": 0.3,
+                     *             "forage_value": 0.1,
+                     *             "nitrogen_fixing": 0.1,
+                     *             "erosion_reduction": 0.3,
+                     *             "market_suitability": 0.7
+                     *           },
+                     *           "uncertainty": {
+                     *             "low": 0.38,
+                     *             "high": 0.57
+                     *           },
+                     *           "why": [
+                     *             "This is what the farm does today. It is the baseline for the comparison."
+                     *           ],
+                     *           "evidence": [
+                     *             {
+                     *               "statement": "About 93% of yearly rain falls from May to October at the reference station.",
+                     *               "source": "insivumeh_daily"
+                     *             }
+                     *           ],
+                     *           "benefits": [
+                     *             "Known practice, no new equipment."
+                     *           ],
+                     *           "gaps": [
+                     *             "No yield records uploaded for this farm."
+                     *           ],
+                     *           "risks": [
+                     *             {
+                     *               "description": "Bare soil from December to April raises erosion risk at the first heavy rains.",
+                     *               "needs_local_review": true
+                     *             }
+                     *           ],
+                     *           "needs_local_review": true
+                     *         },
+                     *         {
+                     *           "id": "maize_beans",
+                     *           "name": "Maize, then black beans",
+                     *           "is_current": false,
+                     *           "sequence": [
+                     *             "maize",
+                     *             "black_beans"
+                     *           ],
+                     *           "overall_score": 0.66,
+                     *           "scores": {
+                     *             "water_use": 0.6,
+                     *             "income": 0.7,
+                     *             "soil_structure": 0.6,
+                     *             "forage_value": 0.2,
+                     *             "nitrogen_fixing": 0.9,
+                     *             "erosion_reduction": 0.6,
+                     *             "market_suitability": 0.7
+                     *           },
+                     *           "uncertainty": {
+                     *             "low": 0.52,
+                     *             "high": 0.76
+                     *           },
+                     *           "why": [
+                     *             "Beans fix nitrogen for the next maize crop.",
+                     *             "A second crop shortens the bare-field period."
+                     *           ],
+                     *           "evidence": [
+                     *             {
+                     *               "statement": "Legumes fix atmospheric nitrogen (crop traits table v1).",
+                     *               "source": "crop_traits"
+                     *             }
+                     *           ],
+                     *           "benefits": [
+                     *             "Less nitrogen fertilizer needed.",
+                     *             "Soil covered for more months."
+                     *           ],
+                     *           "gaps": [
+                     *             "Late-season rainfall is uncertain under El Nino.",
+                     *             "No local bean yield data."
+                     *           ],
+                     *           "risks": [
+                     *             {
+                     *               "description": "Beans sown late may meet the dry season before filling pods.",
+                     *               "needs_local_review": true
+                     *             }
+                     *           ],
+                     *           "needs_local_review": true
+                     *         },
+                     *         {
+                     *           "id": "maize_cover_crop",
+                     *           "name": "Maize, then a cover crop",
+                     *           "is_current": false,
+                     *           "sequence": [
+                     *             "maize",
+                     *             "cover_crop"
+                     *           ],
+                     *           "overall_score": 0.61,
+                     *           "scores": {
+                     *             "water_use": 0.7,
+                     *             "income": 0.4,
+                     *             "soil_structure": 0.8,
+                     *             "forage_value": 0.6,
+                     *             "nitrogen_fixing": 0.6,
+                     *             "erosion_reduction": 0.9,
+                     *             "market_suitability": 0.3
+                     *           },
+                     *           "uncertainty": {
+                     *             "low": 0.47,
+                     *             "high": 0.72
+                     *           },
+                     *           "why": [
+                     *             "Keeps the soil covered in the dry season.",
+                     *             "Matches the high weight given to erosion reduction."
+                     *           ],
+                     *           "evidence": [
+                     *             {
+                     *               "statement": "90 days with 50 mm of rain or more were recorded from 1995 to 2025.",
+                     *               "source": "insivumeh_daily"
+                     *             }
+                     *           ],
+                     *           "benefits": [
+                     *             "Lower erosion risk.",
+                     *             "Better soil structure over several seasons."
+                     *           ],
+                     *           "gaps": [
+                     *             "Seed availability and cost were not checked."
+                     *           ],
+                     *           "risks": [
+                     *             {
+                     *               "description": "The cover crop gives no direct income.",
+                     *               "needs_local_review": true
+                     *             }
+                     *           ],
+                     *           "needs_local_review": true
+                     *         }
+                     *       ],
+                     *       "provenance": {
+                     *         "model_name": "agrofarm-stub",
+                     *         "model_version": "stub-0.1.0",
+                     *         "data_versions": {
+                     *           "insivumeh_daily": "2026-11-14",
+                     *           "enso_monthly": "2026-11"
+                     *         },
+                     *         "input_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                     *         "generated_at": "2026-11-14T15:20:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RecommendationSet"];
                 };
             };
-            404: components["responses"]["NotFoundProblem"];
-            422: components["responses"]["ValidationProblem"];
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
         };
     };
-    searchCatalog: {
+    listLayers: {
         parameters: {
-            query: {
-                /** @description Search query (minimum 2 characters) */
-                q: string;
-                /** @description Optional entity filter */
-                type?: components["schemas"]["SearchEntityType"];
-                /** @description Maximum number of items to return */
-                limit?: components["parameters"]["Limit"];
-                /** @description Opaque pagination cursor from the previous response */
-                cursor?: components["parameters"]["Cursor"];
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Layers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "rainfall_monthly",
+                     *           "name": "Monthly rainfall",
+                     *           "kind": "raster",
+                     *           "unit": "mm",
+                     *           "source": "CHIRPS v3",
+                     *           "measurement": "satellite_and_stations",
+                     *           "resolution": "0.05 degrees (about 5.5 km)",
+                     *           "date_range": {
+                     *             "start": "1995-01-01",
+                     *             "end": "2025-12-31"
+                     *           },
+                     *           "license": "Creative Commons, attribution to the Climate Hazards Center",
+                     *           "url": "https://storage.example.com/clean/chirps/2025-10.tif?signature=stub",
+                     *           "url_expires_at": "2026-11-14T16:20:00Z",
+                     *           "legend": {
+                     *             "min": 0,
+                     *             "max": 600,
+                     *             "palette": "viridis"
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "soil_ph",
+                     *           "name": "Soil pH (0 to 5 cm)",
+                     *           "kind": "raster",
+                     *           "unit": "pH",
+                     *           "source": "SoilGrids 2.0",
+                     *           "measurement": "model_prediction",
+                     *           "resolution": "250 m",
+                     *           "date_range": null,
+                     *           "license": "CC BY 4.0",
+                     *           "url": "https://storage.example.com/clean/soilgrids/phh2o_0-5cm.tif?signature=stub",
+                     *           "url_expires_at": "2026-11-14T16:20:00Z",
+                     *           "legend": {
+                     *             "min": 4,
+                     *             "max": 9,
+                     *             "palette": "cividis"
+                     *           }
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["LayerList"];
+                };
+            };
+            401: components["responses"]["Problem"];
+        };
+    };
+    getEnso: {
+        parameters: {
+            query?: {
+                start?: string;
+                end?: string;
             };
             header?: never;
             path?: never;
@@ -1360,18 +1834,253 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Ranked search results (at most 20 items) */
+            /** @description ENSO series */
             200: {
                 headers: {
-                    "X-Request-Id": components["headers"]["XRequestId"];
-                    "X-Stub": components["headers"]["XStub"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SearchResponse"];
+                    /**
+                     * @example {
+                     *       "threshold_c": 0.5,
+                     *       "items": [
+                     *         {
+                     *           "month": "2023-12",
+                     *           "oni": 2,
+                     *           "roni": 1.5,
+                     *           "phase": "el_nino"
+                     *         },
+                     *         {
+                     *           "month": "2024-06",
+                     *           "oni": 0.2,
+                     *           "roni": -0.3,
+                     *           "phase": "neutral"
+                     *         },
+                     *         {
+                     *           "month": "2025-01",
+                     *           "oni": -0.6,
+                     *           "roni": -1.1,
+                     *           "phase": "la_nina"
+                     *         }
+                     *       ],
+                     *       "source": "NOAA CPC",
+                     *       "disclaimer": "This tool supports decisions. It does not replace farmers or local agronomists."
+                     *     }
+                     */
+                    "application/json": components["schemas"]["EnsoSeries"];
                 };
             };
-            422: components["responses"]["ValidationProblem"];
+            401: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+        };
+    };
+    getNasaPower: {
+        parameters: {
+            query?: {
+                start?: string;
+                end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description NASA POWER monthly series */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "location": {
+                     *         "latitude": 14.59,
+                     *         "longitude": -90.53
+                     *       },
+                     *       "items": [
+                     *         {
+                     *           "month": "1995-01",
+                     *           "rainfall_mm": 7.18,
+                     *           "temperature_mean_c": 20.62,
+                     *           "temperature_min_c": 14.39,
+                     *           "temperature_max_c": 29.29,
+                     *           "relative_humidity_pct": 61.69,
+                     *           "solar_radiation_mj_m2": 18.85,
+                     *           "wind_speed_kmh": 8.08
+                     *         },
+                     *         {
+                     *           "month": "1995-02",
+                     *           "rainfall_mm": 1.31,
+                     *           "temperature_mean_c": 21.55,
+                     *           "temperature_min_c": 14.74,
+                     *           "temperature_max_c": 30.72,
+                     *           "relative_humidity_pct": 57.28,
+                     *           "solar_radiation_mj_m2": 21.12,
+                     *           "wind_speed_kmh": 7.91
+                     *         },
+                     *         {
+                     *           "month": "2025-12",
+                     *           "rainfall_mm": 61.41,
+                     *           "temperature_mean_c": 19.46,
+                     *           "temperature_min_c": 15.44,
+                     *           "temperature_max_c": 24.99,
+                     *           "relative_humidity_pct": 83.39,
+                     *           "solar_radiation_mj_m2": 16.23,
+                     *           "wind_speed_kmh": 7.46
+                     *         }
+                     *       ],
+                     *       "aggregation": {
+                     *         "rainfall_mm": "sum of daily values in the month (mm per month)",
+                     *         "temperature_mean_c": "mean of daily values",
+                     *         "temperature_min_c": "mean of the daily minimum",
+                     *         "temperature_max_c": "mean of the daily maximum",
+                     *         "relative_humidity_pct": "mean of daily values",
+                     *         "solar_radiation_mj_m2": "mean daily total (MJ/m2 per day)",
+                     *         "wind_speed_kmh": "mean of daily values"
+                     *       },
+                     *       "source": "NASA POWER Daily API, community AG (MERRA-2 meteorology, CERES SYN1deg solar radiation)",
+                     *       "source_url": "https://power.larc.nasa.gov",
+                     *       "attribution": "NASA Langley Research Center (LaRC) POWER Project, funded through the NASA Earth Science/Applied Science Program",
+                     *       "resolution_note": "One point taken from a grid cell of about 0.5 x 0.625 degrees (about 50 km). It is a reanalysis, not a station measurement.",
+                     *       "dataset_checksum_sha256": "f3d67c4d22bcc20c753bb46598ba004e0a6487cffd41df520cc53db7b7e11456",
+                     *       "processing_version": "0.1.0",
+                     *       "disclaimer": "This tool supports decisions. It does not replace farmers or local agronomists."
+                     *     }
+                     */
+                    "application/json": components["schemas"]["NasaPowerSeries"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+        };
+    };
+    simulateScenario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "farm_id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                 *       "crop": "maize",
+                 *       "scenario": {
+                 *         "rainfall_change_pct": -20,
+                 *         "temperature_change_c": 1,
+                 *         "enso_phase": "el_nino"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["SimulationRequest"];
+            };
+        };
+        responses: {
+            /** @description Baseline and scenario with quantile ranges */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "crop": "maize",
+                     *       "target": "yield_anomaly_pct",
+                     *       "unit": "%",
+                     *       "baseline": {
+                     *         "p10": -12,
+                     *         "p50": 0,
+                     *         "p90": 11
+                     *       },
+                     *       "scenario": {
+                     *         "p10": -31,
+                     *         "p50": -14,
+                     *         "p90": 2
+                     *       },
+                     *       "attributions": [
+                     *         {
+                     *           "feature": "rainfall_anomaly_jja",
+                     *           "contribution": -8.5
+                     *         },
+                     *         {
+                     *           "feature": "enso_roni_lag3",
+                     *           "contribution": -3.9
+                     *         },
+                     *         {
+                     *           "feature": "temperature_anomaly_jja",
+                     *           "contribution": -1.6
+                     *         }
+                     *       ],
+                     *       "out_of_range_inputs": [],
+                     *       "provenance": {
+                     *         "model_name": "agrofarm-stub",
+                     *         "model_version": "stub-0.1.0",
+                     *         "data_versions": {
+                     *           "insivumeh_daily": "2026-11-14",
+                     *           "enso_monthly": "2026-11"
+                     *         },
+                     *         "input_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                     *         "generated_at": "2026-11-14T15:20:00Z"
+                     *       },
+                     *       "disclaimer": "This tool supports decisions. It does not replace farmers or local agronomists."
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SimulationResult"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
+        };
+    };
+    search: {
+        parameters: {
+            query: {
+                q: string;
+                type?: "crop" | "place" | "farm";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description At most 20 results, best match first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "type": "crop",
+                     *           "id": "maize",
+                     *           "name": "Maize",
+                     *           "matched": "maiz",
+                     *           "similarity": 0.67
+                     *         },
+                     *         {
+                     *           "type": "farm",
+                     *           "id": "6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33",
+                     *           "name": "Finca La Esperanza",
+                     *           "matched": "Finca La Esperanza",
+                     *           "similarity": 0.31
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SearchResults"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
 }

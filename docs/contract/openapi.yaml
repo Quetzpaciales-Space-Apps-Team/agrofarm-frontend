@@ -1,885 +1,729 @@
 openapi: 3.1.0
 info:
   title: AgroFarm core-api
-  version: 0.1.0
+  version: 1.0.0-stub
   description: >
-    Public REST API for AgroFarm: authentication, farms, farm data uploads,
-    priorities, insights, map layers, ENSO climate series, scenario simulation,
-    crop rotation recommendations, and trigram search.
-    Recommendations are decision support and never replace local agronomists or farmers.
+    Public REST API of AgroFarm. Contract first: this file is the source of truth and the
+    service serves it at /openapi.json. Endpoints marked `x-stub: true` return the example
+    data of this file until their real implementation lands.
+    The tool supports decisions. Predictions are never certain: every simulation carries a
+    quantile range and every recommendation carries reasons, evidence, gaps and risks.
 servers:
-  - url: http://localhost:8080
-    description: Local development server
-
+  - url: /
 tags:
   - name: health
-    description: Liveness and readiness probes
   - name: auth
-    description: Registration, login, token rotation, logout, and current user profile
   - name: farms
-    description: Farm management, uploads, priorities, insights, and rotation recommendations
-  - name: layers
-    description: Geospatial and satellite map layers with provenance
-  - name: climate
-    description: ENSO (ONI and RONI) historical and current climate series
-  - name: scenarios
-    description: Controlled-environment crop growth scenario simulation with uncertainty
+  - name: data
+  - name: simulation
+  - name: recommendations
   - name: search
-    description: Typo-tolerant trigram search across crops, places, and farms
+security:
+  - bearerAuth: []
 
 paths:
   /healthz:
     get:
-      operationId: getHealthz
       tags: [health]
-      summary: Liveness probe
+      operationId: healthz
+      summary: The process is alive
+      security: []
       responses:
         "200":
-          description: Process is alive
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
+          description: Alive
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HealthStatus"
-
+              schema: { $ref: "#/components/schemas/Health" }
+              example: { status: ok }
   /readyz:
     get:
-      operationId: getReadyz
       tags: [health]
-      summary: Readiness probe
+      operationId: readyz
+      summary: The dependencies are reachable
+      security: []
       responses:
         "200":
-          description: Dependencies are reachable
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
+          description: Ready
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/ReadyStatus"
-        "503":
-          $ref: "#/components/responses/ServiceUnavailableProblem"
+              schema: { $ref: "#/components/schemas/Readiness" }
+              example: { status: ready, checks: { database: ok } }
+        "503": { $ref: "#/components/responses/Problem" }
 
   /v1/auth/register:
     post:
-      operationId: registerUser
       tags: [auth]
-      summary: Register a new farmer or agronomist account
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+      operationId: register
+      summary: Create an account
+      security: []
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/RegisterRequest"
+            schema: { $ref: "#/components/schemas/RegisterRequest" }
+            example: { email: ana@example.com, password: "correct horse battery", name: Ana Lopez }
       responses:
         "201":
-          description: Account registered and access token issued
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: Account created
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/AuthTokenResponse"
-        "409":
-          $ref: "#/components/responses/ConflictProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
+              schema: { $ref: "#/components/schemas/User" }
+              example: &user
+                id: 0b9d1c0e-5a1f-4c57-9a41-2f6a1f0c7e11
+                email: ana@example.com
+                name: Ana Lopez
+                role: farmer
+                created_at: "2026-11-14T15:00:00Z"
+        "400": { $ref: "#/components/responses/Problem" }
+        "409": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+        "429": { $ref: "#/components/responses/Problem" }
   /v1/auth/login:
     post:
-      operationId: loginUser
       tags: [auth]
-      summary: Authenticate with email and password
+      operationId: login
+      summary: Log in. Sets the refresh token as an httpOnly cookie
+      security: []
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/LoginRequest"
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+            example: { email: ana@example.com, password: "correct horse battery" }
       responses:
         "200":
-          description: Authenticated and access token issued
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: Logged in
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/AuthTokenResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
+              schema: { $ref: "#/components/schemas/TokenResponse" }
+              example: &token
+                access_token: stub.access.token
+                token_type: bearer
+                expires_in: 900
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+        "429": { $ref: "#/components/responses/Problem" }
+  /v1/auth/demo:
+    post:
+      tags: [auth]
+      operationId: demoLogin
+      summary: Create an ephemeral demo guest session with a cloned pilot farm (only when DEMO_MODE=true)
+      security: []
+      responses:
+        "201":
+          description: Ephemeral demo guest session created with a provisional Guatemala City pilot farm
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoAuthResponse" }
+              example:
+                access_token: stub.access.token
+                token_type: bearer
+                expires_in: 900
+                farm_id: 22222222-2222-4222-8222-222222222222
+                is_demo_guest: true
+        "404": { $ref: "#/components/responses/Problem" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
   /v1/auth/refresh:
     post:
-      operationId: refreshAccessToken
       tags: [auth]
-      summary: Rotate refresh token cookie and issue a new short-lived access token
+      operationId: refresh
+      summary: Rotate the refresh cookie and return a new access token
+      security:
+        - refreshCookie: []
       responses:
         "200":
-          description: Access token refreshed
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: New access token
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/AuthTokenResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedProblem"
-
+              schema: { $ref: "#/components/schemas/TokenResponse" }
+              example: *token
+        "401": { $ref: "#/components/responses/Problem" }
   /v1/auth/logout:
     post:
-      operationId: logoutUser
       tags: [auth]
-      summary: Revoke current refresh token family and clear session cookie
+      operationId: logout
+      summary: Revoke the refresh token
+      security:
+        - refreshCookie: []
       responses:
-        "204":
-          description: Logged out
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
-
+        "204": { description: Logged out }
   /v1/me:
     get:
-      operationId: getCurrentUser
       tags: [auth]
-      summary: Get the authenticated user profile
+      operationId: me
+      summary: The current user
       responses:
         "200":
-          description: Current user profile
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: Current user
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/UserProfile"
-        "401":
-          $ref: "#/components/responses/UnauthorizedProblem"
+              schema: { $ref: "#/components/schemas/User" }
+              example: *user
+        "401": { $ref: "#/components/responses/Problem" }
 
   /v1/farms:
     get:
-      operationId: listFarms
       tags: [farms]
-      summary: List farms owned by the authenticated user
+      operationId: listFarms
+      summary: Farms of the current user
       parameters:
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/Cursor"
+        - { $ref: "#/components/parameters/Limit" }
+        - { $ref: "#/components/parameters/Cursor" }
       responses:
         "200":
-          description: Paginated list of farms
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: A page of farms
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/FarmListResponse"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
+              schema: { $ref: "#/components/schemas/FarmList" }
+              example:
+                items:
+                  - &farm
+                    id: 6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33
+                    name: Finca La Esperanza
+                    boundary: &polygon
+                      type: Polygon
+                      coordinates:
+                        - [[-90.535, 14.585], [-90.525, 14.585], [-90.525, 14.595], [-90.535, 14.595], [-90.535, 14.585]]
+                    area_ha: 119.4
+                    current_rotation: [maize, fallow]
+                    created_at: "2026-11-14T15:05:00Z"
+                next_cursor: null
+        "401": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
     post:
-      operationId: createFarm
       tags: [farms]
-      summary: Create a farm with a reference point or GeoJSON polygon
+      operationId: createFarm
+      summary: Create a farm
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+        - { $ref: "#/components/parameters/IdempotencyKey" }
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/CreateFarmRequest"
+            schema: { $ref: "#/components/schemas/FarmCreate" }
+            example: { name: Finca La Esperanza, boundary: *polygon, current_rotation: [maize, fallow] }
       responses:
         "201":
           description: Farm created
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Farm"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/farms/{id}:
+              schema: { $ref: "#/components/schemas/Farm" }
+              example: *farm
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/farms/{farm_id}:
     parameters:
-      - $ref: "#/components/parameters/FarmId"
+      - { $ref: "#/components/parameters/FarmId" }
     get:
-      operationId: getFarm
       tags: [farms]
-      summary: Get a farm by ID
+      operationId: getFarm
+      summary: One farm
       responses:
         "200":
-          description: Farm details
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: The farm
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Farm"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
+              schema: { $ref: "#/components/schemas/Farm" }
+              example: *farm
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
     patch:
-      operationId: updateFarm
       tags: [farms]
-      summary: Update a farm's name, current rotation, or geometry
+      operationId: updateFarm
+      summary: Change a farm
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateFarmRequest"
+            schema: { $ref: "#/components/schemas/FarmUpdate" }
+            example: { name: Finca La Esperanza }
       responses:
         "200":
-          description: Updated farm
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: The updated farm
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Farm"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
+              schema: { $ref: "#/components/schemas/Farm" }
+              example: *farm
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
     delete:
-      operationId: deleteFarm
       tags: [farms]
+      operationId: deleteFarm
       summary: Delete a farm
       responses:
-        "204":
-          description: Farm deleted
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/farms/{id}/uploads:
+        "204": { description: Deleted }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/farms/{farm_id}/uploads:
     parameters:
-      - $ref: "#/components/parameters/FarmId"
+      - { $ref: "#/components/parameters/FarmId" }
     get:
-      operationId: listFarmUploads
       tags: [farms]
-      summary: List uploaded farm history files and validation status
+      operationId: listUploads
+      summary: Files uploaded for a farm
       parameters:
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/Cursor"
+        - { $ref: "#/components/parameters/Limit" }
+        - { $ref: "#/components/parameters/Cursor" }
       responses:
         "200":
-          description: Paginated list of uploads for the farm
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: A page of uploads
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/FarmUploadListResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
+              schema: { $ref: "#/components/schemas/UploadList" }
+              example:
+                items:
+                  - &upload
+                    id: 3c8f6f2e-7a54-4f0b-9c1a-5a8b9f3d2e10
+                    farm_id: 6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33
+                    filename: harvests_2020_2025.csv
+                    format: csv
+                    status: accepted_with_errors
+                    rows_total: 12
+                    rows_accepted: 11
+                    errors:
+                      - { row: 7, column: yield_t_ha, message: "Must be a number greater than or equal to 0." }
+                    created_at: "2026-11-14T15:10:00Z"
+                next_cursor: null
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
     post:
-      operationId: createFarmUpload
       tags: [farms]
-      summary: Upload CSV or GeoJSON farm records with row-level validation
+      operationId: createUpload
+      summary: Upload farm records (CSV or GeoJSON). Errors are reported per row
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+        - { $ref: "#/components/parameters/IdempotencyKey" }
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/CreateFarmUploadRequest"
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
       responses:
         "201":
-          description: Upload processed with validation summary and row-level errors
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: File parsed
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/FarmUpload"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/farms/{id}/priorities:
+              schema: { $ref: "#/components/schemas/Upload" }
+              example: *upload
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "413": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/farms/{farm_id}/priorities:
     parameters:
-      - $ref: "#/components/parameters/FarmId"
+      - { $ref: "#/components/parameters/FarmId" }
     get:
-      operationId: getFarmPriorities
       tags: [farms]
-      summary: Get farmer priorities and agronomic constraints for a farm
+      operationId: getPriorities
+      summary: Farmer priorities and constraints
       responses:
         "200":
-          description: Priorities and constraints for the farm
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: Priorities
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/FarmPriorities"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
+              schema: { $ref: "#/components/schemas/Priorities" }
+              example: &priorities
+                weights:
+                  water_use: 0.9
+                  income: 0.7
+                  soil_structure: 0.5
+                  forage_value: 0.1
+                  nitrogen_fixing: 0.6
+                  erosion_reduction: 0.8
+                  market_suitability: 0.4
+                constraints: { water_availability: low, equipment: [hand_tools, animal_traction] }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
     put:
-      operationId: updateFarmPriorities
       tags: [farms]
-      summary: Save farmer priorities and agronomic constraints for a farm
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+      operationId: putPriorities
+      summary: Replace farmer priorities and constraints
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/FarmPrioritiesUpdate"
+            schema: { $ref: "#/components/schemas/Priorities" }
+            example: *priorities
       responses:
         "200":
-          description: Saved priorities and constraints
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: Stored priorities
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/FarmPriorities"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/farms/{id}/insights:
+              schema: { $ref: "#/components/schemas/Priorities" }
+              example: *priorities
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/farms/{farm_id}/insights:
     parameters:
-      - $ref: "#/components/parameters/FarmId"
+      - { $ref: "#/components/parameters/FarmId" }
     get:
-      operationId: getFarmInsights
       tags: [farms]
-      summary: Get bare-field periods and climate-vulnerable seasons for a farm
+      operationId: getInsights
+      summary: Bare-field periods and vulnerable seasons
+      x-stub: true
       responses:
         "200":
-          description: Bare-field periods, vulnerable seasons, provenance, and disclaimer
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: Insights
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/FarmInsights"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/layers:
-    get:
-      operationId: listLayers
-      tags: [layers]
-      summary: List available map layers with metadata, legend, and source attribution
-      parameters:
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/Cursor"
-      responses:
-        "200":
-          description: Paginated list of map layers
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LayerListResponse"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/climate/enso:
-    get:
-      operationId: getEnsoSeries
-      tags: [climate]
-      summary: Get monthly NOAA CPC ONI and RONI values and ENSO phase classification
-      parameters:
-        - name: start_month
-          in: query
-          required: false
-          description: Start month in YYYY-MM format
-          schema:
-            type: string
-            pattern: "^\\d{4}-\\d{2}$"
-        - name: end_month
-          in: query
-          required: false
-          description: End month in YYYY-MM format
-          schema:
-            type: string
-            pattern: "^\\d{4}-\\d{2}$"
-      responses:
-        "200":
-          description: ENSO monthly series with provenance
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EnsoSeriesResponse"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/scenarios/simulate:
-    post:
-      operationId: simulateScenario
-      tags: [scenarios]
-      summary: Run a crop growth scenario simulation with quantile uncertainty ranges
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ScenarioSimulationRequest"
-      responses:
-        "200":
-          description: Baseline and scenario predictions with quantile uncertainty and provenance
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ScenarioSimulationResponse"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
-
-  /v1/farms/{id}/recommendations:
+              schema: { $ref: "#/components/schemas/Insights" }
+              example:
+                data_available: true
+                bare_field_periods:
+                  - { start_month: 12, end_month: 4, reason: "Low vegetation index after the maize harvest.", source: modis_ndvi }
+                vulnerable_seasons:
+                  - { start_month: 7, end_month: 8, hazard: dry_spell, reason: "Mid-summer dry spell during maize flowering.", source: insivumeh_daily }
+                provenance: &provenance
+                  model_name: agrofarm-stub
+                  model_version: stub-0.1.0
+                  data_versions: { insivumeh_daily: "2026-11-14", enso_monthly: "2026-11" }
+                  input_hash: "0000000000000000000000000000000000000000000000000000000000000000"
+                  generated_at: "2026-11-14T15:20:00Z"
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/farms/{farm_id}/recommendations:
     parameters:
-      - $ref: "#/components/parameters/FarmId"
+      - { $ref: "#/components/parameters/FarmId" }
     post:
-      operationId: createFarmRecommendations
-      tags: [farms]
-      summary: Compare at least three crop rotation strategies including the current rotation
+      tags: [recommendations]
+      operationId: createRecommendations
+      summary: Compare at least three rotation strategies, including the current one
       parameters:
-        - $ref: "#/components/parameters/IdempotencyKey"
+        - { $ref: "#/components/parameters/IdempotencyKey" }
       requestBody:
         required: false
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/RecommendationRequest"
+            schema: { $ref: "#/components/schemas/RecommendationRequest" }
+            example: { scenario: { rainfall_change_pct: -20, temperature_change_c: 1.0, enso_phase: el_nino } }
       responses:
-        "200":
-          description: Rotation comparison with why, evidence, benefits, gaps, risks, uncertainty, scores, provenance, and disclaimer
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+        "201":
+          description: Strategies with explanations. Decision support, never certain
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Recommendation"
-        "404":
-          $ref: "#/components/responses/NotFoundProblem"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
+              schema: { $ref: "#/components/schemas/RecommendationSet" }
+              example:
+                id: 9d2b7c44-0f6e-4b0b-8a3f-7c1e5d9a6b21
+                farm_id: 6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33
+                disclaimer: "This tool supports decisions. It does not replace farmers or local agronomists."
+                strategies:
+                  - id: current
+                    name: Maize, then fallow
+                    is_current: true
+                    sequence: [maize, fallow]
+                    overall_score: 0.48
+                    scores: { water_use: 0.5, income: 0.6, soil_structure: 0.3, forage_value: 0.1, nitrogen_fixing: 0.1, erosion_reduction: 0.3, market_suitability: 0.7 }
+                    uncertainty: { low: 0.38, high: 0.57 }
+                    why: ["This is what the farm does today. It is the baseline for the comparison."]
+                    evidence: [{ statement: "About 93% of yearly rain falls from May to October at the reference station.", source: insivumeh_daily }]
+                    benefits: ["Known practice, no new equipment."]
+                    gaps: ["No yield records uploaded for this farm."]
+                    risks: [{ description: "Bare soil from December to April raises erosion risk at the first heavy rains.", needs_local_review: true }]
+                    needs_local_review: true
+                  - id: maize_beans
+                    name: Maize, then black beans
+                    is_current: false
+                    sequence: [maize, black_beans]
+                    overall_score: 0.66
+                    scores: { water_use: 0.6, income: 0.7, soil_structure: 0.6, forage_value: 0.2, nitrogen_fixing: 0.9, erosion_reduction: 0.6, market_suitability: 0.7 }
+                    uncertainty: { low: 0.52, high: 0.76 }
+                    why: ["Beans fix nitrogen for the next maize crop.", "A second crop shortens the bare-field period."]
+                    evidence: [{ statement: "Legumes fix atmospheric nitrogen (crop traits table v1).", source: crop_traits }]
+                    benefits: ["Less nitrogen fertilizer needed.", "Soil covered for more months."]
+                    gaps: ["Late-season rainfall is uncertain under El Nino.", "No local bean yield data."]
+                    risks: [{ description: "Beans sown late may meet the dry season before filling pods.", needs_local_review: true }]
+                    needs_local_review: true
+                  - id: maize_cover_crop
+                    name: Maize, then a cover crop
+                    is_current: false
+                    sequence: [maize, cover_crop]
+                    overall_score: 0.61
+                    scores: { water_use: 0.7, income: 0.4, soil_structure: 0.8, forage_value: 0.6, nitrogen_fixing: 0.6, erosion_reduction: 0.9, market_suitability: 0.3 }
+                    uncertainty: { low: 0.47, high: 0.72 }
+                    why: ["Keeps the soil covered in the dry season.", "Matches the high weight given to erosion reduction."]
+                    evidence: [{ statement: "90 days with 50 mm of rain or more were recorded from 1995 to 2025.", source: insivumeh_daily }]
+                    benefits: ["Lower erosion risk.", "Better soil structure over several seasons."]
+                    gaps: ["Seed availability and cost were not checked."]
+                    risks: [{ description: "The cover crop gives no direct income.", needs_local_review: true }]
+                    needs_local_review: true
+                provenance: *provenance
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
 
+  /v1/layers:
+    get:
+      tags: [data]
+      operationId: listLayers
+      summary: Map layers with their source and a short-lived URL
+      x-stub: true
+      responses:
+        "200":
+          description: Layers
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LayerList" }
+              example:
+                items:
+                  - id: rainfall_monthly
+                    name: Monthly rainfall
+                    kind: raster
+                    unit: mm
+                    source: CHIRPS v3
+                    measurement: satellite_and_stations
+                    resolution: "0.05 degrees (about 5.5 km)"
+                    date_range: { start: "1995-01-01", end: "2025-12-31" }
+                    license: "Creative Commons, attribution to the Climate Hazards Center"
+                    url: "https://storage.example.com/clean/chirps/2025-10.tif?signature=stub"
+                    url_expires_at: "2026-11-14T16:20:00Z"
+                    legend: { min: 0, max: 600, palette: viridis }
+                  - id: soil_ph
+                    name: Soil pH (0 to 5 cm)
+                    kind: raster
+                    unit: pH
+                    source: SoilGrids 2.0
+                    measurement: model_prediction
+                    resolution: "250 m"
+                    date_range: null
+                    license: "CC BY 4.0"
+                    url: "https://storage.example.com/clean/soilgrids/phh2o_0-5cm.tif?signature=stub"
+                    url_expires_at: "2026-11-14T16:20:00Z"
+                    legend: { min: 4, max: 9, palette: cividis }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/climate/enso:
+    get:
+      tags: [data]
+      operationId: getEnso
+      summary: Monthly ENSO index with the phase of each month
+      parameters:
+        - { name: start, in: query, schema: { type: string, format: date } }
+        - { name: end, in: query, schema: { type: string, format: date } }
+      responses:
+        "200":
+          description: ENSO series
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EnsoSeries" }
+              example:
+                threshold_c: 0.5
+                items:
+                  - { month: "2023-12", oni: 2.0, roni: 1.5, phase: el_nino }
+                  - { month: "2024-06", oni: 0.2, roni: -0.3, phase: neutral }
+                  - { month: "2025-01", oni: -0.6, roni: -1.1, phase: la_nina }
+                source: "NOAA CPC"
+                disclaimer: "This tool supports decisions. It does not replace farmers or local agronomists."
+        "401": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/climate/nasa-power:
+    get:
+      tags: [data]
+      operationId: getNasaPower
+      summary: Monthly NASA POWER climate series (reanalysis grid cell, not a station)
+      description: >-
+        Read-only monthly series built from NASA POWER daily data for one point at 14.59, -90.53.
+        The value is a reanalysis grid cell of about 50 km, not a station measurement. `start` and
+        `end` are inclusive months (`YYYY-MM`), both optional. A range without data gives an empty
+        `items` list. A missing value is `null`, never 0 or -999. The data is a static snapshot
+        shipped with the service, not read from the data-service.
+      parameters:
+        - { name: start, in: query, schema: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" } }
+        - { name: end, in: query, schema: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" } }
+      responses:
+        "200":
+          description: NASA POWER monthly series
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NasaPowerSeries" }
+              example:
+                location: { latitude: 14.59, longitude: -90.53 }
+                items:
+                  - { month: "1995-01", rainfall_mm: 7.18, temperature_mean_c: 20.62, temperature_min_c: 14.39, temperature_max_c: 29.29, relative_humidity_pct: 61.69, solar_radiation_mj_m2: 18.85, wind_speed_kmh: 8.08 }
+                  - { month: "1995-02", rainfall_mm: 1.31, temperature_mean_c: 21.55, temperature_min_c: 14.74, temperature_max_c: 30.72, relative_humidity_pct: 57.28, solar_radiation_mj_m2: 21.12, wind_speed_kmh: 7.91 }
+                  - { month: "2025-12", rainfall_mm: 61.41, temperature_mean_c: 19.46, temperature_min_c: 15.44, temperature_max_c: 24.99, relative_humidity_pct: 83.39, solar_radiation_mj_m2: 16.23, wind_speed_kmh: 7.46 }
+                aggregation:
+                  rainfall_mm: "sum of daily values in the month (mm per month)"
+                  temperature_mean_c: "mean of daily values"
+                  temperature_min_c: "mean of the daily minimum"
+                  temperature_max_c: "mean of the daily maximum"
+                  relative_humidity_pct: "mean of daily values"
+                  solar_radiation_mj_m2: "mean daily total (MJ/m2 per day)"
+                  wind_speed_kmh: "mean of daily values"
+                source: "NASA POWER Daily API, community AG (MERRA-2 meteorology, CERES SYN1deg solar radiation)"
+                source_url: "https://power.larc.nasa.gov"
+                attribution: "NASA Langley Research Center (LaRC) POWER Project, funded through the NASA Earth Science/Applied Science Program"
+                resolution_note: "One point taken from a grid cell of about 0.5 x 0.625 degrees (about 50 km). It is a reanalysis, not a station measurement."
+                dataset_checksum_sha256: "f3d67c4d22bcc20c753bb46598ba004e0a6487cffd41df520cc53db7b7e11456"
+                processing_version: "0.1.0"
+                disclaimer: "This tool supports decisions. It does not replace farmers or local agronomists."
+        "401": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/scenarios/simulate:
+    post:
+      tags: [simulation]
+      operationId: simulateScenario
+      summary: Simulate crop response under a scenario, always with an uncertainty range
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SimulationRequest" }
+            example:
+              farm_id: 6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33
+              crop: maize
+              scenario: { rainfall_change_pct: -20, temperature_change_c: 1.0, enso_phase: el_nino }
+      responses:
+        "200":
+          description: Baseline and scenario with quantile ranges
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SimulationResult" }
+              example:
+                crop: maize
+                target: yield_anomaly_pct
+                unit: "%"
+                baseline: { p10: -12.0, p50: 0.0, p90: 11.0 }
+                scenario: { p10: -31.0, p50: -14.0, p90: 2.0 }
+                attributions:
+                  - { feature: rainfall_anomaly_jja, contribution: -8.5 }
+                  - { feature: enso_roni_lag3, contribution: -3.9 }
+                  - { feature: temperature_anomaly_jja, contribution: -1.6 }
+                out_of_range_inputs: []
+                provenance: *provenance
+                disclaimer: "This tool supports decisions. It does not replace farmers or local agronomists."
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
   /v1/search:
     get:
-      operationId: searchCatalog
       tags: [search]
-      summary: Trigram search across crops, places, and farms
+      operationId: search
+      summary: Typo-tolerant search by name
+      x-stub: true
       parameters:
-        - name: q
-          in: query
-          required: true
-          description: Search query (minimum 2 characters)
-          schema:
-            type: string
-            minLength: 2
-            maxLength: 100
-        - name: type
-          in: query
-          required: false
-          description: Optional entity filter
-          schema:
-            $ref: "#/components/schemas/SearchEntityType"
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/Cursor"
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2, maxLength: 100 } }
+        - { name: type, in: query, schema: { type: string, enum: [crop, place, farm] } }
       responses:
         "200":
-          description: Ranked search results (at most 20 items)
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/XRequestId"
-            X-Stub:
-              $ref: "#/components/headers/XStub"
+          description: At most 20 results, best match first
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/SearchResponse"
-        "422":
-          $ref: "#/components/responses/ValidationProblem"
+              schema: { $ref: "#/components/schemas/SearchResults" }
+              example:
+                items:
+                  - { type: crop, id: maize, name: Maize, matched: maiz, similarity: 0.67 }
+                  - { type: farm, id: 6f1c2f0a-9a0e-4d53-8a55-0d6d7a1b2c33, name: Finca La Esperanza, matched: Finca La Esperanza, similarity: 0.31 }
+        "401": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
 
 components:
-  headers:
-    XRequestId:
-      description: Request correlation identifier echoed or generated by the server
-      schema:
-        type: string
-    XStub:
-      description: Present and set to "true" when the response comes from a contract stub (rule G10)
-      schema:
-        type: string
-        enum: ["true"]
-
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    refreshCookie: { type: apiKey, in: cookie, name: refresh_token }
   parameters:
-    FarmId:
-      name: id
-      in: path
-      required: true
-      description: Unique farm identifier
-      schema:
-        type: string
-        minLength: 1
-        maxLength: 64
-    Limit:
-      name: limit
-      in: query
-      required: false
-      description: Maximum number of items to return
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
-    Cursor:
-      name: cursor
-      in: query
-      required: false
-      description: Opaque pagination cursor from the previous response
-      schema:
-        type: string
-        maxLength: 128
-    IdempotencyKey:
-      name: Idempotency-Key
-      in: header
-      required: false
-      description: Optional client key to make retryable writes idempotent
-      schema:
-        type: string
-        minLength: 1
-        maxLength: 128
-
+    FarmId: { name: farm_id, in: path, required: true, schema: { type: string, format: uuid } }
+    Limit: { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+    Cursor: { name: cursor, in: query, schema: { type: string, maxLength: 200 } }
+    IdempotencyKey: { name: Idempotency-Key, in: header, schema: { type: string, minLength: 8, maxLength: 128, pattern: "^[A-Za-z0-9._-]+$" } }
   responses:
-    UnauthorizedProblem:
-      description: Authentication is required or failed
-      headers:
-        X-Request-Id:
-          $ref: "#/components/headers/XRequestId"
+    Problem:
+      description: Error (RFC 7807) with a stable `code`
       content:
         application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    NotFoundProblem:
-      description: The requested resource was not found
-      headers:
-        X-Request-Id:
-          $ref: "#/components/headers/XRequestId"
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    ConflictProblem:
-      description: The request conflicts with existing state
-      headers:
-        X-Request-Id:
-          $ref: "#/components/headers/XRequestId"
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    ValidationProblem:
-      description: Request validation failed
-      headers:
-        X-Request-Id:
-          $ref: "#/components/headers/XRequestId"
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    ServiceUnavailableProblem:
-      description: A required upstream dependency is unavailable
-      headers:
-        X-Request-Id:
-          $ref: "#/components/headers/XRequestId"
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-
+          schema: { $ref: "#/components/schemas/Problem" }
   schemas:
-    HealthStatus:
+    Health:
       type: object
       required: [status]
-      properties:
-        status:
-          type: string
-          enum: [ok]
-
-    ReadyStatus:
+      properties: { status: { type: string, enum: [ok] } }
+    Readiness:
       type: object
-      required: [status]
+      required: [status, checks]
       properties:
-        status:
-          type: string
-          enum: [ready]
-
-    ValidationErrorItem:
-      type: object
-      required: [loc, msg, type]
-      properties:
-        loc:
-          type: array
-          items:
-            type: string
-        msg:
-          type: string
-        type:
-          type: string
-
+        status: { type: string, enum: [ready] }
+        checks: { type: object, additionalProperties: { type: string, enum: [ok, failed] } }
     Problem:
       type: object
-      description: RFC 7807 Problem Details with a stable machine-readable code
       required: [type, title, status, code, request_id]
       properties:
-        type:
-          type: string
-          default: about:blank
-        title:
-          type: string
-        status:
-          type: integer
-        code:
-          type: string
-        detail:
-          type: string
-        request_id:
-          type: string
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        code: { type: string, description: Stable machine-readable error code }
+        detail: { type: string }
+        request_id: { type: string }
         errors:
           type: array
           items:
-            $ref: "#/components/schemas/ValidationErrorItem"
-
-    PaginationMeta:
+            type: object
+            required: [field, message]
+            properties: { field: { type: string }, message: { type: string } }
+        checks: { type: object, additionalProperties: { type: string } }
+    Role: { type: string, enum: [farmer, agronomist, admin] }
+    User:
       type: object
-      required: [limit, next_cursor]
+      required: [id, email, name, role, created_at]
       properties:
-        limit:
-          type: integer
-          minimum: 1
-          maximum: 100
-        next_cursor:
-          type: ["string", "null"]
-
-    DatasetVersionRef:
-      type: object
-      required: [dataset_id, version, source, date_range, spatial_resolution]
-      properties:
-        dataset_id:
-          type: string
-        version:
-          type: string
-        source:
-          type: string
-        date_range:
-          type: string
-        spatial_resolution:
-          type: string
-        is_preliminary:
-          type: boolean
-          default: false
-
-    Provenance:
-      type: object
-      description: Full lineage of model and dataset versions that produced an output
-      required: [model_name, model_version, data_versions, input_hash, generated_at]
-      properties:
-        model_name:
-          type: string
-        model_version:
-          type: string
-        data_versions:
-          type: array
-          minItems: 1
-          items:
-            $ref: "#/components/schemas/DatasetVersionRef"
-        input_hash:
-          type: string
-        generated_at:
-          type: string
-          format: date-time
-
-    QuantileUncertainty:
-      type: object
-      description: Prediction range from quantile regression (p10 <= p50 <= p90)
-      required: [p10, p50, p90, unit, confidence_note]
-      properties:
-        p10:
-          type: number
-        p50:
-          type: number
-        p90:
-          type: number
-        unit:
-          type: string
-        confidence_note:
-          type: string
-
-    UserRole:
-      type: string
-      enum: [farmer, agronomist, admin]
-
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        name: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        created_at: { type: string, format: date-time }
     RegisterRequest:
       type: object
-      required: [email, password, full_name]
+      required: [email, password, name]
+      additionalProperties: false
       properties:
-        email:
-          type: string
-          format: email
-          maxLength: 254
-        password:
-          type: string
-          minLength: 10
-          maxLength: 72
-          description: Minimum 10 characters, maximum 72 UTF-8 bytes (bcrypt limit)
-        full_name:
-          type: string
-          minLength: 1
-          maxLength: 120
-        role:
-          $ref: "#/components/schemas/UserRole"
-          default: farmer
-
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 10, maxLength: 72, description: "10 characters minimum. 72 bytes maximum (bcrypt limit)." }
+        name: { type: string, minLength: 1, maxLength: 120 }
     LoginRequest:
       type: object
       required: [email, password]
+      additionalProperties: false
       properties:
-        email:
-          type: string
-          format: email
-          maxLength: 254
-        password:
-          type: string
-          minLength: 1
-          maxLength: 72
-
-    UserProfile:
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 1, maxLength: 72 }
+    TokenResponse:
       type: object
-      required: [id, email, full_name, role, created_at]
+      required: [access_token, token_type, expires_in]
       properties:
-        id:
-          type: string
-        email:
-          type: string
-          format: email
-        full_name:
-          type: string
-        role:
-          $ref: "#/components/schemas/UserRole"
-        created_at:
-          type: string
-          format: date-time
-
-    AuthTokenResponse:
+        access_token: { type: string }
+        token_type: { type: string, enum: [bearer] }
+        expires_in: { type: integer, description: Seconds }
+    DemoAuthResponse:
       type: object
-      required: [access_token, token_type, expires_in, user]
+      required: [access_token, token_type, expires_in, farm_id, is_demo_guest]
       properties:
-        access_token:
-          type: string
-        token_type:
-          type: string
-          enum: [Bearer]
-        expires_in:
-          type: integer
-          description: Access token lifetime in seconds (900s = 15 minutes)
-        user:
-          $ref: "#/components/schemas/UserProfile"
-
-    GeoPoint:
+        access_token: { type: string }
+        token_type: { type: string, enum: [bearer] }
+        expires_in: { type: integer, description: Seconds }
+        farm_id: { type: string, format: uuid }
+        is_demo_guest: { type: boolean }
+    Polygon:
       type: object
-      required: [latitude, longitude]
-      properties:
-        latitude:
-          type: number
-          minimum: -90
-          maximum: 90
-        longitude:
-          type: number
-          minimum: -180
-          maximum: 180
-
-    GeoPolygon:
-      type: object
+      description: GeoJSON Polygon in EPSG:4326, longitude first
       required: [type, coordinates]
       properties:
-        type:
-          type: string
-          enum: [Polygon]
+        type: { type: string, enum: [Polygon] }
         coordinates:
           type: array
           minItems: 1
@@ -890,756 +734,309 @@ components:
               type: array
               minItems: 2
               maxItems: 2
-              items:
-                type: number
-
+              items: { type: number }
     Farm:
       type: object
-      required:
-        - id
-        - name
-        - department
-        - municipality
-        - reference_point
-        - area_ha
-        - elevation_m
-        - current_rotation
-        - created_at
-        - updated_at
+      required: [id, name, boundary, area_ha, current_rotation, created_at]
       properties:
-        id:
-          type: string
-        name:
-          type: string
-        department:
-          type: string
-        municipality:
-          type: string
-        reference_point:
-          $ref: "#/components/schemas/GeoPoint"
-        polygon:
-          anyOf:
-            - $ref: "#/components/schemas/GeoPolygon"
-            - type: "null"
-        area_ha:
-          type: number
-          minimum: 0.01
-        elevation_m:
-          type: number
-        current_rotation:
-          type: array
-          minItems: 1
-          items:
-            type: string
-        station_reference:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-
-    CreateFarmRequest:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        boundary: { $ref: "#/components/schemas/Polygon" }
+        area_ha: { type: number, minimum: 0, description: Hectares }
+        current_rotation: { type: array, items: { type: string }, description: Crop ids in order }
+        created_at: { type: string, format: date-time }
+    FarmCreate:
       type: object
-      required: [name, department, municipality, reference_point, area_ha, current_rotation]
+      required: [name, boundary]
+      additionalProperties: false
       properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 120
-        department:
-          type: string
-          minLength: 1
-          maxLength: 80
-        municipality:
-          type: string
-          minLength: 1
-          maxLength: 80
-        reference_point:
-          $ref: "#/components/schemas/GeoPoint"
-        polygon:
-          anyOf:
-            - $ref: "#/components/schemas/GeoPolygon"
-            - type: "null"
-        area_ha:
-          type: number
-          minimum: 0.01
-          maximum: 100000
-        elevation_m:
-          type: number
-          default: 1502
-        current_rotation:
-          type: array
-          minItems: 1
-          maxItems: 10
-          items:
-            type: string
-            minLength: 1
-
-    UpdateFarmRequest:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        boundary: { $ref: "#/components/schemas/Polygon" }
+        current_rotation: { type: array, maxItems: 12, items: { type: string, maxLength: 60 } }
+    FarmUpdate:
       type: object
+      additionalProperties: false
       properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 120
-        area_ha:
-          type: number
-          minimum: 0.01
-          maximum: 100000
-        current_rotation:
-          type: array
-          minItems: 1
-          maxItems: 10
-          items:
-            type: string
-            minLength: 1
-        polygon:
-          anyOf:
-            - $ref: "#/components/schemas/GeoPolygon"
-            - type: "null"
-
-    FarmListResponse:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        boundary: { $ref: "#/components/schemas/Polygon" }
+        current_rotation: { type: array, maxItems: 12, items: { type: string, maxLength: 60 } }
+    FarmList:
       type: object
-      required: [items, pagination]
+      required: [items, next_cursor]
       properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/Farm"
-        pagination:
-          $ref: "#/components/schemas/PaginationMeta"
-
-    UploadRowError:
+        items: { type: array, items: { $ref: "#/components/schemas/Farm" } }
+        next_cursor: { type: [string, "null"] }
+    RowError:
       type: object
-      required: [row, column, code, message]
+      required: [row, column, message]
       properties:
-        row:
-          type: integer
-          minimum: 1
-        column:
-          type: string
-        code:
-          type: string
-        message:
-          type: string
-
-    FarmUpload:
+        row: { type: integer, minimum: 1 }
+        column: { type: [string, "null"] }
+        message: { type: string }
+    Upload:
       type: object
-      required:
-        - id
-        - farm_id
-        - filename
-        - format
-        - status
-        - total_rows
-        - valid_rows
-        - row_errors
-        - created_at
+      required: [id, farm_id, filename, format, status, rows_total, rows_accepted, errors, created_at]
       properties:
-        id:
-          type: string
-        farm_id:
-          type: string
-        filename:
-          type: string
-        format:
-          type: string
-          enum: [csv, geojson]
-        status:
-          type: string
-          enum: [validated,validated_with_errors, rejected]
-        total_rows:
-          type: integer
-          minimum: 0
-        valid_rows:
-          type: integer
-          minimum: 0
-        row_errors:
-          type: array
-          items:
-            $ref: "#/components/schemas/UploadRowError"
-        created_at:
-          type: string
-          format: date-time
-
-    CreateFarmUploadRequest:
+        id: { type: string, format: uuid }
+        farm_id: { type: string, format: uuid }
+        filename: { type: string }
+        format: { type: string, enum: [csv, geojson] }
+        status: { type: string, enum: [accepted, accepted_with_errors, rejected] }
+        rows_total: { type: integer, minimum: 0 }
+        rows_accepted: { type: integer, minimum: 0 }
+        errors: { type: array, items: { $ref: "#/components/schemas/RowError" } }
+        created_at: { type: string, format: date-time }
+    UploadList:
       type: object
-      required: [filename, format, content]
+      required: [items, next_cursor]
       properties:
-        filename:
-          type: string
-          minLength: 1
-          maxLength: 255
-        format:
-          type: string
-          enum: [csv, geojson]
-        content:
-          type: string
-          minLength: 1
-          maxLength: 100000
-          description: Raw CSV text or GeoJSON payload submitted for validation
-
-    FarmUploadListResponse:
-      type: object
-      required: [items, pagination]
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/FarmUpload"
-        pagination:
-          $ref: "#/components/schemas/PaginationMeta"
-
+        items: { type: array, items: { $ref: "#/components/schemas/Upload" } }
+        next_cursor: { type: [string, "null"] }
     PriorityWeights:
       type: object
-      required:
-        - yield_stability
-        - soil_health
-        - water_efficiency
-        - income_diversification
-        - low_input_cost
+      description: Weight of each farmer priority, 0 (does not matter) to 1 (matters most)
+      required: [water_use, income, soil_structure, forage_value, nitrogen_fixing, erosion_reduction, market_suitability]
+      additionalProperties: false
       properties:
-        yield_stability:
-          type: number
-          minimum: 0
-          maximum: 1
-        soil_health:
-          type: number
-          minimum: 0
-          maximum: 1
-        water_efficiency:
-          type: number
-          minimum: 0
-          maximum: 1
-        income_diversification:
-          type: number
-          minimum: 0
-          maximum: 1
-        low_input_cost:
-          type: number
-          minimum: 0
-          maximum: 1
-
-    FarmPriorities:
+        water_use: { type: number, minimum: 0, maximum: 1 }
+        income: { type: number, minimum: 0, maximum: 1 }
+        soil_structure: { type: number, minimum: 0, maximum: 1 }
+        forage_value: { type: number, minimum: 0, maximum: 1 }
+        nitrogen_fixing: { type: number, minimum: 0, maximum: 1 }
+        erosion_reduction: { type: number, minimum: 0, maximum: 1 }
+        market_suitability: { type: number, minimum: 0, maximum: 1 }
+    Priorities:
       type: object
-      required:
-        - farm_id
-        - weights
-        - irrigation_available
-        - max_fallow_days
-        - excluded_crops
-        - updated_at
+      required: [weights, constraints]
+      additionalProperties: false
       properties:
-        farm_id:
-          type: string
-        weights:
-          $ref: "#/components/schemas/PriorityWeights"
-        irrigation_available:
-          type: boolean
-        max_fallow_days:
-          type: integer
-          minimum: 0
-          maximum: 365
-        excluded_crops:
-          type: array
-          items:
-            type: string
-        notes:
-          type: string
-        updated_at:
-          type: string
-          format: date-time
-
-    FarmPrioritiesUpdate:
+        weights: { $ref: "#/components/schemas/PriorityWeights" }
+        constraints:
+          type: object
+          required: [water_availability, equipment]
+          additionalProperties: false
+          properties:
+            water_availability: { type: string, enum: [low, medium, high] }
+            equipment: { type: array, maxItems: 10, items: { type: string, enum: [hand_tools, animal_traction, tractor, irrigation] } }
+    Provenance:
       type: object
-      required: [weights, irrigation_available, max_fallow_days]
+      required: [model_name, model_version, data_versions, input_hash, generated_at]
       properties:
-        weights:
-          $ref: "#/components/schemas/PriorityWeights"
-        irrigation_available:
-          type: boolean
-        max_fallow_days:
-          type: integer
-          minimum: 0
-          maximum: 365
-        excluded_crops:
-          type: array
-          items:
-            type: string
-          default: []
-        notes:
-          type: string
-          maxLength: 500
-
-    BareFieldPeriod:
+        model_name: { type: string }
+        model_version: { type: string }
+        data_versions: { type: object, additionalProperties: { type: string } }
+        input_hash: { type: string }
+        generated_at: { type: string, format: date-time }
+    Insights:
       type: object
-      required: [start_date, end_date, duration_days, mean_ndvi, erosion_exposure, explanation]
+      required: [data_available, bare_field_periods, vulnerable_seasons, provenance]
       properties:
-        start_date:
-          type: string
-          format: date
-        end_date:
-          type: string
-          format: date
-        duration_days:
-          type: integer
-          minimum: 1
-        mean_ndvi:
-          type: number
-          minimum: -1
-          maximum: 1
-        erosion_exposure:
-          type: string
-          enum: [low, moderate, high]
-        explanation:
-          type: string
-
-    VulnerableSeason:
-      type: object
-      required: [season_name, months, primary_hazard, enso_sensitivity, recommended_watch]
-      properties:
-        season_name:
-          type: string
-        months:
-          type: string
-        primary_hazard:
-          type: string
-          enum: [dry_spell_canicula, extreme_rainfall, cold_night_frost, heat_stress]
-        enso_sensitivity:
-          type: string
-        recommended_watch:
-          type: string
-
-    FarmInsights:
-      type: object
-      required:
-        - farm_id
-        - bare_field_periods
-        - vulnerable_seasons
-        - provenance
-        - disclaimer
-      properties:
-        farm_id:
-          type: string
+        data_available: { type: boolean, description: False means there is not enough data, not that there is no risk }
         bare_field_periods:
           type: array
           items:
-            $ref: "#/components/schemas/BareFieldPeriod"
+            type: object
+            required: [start_month, end_month, reason, source]
+            properties:
+              start_month: { type: integer, minimum: 1, maximum: 12 }
+              end_month: { type: integer, minimum: 1, maximum: 12 }
+              reason: { type: string }
+              source: { type: string }
         vulnerable_seasons:
           type: array
           items:
-            $ref: "#/components/schemas/VulnerableSeason"
-        provenance:
-          $ref: "#/components/schemas/Provenance"
-        disclaimer:
-          type: string
-
-    LayerLegendStop:
+            type: object
+            required: [start_month, end_month, hazard, reason, source]
+            properties:
+              start_month: { type: integer, minimum: 1, maximum: 12 }
+              end_month: { type: integer, minimum: 1, maximum: 12 }
+              hazard: { type: string, enum: [dry_spell, heavy_rain, heat, frost, water_stress] }
+              reason: { type: string }
+              source: { type: string }
+        provenance: { $ref: "#/components/schemas/Provenance" }
+    Layer:
       type: object
-      required: [value, color, label]
+      required: [id, name, kind, unit, source, measurement, resolution, date_range, license, url, url_expires_at, legend]
       properties:
-        value:
-          type: number
-        color:
-          type: string
-        label:
-          type: string
-
-    LayerLegend:
-      type: object
-      required: [unit, palette_name, color_blind_safe, stops]
-      properties:
-        unit:
-          type: string
-        palette_name:
-          type: string
-        color_blind_safe:
-          type: boolean
-        stops:
-          type: array
-          minItems: 2
-          items:
-            $ref: "#/components/schemas/LayerLegendStop"
-
-    LayerSourceBlock:
-      type: object
-      required:
-        - provider
-        - dataset_id
-        - version
-        - spatial_resolution
-        - date_range
-        - measurement_type
-        - limitation_note
-      properties:
-        provider:
-          type: string
-        dataset_id:
-          type: string
-        version:
-          type: string
-        spatial_resolution:
-          type: string
+        id: { type: string }
+        name: { type: string }
+        kind: { type: string, enum: [raster, vector] }
+        unit: { type: string }
+        source: { type: string }
+        measurement: { type: string, enum: [ground_station, satellite, satellite_and_stations, model_prediction] }
+        resolution: { type: string }
         date_range:
-          type: string
-        measurement_type:
-          type: string
-          enum: [satellite_derived, ground_station, reanalysis_model, soil_prediction]
-        limitation_note:
-          type: string
-
-    MapLayer:
-      type: object
-      required: [id, name, category, description, tile_url_template, legend, source]
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        category:
-          type: string
-          enum: [climate, soil, vegetation, terrain, water_stress]
-        description:
-          type: string
-        tile_url_template:
-          type: string
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [start, end]
+              properties: { start: { type: string, format: date }, end: { type: string, format: date } }
+        license: { type: string }
+        url: { type: string, format: uri }
+        url_expires_at: { type: string, format: date-time }
         legend:
-          $ref: "#/components/schemas/LayerLegend"
-        source:
-          $ref: "#/components/schemas/LayerSourceBlock"
-
-    LayerListResponse:
+          type: object
+          required: [min, max, palette]
+          properties: { min: { type: number }, max: { type: number }, palette: { type: string } }
+    LayerList:
       type: object
-      required: [items, pagination]
+      required: [items]
+      properties: { items: { type: array, items: { $ref: "#/components/schemas/Layer" } } }
+    EnsoPhase: { type: string, enum: [el_nino, la_nina, neutral] }
+    EnsoSeries:
+      type: object
+      required: [threshold_c, items, source, disclaimer]
       properties:
+        threshold_c: { type: number }
+        source: { type: string }
+        disclaimer: { type: string }
         items:
           type: array
           items:
-            $ref: "#/components/schemas/MapLayer"
-        pagination:
-          $ref: "#/components/schemas/PaginationMeta"
-
-    EnsoPhase:
-      type: string
-      enum: [el_nino, la_nina, neutral]
-
-    EnsoMonthPoint:
-      type: object
-      required: [month, oni_c, roni_c, phase, rainfall_anomaly_note]
-      properties:
-        month:
-          type: string
-          pattern: "^\\d{4}-\\d{2}$"
-        oni_c:
-          type: number
-        roni_c:
-          type: number
-        phase:
-          $ref: "#/components/schemas/EnsoPhase"
-        rainfall_anomaly_note:
-          type: string
-
-    EnsoSeriesResponse:
-      type: object
-      required: [threshold_c, items, provenance, disclaimer]
-      properties:
-        threshold_c:
-          type: number
-          description: Absolute anomaly threshold in degrees C (0.5 C)
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/EnsoMonthPoint"
-        provenance:
-          $ref: "#/components/schemas/Provenance"
-        disclaimer:
-          type: string
-
-    ScenarioSimulationRequest:
-      type: object
-      required: [farm_id, crop_id, rainfall_change_pct, temperature_change_c, enso_phase]
-      properties:
-        farm_id:
-          type: string
-          minLength: 1
-        crop_id:
-          type: string
-          minLength: 1
-        season_start:
-          type: string
-          format: date
-          default: "2025-05-01"
-        season_end:
-          type: string
-          format: date
-          default: "2025-10-31"
-        rainfall_change_pct:
-          type: number
-          minimum: -60
-          maximum: 60
-          description: Simulated rainfall delta in percent relative to local climatology
-        temperature_change_c:
-          type: number
-          minimum: -4
-          maximum: 6
-          description: Simulated mean temperature delta in degrees C
-        enso_phase:
-          $ref: "#/components/schemas/EnsoPhase"
-
-    FeatureAttribution:
-      type: object
-      required: [feature, shap_value, direction, explanation]
-      properties:
-        feature:
-          type: string
-        shap_value:
-          type: number
-        direction:
-          type: string
-          enum: [positive, negative, neutral]
-        explanation:
-          type: string
-
-    ScenarioTimelineStep:
-      type: object
-      required: [period, baseline_p50, scenario_p10, scenario_p50, scenario_p90, water_balance_mm]
-      properties:
-        period:
-          type: string
-        baseline_p50:
-          type: number
-        scenario_p10:
-          type: number
-        scenario_p50:
-          type: number
-        scenario_p90:
-          type: number
-        water_balance_mm:
-          type: number
-
-    ScenarioSimulationResponse:
+            type: object
+            required: [month, oni, roni, phase]
+            properties:
+              month: { type: string, pattern: "^[0-9]{4}-[0-9]{2}$" }
+              oni: { type: [number, "null"] }
+              roni: { type: [number, "null"] }
+              phase: { $ref: "#/components/schemas/EnsoPhase" }
+    NasaPowerSeries:
       type: object
       required:
-        - farm_id
-        - crop_id
-        - metric_name
-        - baseline
-        - scenario
-        - out_of_training_range
-        - range_warning
-        - top_attributions
-        - timeline
-        - provenance
+        - location
+        - items
+        - aggregation
+        - source
+        - source_url
+        - attribution
+        - resolution_note
+        - dataset_checksum_sha256
+        - processing_version
         - disclaimer
       properties:
-        farm_id:
-          type: string
-        crop_id:
-          type: string
-        metric_name:
-          type: string
-        baseline:
-          $ref: "#/components/schemas/QuantileUncertainty"
-        scenario:
-          $ref: "#/components/schemas/QuantileUncertainty"
-        out_of_training_range:
-          type: boolean
-        range_warning:
-          type: ["string", "null"]
-        top_attributions:
+        location:
+          type: object
+          required: [latitude, longitude]
+          properties: { latitude: { type: number }, longitude: { type: number } }
+        aggregation: { type: object, additionalProperties: { type: string } }
+        source: { type: string }
+        source_url: { type: string }
+        attribution: { type: string }
+        resolution_note: { type: string }
+        dataset_checksum_sha256: { type: string }
+        processing_version: { type: string }
+        disclaimer: { type: string }
+        items:
           type: array
           items:
-            $ref: "#/components/schemas/FeatureAttribution"
-        timeline:
+            type: object
+            required: [month, rainfall_mm, temperature_mean_c, temperature_min_c, temperature_max_c, relative_humidity_pct, solar_radiation_mj_m2, wind_speed_kmh]
+            properties:
+              month: { type: string, pattern: "^[0-9]{4}-[0-9]{2}$" }
+              rainfall_mm: { type: [number, "null"] }
+              temperature_mean_c: { type: [number, "null"] }
+              temperature_min_c: { type: [number, "null"] }
+              temperature_max_c: { type: [number, "null"] }
+              relative_humidity_pct: { type: [number, "null"] }
+              solar_radiation_mj_m2: { type: [number, "null"] }
+              wind_speed_kmh: { type: [number, "null"] }
+    Scenario:
+      type: object
+      additionalProperties: false
+      properties:
+        rainfall_change_pct: { type: number, minimum: -80, maximum: 100, default: 0 }
+        temperature_change_c: { type: number, minimum: -5, maximum: 8, default: 0 }
+        enso_phase: { $ref: "#/components/schemas/EnsoPhase" }
+    SimulationRequest:
+      type: object
+      required: [farm_id, crop, scenario]
+      additionalProperties: false
+      properties:
+        farm_id: { type: string, format: uuid }
+        crop: { type: string, minLength: 1, maxLength: 60 }
+        scenario: { $ref: "#/components/schemas/Scenario" }
+    QuantileRange:
+      type: object
+      description: p10 <= p50 <= p90. The range is part of the answer and must always be shown
+      required: [p10, p50, p90]
+      properties: { p10: { type: number }, p50: { type: number }, p90: { type: number } }
+    SimulationResult:
+      type: object
+      required: [crop, target, unit, baseline, scenario, attributions, out_of_range_inputs, provenance, disclaimer]
+      properties:
+        crop: { type: string }
+        target: { type: string, description: What the model predicts (label or proxy) }
+        unit: { type: string }
+        baseline: { $ref: "#/components/schemas/QuantileRange" }
+        scenario: { $ref: "#/components/schemas/QuantileRange" }
+        attributions:
           type: array
           items:
-            $ref: "#/components/schemas/ScenarioTimelineStep"
-        provenance:
-          $ref: "#/components/schemas/Provenance"
-        disclaimer:
-          type: string
-
+            type: object
+            required: [feature, contribution]
+            properties: { feature: { type: string }, contribution: { type: number } }
+        out_of_range_inputs: { type: array, items: { type: string }, description: Inputs outside the training range }
+        provenance: { $ref: "#/components/schemas/Provenance" }
+        disclaimer: { type: string }
     RecommendationRequest:
       type: object
+      additionalProperties: false
       properties:
-        enso_phase:
-          $ref: "#/components/schemas/EnsoPhase"
-          default: la_nina
-        rainfall_change_pct:
-          type: number
-          minimum: -60
-          maximum: 60
-          default: 0
-        temperature_change_c:
-          type: number
-          minimum: -4
-          maximum: 6
-          default: 0
-
-    StrategyScores:
+        scenario: { $ref: "#/components/schemas/Scenario" }
+    Strategy:
       type: object
-      required:
-        - overall
-        - yield_stability
-        - soil_health
-        - water_efficiency
-        - income_diversification
-        - low_input_cost
+      required: [id, name, is_current, sequence, overall_score, scores, uncertainty, why, evidence, benefits, gaps, risks, needs_local_review]
       properties:
-        overall:
-          type: number
-          minimum: 0
-          maximum: 100
-        yield_stability:
-          type: number
-          minimum: 0
-          maximum: 100
-        soil_health:
-          type: number
-          minimum: 0
-          maximum: 100
-        water_efficiency:
-          type: number
-          minimum: 0
-          maximum: 100
-        income_diversification:
-          type: number
-          minimum: 0
-          maximum: 100
-        low_input_cost:
-          type: number
-          minimum: 0
-          maximum: 100
-
-    RotationStrategy:
-      type: object
-      description: >
-        A crop rotation strategy with agronomic justification, evidence, expected
-        benefits, explicit data gaps, risks requiring local review, quantile
-        uncertainty, and priority score breakdown (rule G10).
-      required:
-        - id
-        - name
-        - is_current_rotation
-        - sequence
-        - why
-        - evidence
-        - benefits
-        - gaps
-        - risks
-        - needs_local_review
-        - uncertainty
-        - scores
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        is_current_rotation:
-          type: boolean
-        sequence:
-          type: array
-          minItems: 1
-          items:
-            type: string
-        why:
-          type: array
-          minItems: 1
-          items:
-            type: string
+        id: { type: string }
+        name: { type: string }
+        is_current: { type: boolean }
+        sequence: { type: array, minItems: 1, items: { type: string } }
+        overall_score: { type: number, minimum: 0, maximum: 1 }
+        scores: { $ref: "#/components/schemas/PriorityWeights" }
+        uncertainty:
+          type: object
+          required: [low, high]
+          properties: { low: { type: number }, high: { type: number } }
+        why: { type: array, minItems: 1, items: { type: string } }
         evidence:
           type: array
           minItems: 1
           items:
-            type: string
-        benefits:
-          type: array
-          minItems: 1
-          items:
-            type: string
-        gaps:
-          type: array
-          minItems: 1
-          items:
-            type: string
+            type: object
+            required: [statement, source]
+            properties: { statement: { type: string }, source: { type: string } }
+        benefits: { type: array, minItems: 1, items: { type: string } }
+        gaps: { type: array, minItems: 1, items: { type: string } }
         risks:
           type: array
           minItems: 1
           items:
-            type: string
-        needs_local_review:
-          type: boolean
-        uncertainty:
-          $ref: "#/components/schemas/QuantileUncertainty"
-        scores:
-          $ref: "#/components/schemas/StrategyScores"
-
-    Recommendation:
+            type: object
+            required: [description, needs_local_review]
+            properties: { description: { type: string }, needs_local_review: { type: boolean } }
+        needs_local_review: { type: boolean }
+    RecommendationSet:
       type: object
-      description: >
-        Decision-support rotation comparison containing at least three strategies
-        (including the current rotation), full provenance, and mandatory disclaimer.
-      required:
-        - id
-        - farm_id
-        - scenario_summary
-        - strategies
-        - provenance
-        - disclaimer
+      required: [id, farm_id, disclaimer, strategies, provenance]
       properties:
-        id:
-          type: string
-        farm_id:
-          type: string
-        scenario_summary:
-          type: string
-        strategies:
-          type: array
-          minItems: 3
-          items:
-            $ref: "#/components/schemas/RotationStrategy"
-        provenance:
-          $ref: "#/components/schemas/Provenance"
-        disclaimer:
-          type: string
-
-    SearchEntityType:
-      type: string
-      enum: [crop, place, farm]
-
-    SearchResultItem:
+        id: { type: string, format: uuid }
+        farm_id: { type: string, format: uuid }
+        disclaimer: { type: string }
+        strategies: { type: array, minItems: 3, items: { $ref: "#/components/schemas/Strategy" } }
+        provenance: { $ref: "#/components/schemas/Provenance" }
+    SearchResults:
       type: object
-      required: [id, type, name, aliases, similarity, summary]
+      required: [items]
       properties:
-        id:
-          type: string
-        type:
-          $ref: "#/components/schemas/SearchEntityType"
-        name:
-          type: string
-        aliases:
-          type: array
-          items:
-            type: string
-        similarity:
-          type: number
-          minimum: 0
-          maximum: 1
-        summary:
-          type: string
-
-    SearchResponse:
-      type: object
-      required: [query, items, pagination]
-      properties:
-        query:
-          type: string
         items:
           type: array
           maxItems: 20
           items:
-            $ref: "#/components/schemas/SearchResultItem"
-        pagination:
-          $ref: "#/components/schemas/PaginationMeta"
+            type: object
+            required: [type, id, name, matched, similarity]
+            properties:
+              type: { type: string, enum: [crop, place, farm] }
+              id: { type: string }
+              name: { type: string }
+              matched: { type: string, description: The name or alias that matched }
+              similarity: { type: number, minimum: 0, maximum: 1 }
