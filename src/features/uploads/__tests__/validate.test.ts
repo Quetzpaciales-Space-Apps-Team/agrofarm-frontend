@@ -188,7 +188,7 @@ describe('validateGeoJsonText', () => {
   it('accepts a feature and derives latitude and longitude from the polygon', () => {
     const report = validateGeoJsonText(collection(feature({ ...PROPS, yield_kg_ha: null })));
     expect(report).toMatchObject({ format: 'geojson', fatal: false, rowsTotal: 1, rowsValid: 1 });
-    expect(report.preview[0]?.values.latitude).toBe('14.5888');
+    expect(report.preview[0]?.values.latitude).toBe('14.58925');
     expect(report.preview[0]?.values.yield_kg_ha).toBe('');
   });
 

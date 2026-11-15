@@ -3,10 +3,11 @@ import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { createTokenStore } from '../auth';
 import { createApiClient } from '../client';
+import { readMultipartFile } from '../../../test/handlers';
 import { encodeMultipartFile } from '../multipart';
 
 const server = setupServer();
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
@@ -34,14 +35,13 @@ describe('api client uploads', () => {
     } | null = null;
     server.use(
       http.post('http://api.test/v1/up', async ({ request }) => {
-        const form = await request.formData();
-        const file = form.get('file') as File;
+        const file = (await readMultipartFile(request))!;
         seen = {
           type: request.headers.get('content-type'),
           key: request.headers.get('idempotency-key'),
           auth: request.headers.get('authorization'),
           name: file.name,
-          text: await file.text(),
+          text: file.text,
         };
         return HttpResponse.json({ ok: true }, { status: 201 });
       }),

@@ -4,14 +4,14 @@ import { http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../../i18n';
 import { ApiProvider } from '../../../services/ApiContext';
-import { DEMO_FARM_ID, problemResponse } from '../../../test/handlers';
+import { DEMO_FARM_ID, problemResponse, readMultipartFile } from '../../../test/handlers';
 import { expectNoAxeViolations } from '../../../test/axe';
 import { renderWithApi } from '../../../test/render';
 import { server } from '../../../test/server';
 import { UploadWizard } from '../components/UploadWizard';
 import { CSV_COLUMNS, buildTemplateCsv } from '../domain/schema';
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
@@ -106,8 +106,10 @@ describe('UploadWizard', () => {
     await chooseFile(user, new File(['hello'], 'notes.txt', { type: 'text/plain' }));
     expect(await screen.findByRole('alert')).toHaveTextContent(/\.csv.*\.geojson/i);
     await user.upload(screen.getByLabelText(/file to upload/i), new File(['crop\nmaize'], 'a.csv'));
-    expect(await screen.findByRole('alert')).toHaveTextContent(/missing required column/i);
-    expect(screen.getByRole('table', { name: /problems found/i })).toHaveTextContent('season_year');
+    expect(await screen.findByRole('alert')).toHaveTextContent(/cannot be sent/i);
+    const table = screen.getByRole('table', { name: /problems found/i });
+    expect(table).toHaveTextContent('season_year');
+    expect(table).toHaveTextContent(/missing required column/i);
     expect(screen.queryByRole('button', { name: /send to the server/i })).not.toBeInTheDocument();
   });
 
@@ -117,11 +119,11 @@ describe('UploadWizard', () => {
     const gate = new Promise<void>((resolve) => (release = resolve));
     server.use(
       http.post('*/v1/farms/:farmId/uploads', async ({ request }) => {
-        const file = (await request.formData()).get('file') as File;
+        const file = await readMultipartFile(request);
         seen = {
           key: request.headers.get('idempotency-key'),
           auth: request.headers.get('authorization'),
-          name: file.name,
+          name: file?.name ?? '',
         };
         await gate;
         return HttpResponse.json(

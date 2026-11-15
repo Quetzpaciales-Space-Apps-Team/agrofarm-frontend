@@ -1,12 +1,17 @@
 import { authMiddleware, type TokenStore } from './auth';
 import { errorNormalizer } from './errorNormalizer';
 import { compose, type Fetcher } from './middleware';
+import { encodeMultipartFile } from './multipart';
 import { requestId } from './requestId';
 import { timeout } from './timeout';
 
 export interface RequestOptions {
   query?: Record<string, string | number | undefined>;
   body?: unknown;
+  /** Sends one file as `multipart/form-data` instead of a JSON body. */
+  upload?: { field: string; file: File };
+  /** Extra request headers, for example `Idempotency-Key`. */
+  headers?: Record<string, string>;
   signal?: AbortSignal;
 }
 
@@ -47,14 +52,23 @@ export function createApiClient({
     const headers: Record<string, string> = {
       Accept: 'application/json, application/problem+json',
     };
-    if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+    let body: BodyInit | undefined;
+    if (options.upload) {
+      const encoded = await encodeMultipartFile(options.upload.field, options.upload.file);
+      headers['Content-Type'] = encoded.contentType;
+      body = encoded.body;
+    } else if (options.body !== undefined) {
+      headers['Content-Type'] = 'application/json';
+      body = JSON.stringify(options.body);
+    }
+    Object.assign(headers, options.headers);
 
     const response = await fetcher(`${root}${path}${queryString ? `?${queryString}` : ''}`, {
       method,
       headers,
       credentials: 'include',
       signal: options.signal,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      body,
     });
     if (response.status === 204) return undefined as T;
     return (await response.json()) as T;

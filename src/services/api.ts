@@ -7,6 +7,7 @@ import type {
   RecommendationSet,
   ScenarioInput,
   SimulationResult,
+  UploadResult,
 } from './types';
 
 export const startDemoSession = (client: ApiClient) => client.post<DemoSession>('/v1/auth/demo');
@@ -45,4 +46,17 @@ export const fetchRecommendations = (
   client.post<RecommendationSet>(`/v1/farms/${encodeURIComponent(farmId)}/recommendations`, {
     body: { scenario },
     signal,
+  });
+
+/** `POST /v1/farms/{farm_id}/uploads`: one CSV or GeoJSON file, validated again by the server. */
+export const createUpload = (
+  client: ApiClient,
+  farmId: string,
+  file: File,
+  options: { idempotencyKey?: string; signal?: AbortSignal } = {},
+) =>
+  client.post<UploadResult>(`/v1/farms/${encodeURIComponent(farmId)}/uploads`, {
+    upload: { field: 'file', file },
+    headers: options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : undefined,
+    signal: options.signal,
   });
