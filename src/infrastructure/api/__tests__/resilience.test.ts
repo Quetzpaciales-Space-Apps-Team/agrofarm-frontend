@@ -154,7 +154,10 @@ describe('refreshOn401 middleware (FE-101)', () => {
     const base: Fetcher = vi.fn<Fetcher>().mockRejectedValue(apiError(401, 'unauthorized'));
     const refresh = vi.fn().mockRejectedValue(networkError());
     const fetcher = refreshOn401({ getToken: () => 'old', refresh })(base);
-    await expect(fetcher('/x')).rejects.toMatchObject({ status: 401 });
+    await expect(fetcher('/x', { headers: { Authorization: 'Bearer old' } })).rejects.toMatchObject(
+      { status: 401 },
+    );
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it('replays without a new refresh when another request already renewed the token', async () => {
