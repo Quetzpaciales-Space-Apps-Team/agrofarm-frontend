@@ -119,11 +119,40 @@ const STUB_PROVENANCE = (): Schemas['Provenance'] => ({
 
 let priorities: Schemas['Priorities'] = structuredClone(DEFAULT_PRIORITIES);
 
+// ---- Auth stub state ------------------------------------------------------
+// MSW cannot set a real httpOnly cookie, so `refreshCookie` stands for "the browser holds a
+// valid refresh cookie". Login and demo set it, logout clears it, refresh needs it.
+// All values below are fake and exist only for tests.
+
+export const LOGIN_ACCESS_TOKEN = 'stub.login.token';
+export const REFRESHED_ACCESS_TOKEN = 'stub.refreshed.token';
+export const TEST_LOGIN = { email: 'farmer@example.test', password: 'fake-test-pass-01' };
+export const TAKEN_EMAIL = 'taken@example.test';
+export const STUB_ACCOUNT: Schemas['User'] = {
+  id: '9c2f6a1e-3d4b-4e0a-8f55-1a2b3c4d5e6f',
+  email: TEST_LOGIN.email,
+  name: 'Test Farmer',
+  role: 'farmer',
+  created_at: '2026-11-14T15:00:00Z',
+};
+
+type StubSessionKind = 'demo' | 'user';
+let stubSession: { cookie: boolean; kind: StubSessionKind } = { cookie: false, kind: 'demo' };
+
+/** Pretends the browser holds (or not) a valid refresh cookie, as after a login or a reload. */
+export function setRefreshCookie(cookie: boolean, kind: StubSessionKind = 'user') {
+  stubSession = { cookie, kind };
+}
+
 /** Restores in-memory state changed by PUT handlers. Call it in `beforeEach`. */
 export function resetStubState() {
   priorities = structuredClone(DEFAULT_PRIORITIES);
   requestCounter = 0;
+  stubSession = { cookie: false, kind: 'demo' };
 }
+
+const utf8Length = (value: string) => new TextEncoder().encode(value).length;
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // ---- Months ---------------------------------------------------------------
 
@@ -420,8 +449,9 @@ const farmNotFound = () => problemResponse(404, 'not_found', 'Farm not found.');
 export const handlers = [
   http.get('*/healthz', () => ok({ status: 'ok' } satisfies Schemas['Health'])),
 
-  http.post('*/v1/auth/demo', () =>
-    ok(
+  http.post('*/v1/auth/demo', () => {
+    setRefreshCookie(true, 'demo');
+    return ok(
       {
         access_token: DEMO_ACCESS_TOKEN,
         token_type: 'bearer',
@@ -430,10 +460,63 @@ export const handlers = [
         is_demo_guest: true,
       } satisfies Schemas['DemoAuthResponse'],
       201,
-    ),
-  ),
+    );
+  }),
 
-  http.get('*/v1/me', ({ request }) => (isAuthorized(request) ? ok(STUB_USER) : unauthorized())),
+  http.post('*/v1/auth/register', async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as Partial<Schemas['RegisterRequest']>;
+    const email = typeof body.email === 'string' ? body.email : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+    const name = typeof body.name === 'string' ? body.name : '';
+    const errors: NonNullable<Schemas['Problem']['errors']> = [];
+    if (!EMAIL_SHAPE.test(email) || email.length > 254)
+      errors.push({ field: 'email', message: 'Enter a valid email address.' });
+    if (password.length < 10)
+      errors.push({ field: 'password', message: 'Password must have at least 10 characters.' });
+    else if (utf8Length(password) > 72)
+      errors.push({ field: 'password', message: 'Password must have at most 72 bytes.' });
+    if (name.length < 1 || name.length > 120)
+      errors.push({ field: 'name', message: 'Name must have between 1 and 120 characters.' });
+    if (errors.length > 0)
+      return problemResponse(422, 'validation_error', 'The request body is not valid.', errors);
+    if (email === TAKEN_EMAIL)
+      return problemResponse(409, 'email_taken', 'This email cannot be used.');
+    return ok({ ...STUB_ACCOUNT, email, name } satisfies Schemas['User'], 201);
+  }),
+
+  http.post('*/v1/auth/login', async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as Partial<Schemas['LoginRequest']>;
+    if (body.email !== TEST_LOGIN.email || body.password !== TEST_LOGIN.password) {
+      return problemResponse(401, 'invalid_credentials', 'Invalid email or password.');
+    }
+    setRefreshCookie(true, 'user');
+    return ok({
+      access_token: LOGIN_ACCESS_TOKEN,
+      token_type: 'bearer',
+      expires_in: 900,
+    } satisfies Schemas['TokenResponse']);
+  }),
+
+  http.post('*/v1/auth/refresh', () => {
+    if (!stubSession.cookie)
+      return problemResponse(401, 'unauthorized', 'No valid refresh cookie.');
+    return ok({
+      access_token: REFRESHED_ACCESS_TOKEN,
+      token_type: 'bearer',
+      expires_in: 900,
+    } satisfies Schemas['TokenResponse']);
+  }),
+
+  http.post('*/v1/auth/logout', () => {
+    stubSession = { ...stubSession, cookie: false };
+    return new HttpResponse(null, { status: 204, headers: STUB_HEADERS });
+  }),
+
+  http.get('*/v1/me', ({ request }) =>
+    isAuthorized(request)
+      ? ok(stubSession.kind === 'user' ? STUB_ACCOUNT : STUB_USER)
+      : unauthorized(),
+  ),
 
   http.get('*/v1/farms', ({ request }) => {
     if (!isAuthorized(request)) return unauthorized();
