@@ -4,6 +4,46 @@
  */
 
 export interface paths {
+    "/v1/farms/{farm_id}/vegetation/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Estimate regional cropland greenness under a conditional scenario
+         * @description Requires farm ownership or admin access. Trained regional NDVI quantiles and raw median SHAP differences, not parcel yield or an ENSO forecast. Original 5% skill goal was not reached. No fixed-rule or cached fallback. Uses the nearest trained cropland cell within 15 km. A service or location without a supported estimate returns 503.
+         */
+        post: operations["simulateFarmVegetation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/farms/{farm_id}/leaves/assess": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Screen a maize leaf photo for supported conditions
+         * @description JPEG or PNG bytes, at most 5 MiB. Requires ownership of the farm or admin role. Photos are forwarded in memory to the private ML service and are not saved. Returns candidate classes and uncalibrated scores, not a confirmed diagnosis. No saved or generative diagnosis is substituted if the classifier is unavailable.
+         */
+        post: operations["assessFarmMaizeLeaf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/healthz": {
         parameters: {
             query?: never;
@@ -696,6 +736,217 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    simulateFarmVegetation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "rainfall_change_pct": -30,
+                 *       "temperature_change_c": 1,
+                 *       "enso_phase": "el_nino"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Scenario"];
+            };
+        };
+        responses: {
+            /** @description Regional NDVI anomaly quantiles, attribution differences, validation and caveats */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "target": "seasonal_peak_ndvi_anomaly_pct",
+                     *       "unit": "%",
+                     *       "baseline": {
+                     *         "p10": -10,
+                     *         "p50": 0,
+                     *         "p90": 10
+                     *       },
+                     *       "scenario": {
+                     *         "p10": -12,
+                     *         "p50": -3,
+                     *         "p90": 8
+                     *       },
+                     *       "attributions": [
+                     *         {
+                     *           "feature": "rain_anom_pct",
+                     *           "contribution": -3
+                     *         }
+                     *       ],
+                     *       "explained_median_delta": -3,
+                     *       "out_of_range_inputs": [],
+                     *       "reference_cell": {
+                     *         "cell_id": "test",
+                     *         "distance_km": 1,
+                     *         "resolution_degrees": 0.05
+                     *       },
+                     *       "validation": {
+                     *         "acceptance_rule_met": false,
+                     *         "skill_improvement_pct": 4.41
+                     *       },
+                     *       "limitations": [
+                     *         "Not parcel yield"
+                     *       ],
+                     *       "needs_local_review": true,
+                     *       "provenance": {
+                     *         "model_version": "ndvi-vegetation-outlook-0.1.0",
+                     *         "evaluation_verdict": "no_skill_over_climatology"
+                     *       },
+                     *       "disclaimer": "This tool supports decisions. It does not replace farmers or local agronomists."
+                     *     }
+                     */
+                    "application/json": {
+                        /** @constant */
+                        target: "seasonal_peak_ndvi_anomaly_pct";
+                        /** @constant */
+                        unit: "%";
+                        baseline: Record<string, never>;
+                        scenario: Record<string, never>;
+                        attributions: Record<string, never>[];
+                        validation: Record<string, never>;
+                        limitations: string[];
+                        provenance: Record<string, never>;
+                        disclaimer: string;
+                        /** @constant */
+                        needs_local_review: true;
+                    };
+                };
+            };
+            /** @description Malformed request body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Farm unavailable to this user */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid scenario */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid trained-model response */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Trained inference or supported reference cell unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    assessFarmMaizeLeaf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "image/jpeg": string;
+                "image/png": string;
+            };
+        };
+        responses: {
+            /** @description Candidate conditions with local-review guidance and provenance */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "assessment": "uncertain",
+                     *       "candidate": null,
+                     *       "scores": {
+                     *         "common_rust": 0.2,
+                     *         "corn_leaf_blight": 0.2,
+                     *         "gray_leaf_spot": 0.2,
+                     *         "healthy": 0.2,
+                     *         "insect_damage": 0.2
+                     *       },
+                     *       "score_interpretation": "Model scores are not calibrated probabilities.",
+                     *       "needs_local_review": true,
+                     *       "guidance": {
+                     *         "status": "needs_local_review",
+                     *         "next_steps": [
+                     *           "Seek local agronomy confirmation."
+                     *         ],
+                     *         "sources": []
+                     *       },
+                     *       "limits": [
+                     *         "Only supported maize-leaf classes can be considered."
+                     *       ],
+                     *       "provenance": {
+                     *         "model_version": "example-only",
+                     *         "data_versions": {},
+                     *         "input_hash": "example-only"
+                     *       },
+                     *       "disclaimer": "Decision support only. Does not replace farmers or local agronomists."
+                     *     }
+                     */
+                    "application/json": {
+                        /** @enum {unknown} */
+                        assessment: "possible_condition" | "uncertain";
+                        candidate: string | null;
+                        scores: {
+                            [key: string]: number;
+                        };
+                        score_interpretation: string;
+                        /** @constant */
+                        needs_local_review: true;
+                        guidance: Record<string, never>;
+                        limits: string[];
+                        provenance: Record<string, never>;
+                        disclaimer: string;
+                    };
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            413: components["responses"]["Problem"];
+            415: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+            502: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
+        };
+    };
     healthz: {
         parameters: {
             query?: never;
