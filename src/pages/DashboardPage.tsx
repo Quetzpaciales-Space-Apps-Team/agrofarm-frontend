@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
+import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
 
 export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: () => void }) {
@@ -17,6 +18,7 @@ export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: ()
         </button>
       </div>
       <FarmDashboard farmId={farmId} />
+      <ClimatePanel />
     </div>
   );
 }

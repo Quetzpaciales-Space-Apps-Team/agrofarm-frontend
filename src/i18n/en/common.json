@@ -42,12 +42,84 @@
   },
   "dashboard": {
     "title": "Your demo farm",
-    "leave": "Leave the demo"
+    "leave": "Leave the demo",
+    "climate": "Climate"
   },
   "farm": {
     "loading": "Loading farm...",
     "area": "Area",
     "rotation": "Current rotation",
     "noRotation": "No rotation recorded for this farm yet."
+  },
+  "climate": {
+    "title": "Climate history",
+    "intro": "Monthly rainfall and temperature near the farm. Pick the months you want to look at.",
+    "loading": "Loading climate data...",
+    "empty": "No climate data is available for this location yet.",
+    "from": "From",
+    "to": "To",
+    "noData": "No data",
+    "noDataShort": "no data",
+    "chart": {
+      "title": "Monthly rainfall and temperature, {{start}} to {{end}}",
+      "description": "Bars show rainfall in mm per month, from {{rainMin}} to {{rainMax}}. Lines show mean, minimum and maximum temperature in °C, from {{tempMin}} to {{tempMax}}.",
+      "gaps_zero": "Every month has data.",
+      "gaps_one": "{{count}} month has no data and is left blank.",
+      "gaps_other": "{{count}} months have no data and are left blank."
+    },
+    "axis": {
+      "rain": "Rainfall (mm per month)",
+      "temp": "Temperature (°C)"
+    },
+    "legend": {
+      "title": "Chart legend",
+      "rain": "Rainfall (mm per month), bars",
+      "mean": "Mean temperature (°C), solid line",
+      "min": "Minimum temperature (°C), dashed line",
+      "max": "Maximum temperature (°C), dotted line",
+      "noData": "No data, hatched band"
+    },
+    "missing": {
+      "title": "Months with no data",
+      "none": "Every month in this range has data.",
+      "item": "{{month}}: {{series}}"
+    },
+    "series": {
+      "rainfall_mm": "rainfall",
+      "temperature_mean_c": "mean temperature",
+      "temperature_min_c": "minimum temperature",
+      "temperature_max_c": "maximum temperature"
+    },
+    "table": {
+      "show": "Show data table",
+      "hide": "Hide data table",
+      "caption": "Monthly climate data",
+      "month": "Month",
+      "rain": "Rainfall (mm per month)",
+      "mean": "Mean temperature (°C)",
+      "min": "Minimum temperature (°C)",
+      "max": "Maximum temperature (°C)"
+    },
+    "source": {
+      "title": "Data source",
+      "dataset": "Source",
+      "link": "NASA POWER website",
+      "attribution": "Attribution",
+      "resolution": "Resolution",
+      "disclaimer": "Disclaimer"
+    }
+  },
+  "enso": {
+    "title": "El Nino and La Nina phases",
+    "intro": "El Nino and La Nina change rainfall patterns in Central America. Each box is one month of the range above.",
+    "listLabel": "El Nino and La Nina phase by month",
+    "legend": "Phase key",
+    "phase": {
+      "el_nino": "El Nino",
+      "la_nina": "La Nina",
+      "neutral": "Neutral",
+      "none": "No data"
+    },
+    "source": "Source: {{source}}. A month counts as El Nino when the ocean temperature index is {{threshold}} °C or higher, and as La Nina at minus {{threshold}} °C or lower."
   }
 }

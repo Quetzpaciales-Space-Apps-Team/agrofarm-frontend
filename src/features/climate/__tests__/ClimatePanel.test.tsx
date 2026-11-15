@@ -69,9 +69,9 @@ describe('ClimatePanel (FE-091)', () => {
   it('draws months with null values as gaps, never as zero, and lists them as no data', async () => {
     const { container } = await loaded();
     // 24 months, rainfall null in 2024-02 and 2025-04: 22 bars.
-    expect(container.querySelectorAll('rect.bar')).toHaveLength(22);
+    expect(container.querySelectorAll('svg.chart rect.bar')).toHaveLength(22);
     // Mean temperature is null only in 2024-02: the line is split in two segments.
-    expect(container.querySelectorAll('path.line--mean')).toHaveLength(2);
+    expect(container.querySelectorAll('svg.chart path.line--mean')).toHaveLength(2);
 
     const list = screen.getByRole('list', { name: /months with no data/i });
     expect(within(list).getAllByRole('listitem')).toHaveLength(2);

@@ -179,3 +179,25 @@ export function buildClimateChart(rows: readonly ClimateRow[], dims: ChartDims):
     centers: rows.map((row, index) => ({ month: row.month, x: centerOf(index) })),
   };
 }
+
+export interface ClimateSummary {
+  months: number;
+  monthsWithGaps: number;
+  rain: { min: number; max: number } | null;
+  temp: { min: number; max: number } | null;
+}
+
+function extent(values: number[]): { min: number; max: number } | null {
+  return values.length === 0 ? null : { min: Math.min(...values), max: Math.max(...values) };
+}
+
+/** Numbers for the text summary of the chart. Missing values are skipped, never counted as zero. */
+export function summarizeClimate(rows: readonly ClimateRow[]): ClimateSummary {
+  const present = (values: (number | null)[]) => values.filter((v): v is number => v !== null);
+  return {
+    months: rows.length,
+    monthsWithGaps: rows.filter((row) => ALL_KEYS.some((key) => row[key] === null)).length,
+    rain: extent(present(rows.map((r) => r.rainfall_mm))),
+    temp: extent(present(rows.flatMap((r) => TEMP_KEYS.map((key) => r[key])))),
+  };
+}
