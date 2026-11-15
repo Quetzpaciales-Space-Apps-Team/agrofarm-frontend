@@ -64,7 +64,9 @@ jobs:
             --region="${{ secrets.GCP_REGION }}" \
             --format='value(status.url)')"
           echo "::add-mask::$SERVICE_URL"
-          curl -fsS --retry 5 --retry-delay 3 "$SERVICE_URL/healthz" >/dev/null
+          # Cloud Run reserves /healthz at its edge and answers 404 from outside, so the
+          # external check loads the app shell. The in-container healthcheck keeps /healthz.
+          curl -fsS --retry 5 --retry-delay 3 "$SERVICE_URL/" | grep -qi "<!doctype html"
 
   deploy-production:
     name: Deploy frontend to Cloud Run (production)
@@ -113,4 +115,6 @@ jobs:
             --region="${{ secrets.GCP_REGION }}" \
             --format='value(status.url)')"
           echo "::add-mask::$SERVICE_URL"
-          curl -fsS --retry 5 --retry-delay 3 "$SERVICE_URL/healthz" >/dev/null
+          # Cloud Run reserves /healthz at its edge and answers 404 from outside, so the
+          # external check loads the app shell. The in-container healthcheck keeps /healthz.
+          curl -fsS --retry 5 --retry-delay 3 "$SERVICE_URL/" | grep -qi "<!doctype html"
