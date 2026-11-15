@@ -57,6 +57,18 @@ describe('Landing and guest demo entry (FE-090)', () => {
     expect(screen.queryByRole('button', { name: /try the demo/i })).not.toBeInTheDocument();
   });
 
+  it('shows the scenario panel and the rotation comparison on the dashboard', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
+    expect(
+      await screen.findByRole('heading', { name: /what if the weather changes/i }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /compare rotation strategies/i }),
+    ).toBeInTheDocument();
+    expect((await screen.findAllByRole('article')).length).toBeGreaterThanOrEqual(3);
+  });
+
   it('shows the busy state while the session starts', async () => {
     server.use(
       http.post('*/v1/auth/demo', async () => {

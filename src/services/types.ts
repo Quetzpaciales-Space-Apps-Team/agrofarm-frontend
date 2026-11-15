@@ -9,3 +9,12 @@ export type NasaPowerItem = NasaPowerSeries['items'][number];
 export type EnsoSeries = Schemas['EnsoSeries'];
 export type EnsoPhase = Schemas['EnsoPhase'];
 export type DemoSession = Schemas['DemoAuthResponse'];
+export type SimulationResult = Schemas['SimulationResult'];
+export type Provenance = Schemas['Provenance'];
+export type RecommendationSet = Schemas['RecommendationSet'];
+export type Strategy = Schemas['Strategy'];
+export type ScenarioInput = {
+  rainfall_change_pct: number;
+  temperature_change_c: number;
+  enso_phase: EnsoPhase;
+};

@@ -2,6 +2,28 @@ import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
+import { RotationComparison } from '../features/rotations/components/RotationComparison';
+import { ScenarioPanel } from '../features/simulation/components/ScenarioPanel';
+import { ScenarioProvider, useScenario } from '../features/simulation/state/scenario';
+
+function Sections({ farmId }: { farmId: string }) {
+  const { debounced } = useScenario();
+  return (
+    <>
+      <FarmDashboard farmId={farmId} />
+      <ScenarioPanel farmId={farmId} />
+      <RotationComparison
+        farmId={farmId}
+        scenario={{
+          rainfall_change_pct: debounced.rainfall_change_pct,
+          temperature_change_c: debounced.temperature_change_c,
+          enso_phase: debounced.enso_phase,
+        }}
+      />
+      <ClimatePanel />
+    </>
+  );
+}
 
 export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: () => void }) {
   const { t } = useTranslation();
@@ -17,8 +39,9 @@ export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: ()
           {t('dashboard.leave')}
         </button>
       </div>
-      <FarmDashboard farmId={farmId} />
-      <ClimatePanel />
+      <ScenarioProvider>
+        <Sections farmId={farmId} />
+      </ScenarioProvider>
     </div>
   );
 }
