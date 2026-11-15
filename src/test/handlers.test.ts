@@ -26,7 +26,7 @@ async function call(pathname: string, init: RequestInit = {}, authenticated = tr
   });
 }
 
-async function simulate(scenario: Schemas['Scenario']) {
+async function simulate(scenario: Partial<Schemas['Scenario']>) {
   const res = await call('/v1/scenarios/simulate', {
     method: 'POST',
     body: JSON.stringify({ farm_id: DEMO_FARM_ID, crop: 'maize', scenario }),
@@ -275,7 +275,7 @@ describe('Typed MSW stub handlers (core-api contract)', () => {
   });
 
   describe('recommendations and priorities', () => {
-    async function recommend(scenario?: Schemas['Scenario']) {
+    async function recommend(scenario?: Partial<Schemas['Scenario']>) {
       const res = await call(`/v1/farms/${DEMO_FARM_ID}/recommendations`, {
         method: 'POST',
         body: JSON.stringify(scenario ? { scenario } : {}),
@@ -314,7 +314,7 @@ describe('Typed MSW stub handlers (core-api contract)', () => {
       const dry = await recommend({ rainfall_change_pct: -40, enso_phase: 'el_nino' });
       const scoreOf = (set: Schemas['RecommendationSet']) =>
         Object.fromEntries(set.strategies.map((s) => [s.id, s.scores.water_use]));
-      expect(scoreOf(dry)).not.toEqual(scoreOf(calm));
+      expect(scoreOf(dry.body)).not.toEqual(scoreOf(calm.body));
 
       const before = await recommend();
       await call(`/v1/farms/${DEMO_FARM_ID}/priorities`, {
