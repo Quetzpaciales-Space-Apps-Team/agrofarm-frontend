@@ -40,7 +40,7 @@ describe('ScenarioPanel (FE-304)', () => {
   it('shows a loading state, then labelled native sliders with the contract limits', async () => {
     renderPanel();
     expect(screen.getByRole('status')).toHaveTextContent(/loading/i);
-    await ready();
+    await screen.findByRole('img', { name: /baseline.*scenario/i });
     expect(rain()).toHaveAttribute('type', 'range');
     expect(rain()).toHaveAttribute('min', '-80');
     expect(rain()).toHaveAttribute('max', '100');
@@ -100,7 +100,6 @@ describe('ScenarioPanel (FE-304)', () => {
     for (const value of ['-5', '-10', '-15', '-20', '-25']) {
       fireEvent.change(rain(), { target: { value } });
     }
-    await screen.findByText(/-11\.3 %|-11\.2 %|-11\.25 %/).catch(() => undefined);
     await waitFor(() => expect(calls).toBe(2));
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(calls).toBe(2);

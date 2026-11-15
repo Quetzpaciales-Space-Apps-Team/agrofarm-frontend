@@ -43,7 +43,8 @@
   "dashboard": {
     "title": "Your demo farm",
     "leave": "Leave the demo",
-    "climate": "Climate"
+    "climate": "Climate",
+    "scenarioTitle": "Scenario"
   },
   "farm": {
     "loading": "Loading farm...",
@@ -121,5 +122,107 @@
       "none": "No data"
     },
     "source": "Source: {{source}}. A month counts as El Nino when the ocean temperature index is {{threshold}} °C or higher, and as La Nina at minus {{threshold}} °C or lower."
+  },
+  "scenario": {
+    "title": "What if the weather changes?",
+    "intro": "Move the sliders to try a different season. The result is a range, because nobody can predict a season exactly.",
+    "loading": "Loading farm crops...",
+    "rainfall": "Rainfall change",
+    "temperature": "Temperature change",
+    "enso": "ENSO phase (El Nino or La Nina)",
+    "crop": "Crop",
+    "reset": "Reset scenario",
+    "noCrops": "No crops recorded for this farm yet, so a crop simulation is not possible.",
+    "range": "From {{min}} to {{max}}"
+  },
+  "simulation": {
+    "loading": "Running the simulation...",
+    "updating": "Updating the result...",
+    "baseline": "Baseline",
+    "scenario": "Scenario",
+    "outOfRange": "Some inputs are outside the range the model was trained on, so read this result with extra care:",
+    "input": {
+      "rainfall_change_pct": "Rainfall change",
+      "temperature_change_c": "Temperature change",
+      "enso_phase": "ENSO phase"
+    },
+    "target": {
+      "intro": "{{crop}}: {{target}}, shown in {{unit}}.",
+      "yield_anomaly_pct": "change in yield compared with a normal year"
+    },
+    "feature": {
+      "rainfall_anomaly_jja": "Summer rainfall (June to August)",
+      "temperature_anomaly_jja": "Summer temperature (June to August)",
+      "enso_roni_lag3": "El Nino or La Nina, 3 months earlier"
+    },
+    "chart": {
+      "title": "Baseline and scenario compared",
+      "row": "{{name}}: likely range from {{low}} to {{high}}, middle estimate {{mid}}.",
+      "axis": "Change ({{unit}})",
+      "help": "The coloured band is the likely range (10th to 90th percentile). The dark mark is the middle estimate (50th percentile). Zero means no change."
+    },
+    "table": {
+      "caption": "Baseline and scenario results in {{unit}}",
+      "low": "Low (10th percentile)",
+      "mid": "Middle (50th percentile)",
+      "high": "High (90th percentile)"
+    },
+    "attributions": {
+      "title": "What drives the change",
+      "help": "Each line shows how much one input moves the middle estimate. Minus lowers it, plus raises it.",
+      "lowers": "(lowers the result)",
+      "raises": "(raises the result)",
+      "noEffect": "(no effect)"
+    }
+  },
+  "provenance": {
+    "title": "Where these numbers come from",
+    "stubNotice": "The numbers shown here come from fixed rules, not from a trained model. They show how the tool will work and must not be used for decisions.",
+    "model": "Model",
+    "version": "Model version",
+    "data": "Data versions",
+    "noData": "Not reported",
+    "dataItem": "{{name}}: {{version}}",
+    "generated": "Generated",
+    "generatedAt": "{{date}} (UTC)",
+    "disclaimer": "Disclaimer"
+  },
+  "rotations": {
+    "title": "Compare rotation strategies",
+    "intro": "Each strategy is scored for the priorities set for this farm, under the scenario above. Read the gaps and risks before you decide.",
+    "loading": "Loading the rotation comparison...",
+    "updating": "Updating the comparison...",
+    "empty": "No rotation strategies are available for this farm yet.",
+    "order": "Strategies are listed from the highest score to the lowest. A higher score does not mean a strategy is right for your farm: check each one with a local expert.",
+    "omitted_one": "{{count}} strategy was left out because it is missing reasons, evidence, benefits, gaps or risks.",
+    "omitted_other": "{{count}} strategies were left out because they are missing reasons, evidence, benefits, gaps or risks.",
+    "fewerThanThree": "Fewer than three strategies could be compared, so this comparison is incomplete.",
+    "markers": "Strategy markers",
+    "topScore": "Highest score for the priorities you set",
+    "current": "Your current rotation",
+    "needsReview": "Needs local review",
+    "sequenceJoin": ", then ",
+    "overall": "Overall score: {{score}} out of 100",
+    "interval": "Likely range: {{low}} to {{high}} out of 100",
+    "priorityScores": "Scores by priority",
+    "outOf100": "{{value}} out of 100",
+    "priority": {
+      "water_use": "Water use",
+      "income": "Income",
+      "soil_structure": "Soil structure",
+      "forage_value": "Forage value",
+      "nitrogen_fixing": "Nitrogen fixing",
+      "erosion_reduction": "Erosion reduction",
+      "market_suitability": "Market suitability"
+    },
+    "blocks": {
+      "why": "Why it was suggested",
+      "evidence": "Evidence",
+      "benefits": "Expected benefits",
+      "gaps": "Information gaps",
+      "risks": "Risks to check locally"
+    },
+    "source": "Source: {{source}}",
+    "riskReview": "(needs local review)"
   }
 }
