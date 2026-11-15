@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildClimateChart, linearScale, niceTicks, splitSegments, type ClimateRow } from '../chart';
+import {
+  buildClimateChart,
+  linearScale,
+  niceTicks,
+  splitSegments,
+  type ClimateRow,
+} from '../chart';
 
 const row = (month: string, over: Partial<ClimateRow> = {}): ClimateRow => ({
   month,
@@ -67,7 +73,11 @@ describe('buildClimateChart', () => {
     }),
     row('2024-04', { rainfall_mm: 0 }),
   ];
-  const chart = buildClimateChart(rows, { width: 400, height: 200, margin: { top: 10, right: 40, bottom: 30, left: 40 } });
+  const chart = buildClimateChart(rows, {
+    width: 400,
+    height: 200,
+    margin: { top: 10, right: 40, bottom: 30, left: 40 },
+  });
 
   it('draws no bar for a null rainfall month and a flat bar for a real zero', () => {
     expect(chart.bars.map((b) => b.height === null)).toEqual([false, true, false, false]);
@@ -105,7 +115,11 @@ describe('buildClimateChart', () => {
   });
 
   it('handles an empty series', () => {
-    const empty = buildClimateChart([], { width: 400, height: 200, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+    const empty = buildClimateChart([], {
+      width: 400,
+      height: 200,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+    });
     expect(empty.bars).toEqual([]);
     expect(empty.gaps).toEqual([]);
   });
