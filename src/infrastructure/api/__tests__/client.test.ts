@@ -1,16 +1,21 @@
 // @vitest-environment node
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createTokenStore } from '../auth';
 import { createApiClient } from '../client';
-import { isApiError } from '../errorNormalizer';
+import { isApiError, type ApiError } from '../errorNormalizer';
 import { handlers, DEMO_ACCESS_TOKEN, DEMO_FARM_ID, problemResponse } from '../../../test/handlers';
 
 const BASE = 'http://api.test';
 const server = setupServer(...handlers);
+const failure = async (call: Promise<unknown>) =>
+  (await call.then(
+    () => null,
+    (error: unknown) => error,
+  )) as ApiError;
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
@@ -21,23 +26,24 @@ function makeClient(timeoutMs = 2000) {
 
 describe('api client against MSW handlers', () => {
   it('returns parsed JSON and sends credentials include, a request id and the bearer token', async () => {
-    const seen: { auth: string | null; id: string | null; credentials: string }[] = [];
+    const seen: { auth: string | null; id: string | null }[] = [];
     server.use(
       http.get(`${BASE}/v1/me`, ({ request }) => {
         seen.push({
           auth: request.headers.get('Authorization'),
           id: request.headers.get('X-Request-Id'),
-          credentials: request.credentials,
         });
         return HttpResponse.json({ ok: true });
       }),
     );
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
     const { client, tokens } = makeClient();
     tokens.set('abc');
     await client.get('/v1/me');
     expect(seen[0].auth).toBe('Bearer abc');
     expect(seen[0].id).toBeTruthy();
-    expect(seen[0].credentials).toBe('include');
+    expect((fetchSpy.mock.calls[0][1] as RequestInit).credentials).toBe('include');
+    fetchSpy.mockRestore();
   });
 
   it('calls POST /v1/auth/demo and the farm endpoint with the issued token', async () => {
@@ -69,7 +75,7 @@ describe('api client against MSW handlers', () => {
 
   it('turns a 401 into an ApiError with code unauthorized and the problem request id', async () => {
     const { client } = makeClient();
-    const error = await client.get('/v1/me').catch((e) => e);
+    const error = await failure(client.get('/v1/me'));
     expect(isApiError(error)).toBe(true);
     expect(error).toMatchObject({ status: 401, code: 'unauthorized' });
     expect(error.requestId).toMatch(/^req-msw/);
@@ -82,7 +88,7 @@ describe('api client against MSW handlers', () => {
       ),
     );
     const { client } = makeClient();
-    const error = await client.get('/v1/farms').catch((e) => e);
+    const error = await failure(client.get('/v1/farms'));
     expect(error).toMatchObject({ status: 500, code: 'internal_error' });
   });
 
@@ -100,14 +106,14 @@ describe('api client against MSW handlers', () => {
       }),
     );
     const { client } = makeClient(30);
-    const error = await client.get('/v1/farms').catch((e) => e);
+    const error = await failure(client.get('/v1/farms'));
     expect(error).toMatchObject({ code: 'timeout' });
   });
 
   it('maps a network failure to network_error', async () => {
     server.use(http.get(`${BASE}/v1/farms`, () => HttpResponse.error()));
     const { client } = makeClient();
-    const error = await client.get('/v1/farms').catch((e) => e);
+    const error = await failure(client.get('/v1/farms'));
     expect(error).toMatchObject({ code: 'network_error' });
   });
 

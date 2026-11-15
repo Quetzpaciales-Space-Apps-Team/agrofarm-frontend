@@ -6,8 +6,7 @@ import { requestId } from '../requestId';
 import { timeout } from '../timeout';
 
 const okFetch = (): Fetcher => vi.fn(async () => new Response('{}', { status: 200 }));
-const headersOf = (fetcher: Fetcher) =>
-  new Headers((vi.mocked(fetcher).mock.calls[0][1] as RequestInit).headers);
+const headersOf = (fetcher: Fetcher) => new Headers(vi.mocked(fetcher).mock.calls[0][1]?.headers);
 
 describe('compose', () => {
   it('runs the first middleware outermost', async () => {
@@ -143,10 +142,14 @@ describe('errorNormalizer middleware', () => {
     const error = await compose(errorNormalizer())(respond(500, '<html>oops</html>', 'text/html'))(
       '/a',
     ).catch((e) => e);
-    expect(error).toMatchObject({ status: 500, code: 'server_error', requestId: 'req-from-header' });
-    const unauthorized = await compose(errorNormalizer())(respond(401, '', 'text/plain'))('/a').catch(
-      (e) => e,
-    );
+    expect(error).toMatchObject({
+      status: 500,
+      code: 'server_error',
+      requestId: 'req-from-header',
+    });
+    const unauthorized = await compose(errorNormalizer())(respond(401, '', 'text/plain'))(
+      '/a',
+    ).catch((e) => e);
     expect(unauthorized.code).toBe('unauthorized');
   });
 
