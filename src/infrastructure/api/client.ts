@@ -7,6 +7,8 @@ import { timeout } from './timeout';
 export interface RequestOptions {
   query?: Record<string, string | number | undefined>;
   body?: unknown;
+  rawBody?: ArrayBuffer;
+  contentType?: string;
   signal?: AbortSignal;
 }
 
@@ -47,14 +49,17 @@ export function createApiClient({
     const headers: Record<string, string> = {
       Accept: 'application/json, application/problem+json',
     };
-    if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+    if (options.rawBody !== undefined)
+      headers['Content-Type'] = options.contentType ?? 'application/octet-stream';
+    else if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
     const response = await fetcher(`${root}${path}${queryString ? `?${queryString}` : ''}`, {
       method,
       headers,
       credentials: 'include',
       signal: options.signal,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      body:
+        options.rawBody ?? (options.body === undefined ? undefined : JSON.stringify(options.body)),
     });
     if (response.status === 204) return undefined as T;
     return (await response.json()) as T;

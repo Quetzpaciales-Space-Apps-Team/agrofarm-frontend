@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
+import { LeafAssessmentPanel } from '../features/leaves/components/LeafAssessmentPanel';
 import { RotationComparison } from '../features/rotations/components/RotationComparison';
 import { ScenarioPanel } from '../features/simulation/components/ScenarioPanel';
 import { ScenarioProvider, useScenario } from '../features/simulation/state/scenario';
@@ -11,6 +12,7 @@ function Sections({ farmId }: { farmId: string }) {
   return (
     <>
       <FarmDashboard farmId={farmId} />
+      <LeafAssessmentPanel key={farmId} farmId={farmId} />
       <ScenarioPanel farmId={farmId} />
       <RotationComparison
         farmId={farmId}
