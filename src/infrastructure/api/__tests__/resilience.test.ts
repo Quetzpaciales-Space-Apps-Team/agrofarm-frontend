@@ -72,7 +72,7 @@ describe('retry middleware (FE-101)', () => {
   });
 
   it('backs off with growing delays', async () => {
-    const sleep = vi.fn(async () => undefined);
+    const sleep = vi.fn(async (ms: number) => void ms);
     const base: Fetcher = vi.fn<Fetcher>().mockRejectedValue(networkError());
     await retry({ retries: 3, baseDelayMs: 100, sleep })(base)('/x').catch(() => undefined);
     expect(sleep.mock.calls.map((call) => call[0])).toEqual([100, 200, 400]);

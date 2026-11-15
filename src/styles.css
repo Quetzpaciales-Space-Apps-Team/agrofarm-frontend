@@ -228,7 +228,9 @@ p {
   font-weight: 600;
 }
 select,
-input[type='text'] {
+input[type='text'],
+input[type='email'],
+input[type='password'] {
   min-height: 2.75rem;
   padding: 0.25rem 0.5rem;
   font: inherit;
@@ -236,6 +238,37 @@ input[type='text'] {
   background: var(--color-surface);
   border: 2px solid var(--color-border);
   border-radius: var(--radius);
+}
+.field input[aria-invalid='true'] {
+  border-color: var(--color-error-text);
+}
+.field__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.field__error {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-error-text); /* 7.3:1 on the page surface */
+}
+.auth-page {
+  max-width: 28rem;
+}
+.auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+}
+.auth-links a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+}
+.auth-links a:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
 }
 .controls {
   display: flex;

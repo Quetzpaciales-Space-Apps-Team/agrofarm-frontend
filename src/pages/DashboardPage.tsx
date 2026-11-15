@@ -25,7 +25,14 @@ function Sections({ farmId }: { farmId: string }) {
   );
 }
 
-export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: () => void }) {
+interface DashboardPageProps {
+  farmId: string;
+  onLeave: () => void;
+  /** Guests see the demo wording; a signed-in farmer sees "Log out". */
+  isDemoGuest?: boolean;
+}
+
+export function DashboardPage({ farmId, onLeave, isDemoGuest = true }: DashboardPageProps) {
   const { t } = useTranslation();
   const headingRef = useFocusOnMount<HTMLHeadingElement>();
 
@@ -33,10 +40,10 @@ export function DashboardPage({ farmId, onLeave }: { farmId: string; onLeave: ()
     <div className="stack">
       <div className="toolbar">
         <h2 ref={headingRef} tabIndex={-1}>
-          {t('dashboard.title')}
+          {t(isDemoGuest ? 'dashboard.title' : 'dashboard.titleAccount')}
         </h2>
         <button type="button" className="button button--secondary" onClick={onLeave}>
-          {t('dashboard.leave')}
+          {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
         </button>
       </div>
       <ScenarioProvider>

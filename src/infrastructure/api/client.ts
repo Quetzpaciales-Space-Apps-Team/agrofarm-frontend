@@ -19,8 +19,9 @@ export interface ApiClient {
   post: <T>(path: string, options?: RequestOptions) => Promise<T>;
   put: <T>(path: string, options?: RequestOptions) => Promise<T>;
   /**
-   * Asks `POST /v1/auth/refresh` for a new access token using the httpOnly refresh cookie and keeps
-   * it in the token store. Resolves `null` when there is no valid cookie (the token is cleared).
+   * Asks `POST /v1/auth/refresh` for a new access token using the httpOnly refresh cookie.
+   * Resolves `null` when there is no valid cookie. It does not touch the token store: the caller
+   * decides whether the answer is still wanted (session restore on app start).
    * Concurrent calls, including the automatic ones after a 401, share one request.
    */
   refresh: () => Promise<string | null>;
@@ -56,14 +57,12 @@ export function createApiClient({
   log,
 }: ApiClientConfig): ApiClient {
   const expiredHandlers = new Set<() => void>();
-  const refreshOnce = singleFlight(async () => {
+  const refreshOnce: () => Promise<string | null> = singleFlight(async () => {
     try {
       const { access_token } = await request<TokenResponse>('POST', '/v1/auth/refresh');
-      tokens.set(access_token);
       return access_token;
     } catch (error) {
       if (!isApiError(error) || error.status !== 401) throw error;
-      tokens.clear();
       return null;
     }
   });
@@ -79,7 +78,12 @@ export function createApiClient({
       getToken: tokens.get,
       refresh: async () => {
         const token = await refreshOnce();
-        if (!token) expiredHandlers.forEach((handler) => handler());
+        if (token) {
+          tokens.set(token);
+        } else {
+          tokens.clear();
+          expiredHandlers.forEach((handler) => handler());
+        }
         return token;
       },
     }),
@@ -88,7 +92,11 @@ export function createApiClient({
   )(globalFetch);
   const root = baseUrl.replace(/\/+$/, '');
 
-  async function request<T>(method: string, path: string, options: RequestOptions = {}) {
+  async function request<T>(
+    method: string,
+    path: string,
+    options: RequestOptions = {},
+  ): Promise<T> {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(options.query ?? {})) {
       if (value !== undefined) params.set(key, String(value));

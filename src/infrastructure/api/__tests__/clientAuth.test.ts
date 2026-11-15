@@ -97,12 +97,13 @@ describe('api client session refresh (FE-101, FE-104)', () => {
     expect(expired).toHaveBeenCalledTimes(1);
   });
 
-  it('refresh() returns null without a valid cookie and a token with one', async () => {
+  it('refresh() returns null without a valid cookie and a token with one, and leaves the store alone', async () => {
     const { client, tokens } = makeClient();
+    tokens.set('current');
     await expect(client.refresh()).resolves.toBeNull();
     setRefreshCookie(true);
     await expect(client.refresh()).resolves.toBe(REFRESHED_ACCESS_TOKEN);
-    expect(tokens.get()).toBe(REFRESHED_ACCESS_TOKEN);
+    expect(tokens.get()).toBe('current');
   });
 
   it('a wrong login is a 401 that does not trigger a refresh', async () => {
