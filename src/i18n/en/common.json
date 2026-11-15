@@ -3,7 +3,51 @@
     "shell": {
       "title": "AgroFarm",
       "tagline": "Decision support for crop growth and rotation planning.",
-      "disclaimer": "This tool supports farmers and local experts. It never replaces local agronomic judgment."
+      "disclaimer": "This tool supports farmers and local experts. It never replaces local agronomic judgment.",
+      "skipLink": "Skip to main content"
+    },
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "body": "This page could not be shown. Reload the page to try again.",
+      "reload": "Reload the page"
     }
+  },
+  "common": {
+    "retry": "Try again",
+    "loading": "Loading..."
+  },
+  "landing": {
+    "title": "See how weather and El Nino could change your crops",
+    "intro": "AgroFarm compares crop rotations under different rainfall, temperature and El Nino conditions. It gives ranges, not promises.",
+    "demoNote": "The demo uses example data for a pilot farm near Guatemala City. You do not need an account.",
+    "tryDemo": "Try the demo",
+    "starting": "Starting the demo..."
+  },
+  "auth": {
+    "demo": {
+      "disabled": "Demo mode is turned off on this server. Try again later or ask the team for access.",
+      "rateLimited": "Too many demo requests from your network. Wait a minute and try again.",
+      "full": "The demo is full right now (at capacity). Try again in a few minutes.",
+      "failed": "The demo could not be started. Try again."
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong while loading this. Try again.",
+    "network": "The server could not be reached. Check your connection and try again.",
+    "timeout": "The server took too long to answer. Try again.",
+    "unauthorized": "Your demo session expired. Start the demo again from the start page.",
+    "notFound": "This information was not found.",
+    "rateLimited": "Too many requests. Wait a moment and try again.",
+    "unavailable": "The service is busy right now. Try again in a moment."
+  },
+  "dashboard": {
+    "title": "Your demo farm",
+    "leave": "Leave the demo"
+  },
+  "farm": {
+    "loading": "Loading farm...",
+    "area": "Area",
+    "rotation": "Current rotation",
+    "noRotation": "No rotation recorded for this farm yet."
   }
 }

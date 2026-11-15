@@ -10,3 +10,5 @@ Dockerfile
 docker
 docs/contract/openapi.yaml
 src/infrastructure/api/schema.d.ts
+
+public/mockServiceWorker.js
