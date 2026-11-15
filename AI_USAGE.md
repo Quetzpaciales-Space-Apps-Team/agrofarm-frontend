@@ -27,3 +27,5 @@ OpenAI Codex (`GPT-6`), used by `eldmark`, assisted with the maize-leaf photo sc
 
 - The project idea and the choice of challenge.
 - Source datasets (INSIVUMEH, NOAA, NASA, CHIRPS, SoilGrids and the others in the dataset catalog).
+
+OpenAI Codex (GPT-6), 2026-11-15: added the regional NDVI scenario panel with uncertainty, original failed-goal metrics, SHAP differences and reference-cell caveats, and contained the simulation chart on mobile. Photo and NDVI integration was explicitly authorized by the owner.
