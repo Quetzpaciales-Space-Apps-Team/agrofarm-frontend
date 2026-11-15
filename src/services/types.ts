@@ -16,6 +16,7 @@ export type LoginRequest = Schemas['LoginRequest'];
 export type SimulationResult = Schemas['SimulationResult'];
 export type Provenance = Schemas['Provenance'];
 export type RecommendationSet = Schemas['RecommendationSet'];
+export type Priorities = Schemas['Priorities'];
 export type Strategy = Schemas['Strategy'];
 export type ScenarioInput = {
   rainfall_change_pct: number;

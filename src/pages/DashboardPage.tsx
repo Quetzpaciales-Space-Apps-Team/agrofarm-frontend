@@ -4,7 +4,7 @@ import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
 import { UploadWizard } from '../features/uploads/components/UploadWizard';
 import { LeafAssessmentPanel } from '../features/leaves/components/LeafAssessmentPanel';
-import { RotationComparison } from '../features/rotations/components/RotationComparison';
+import { RotationsSection } from '../features/rotations/components/RotationsSection';
 import { VegetationPanel } from '../features/vegetation/components/VegetationPanel';
 import { ScenarioPanel } from '../features/simulation/components/ScenarioPanel';
 import { ScenarioProvider, useScenario } from '../features/simulation/state/scenario';
@@ -18,7 +18,7 @@ function Sections({ farmId }: { farmId: string }) {
       <LeafAssessmentPanel key={farmId} farmId={farmId} />
       <ScenarioPanel farmId={farmId} />
       <VegetationPanel key={`vegetation-${farmId}`} farmId={farmId} scenario={debounced} />
-      <RotationComparison
+      <RotationsSection
         farmId={farmId}
         scenario={{
           rainfall_change_pct: debounced.rainfall_change_pct,

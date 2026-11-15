@@ -650,6 +650,90 @@ td:first-child {
     align-items: center;
   }
 }
+
+/* Priorities form */
+.check {
+  display: block;
+  min-height: 2.75rem;
+  padding: 0.5rem 0;
+}
+.check input {
+  width: 1.25rem;
+  height: 1.25rem;
+  vertical-align: middle;
+}
+
+/* Strategy drawer and glossary tooltips */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.45);
+}
+.drawer {
+  width: min(100%, 38rem);
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space);
+  background: var(--color-surface);
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.25);
+}
+.drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space);
+  margin-bottom: var(--space);
+}
+.drawer-head h2 {
+  margin: 0;
+}
+.drawer ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+.drawer ul.priority-scores {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.glossary {
+  position: relative;
+  display: inline-block;
+}
+.glossary-term {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 2px dotted currentColor;
+  cursor: help;
+}
+.glossary-tip {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 60;
+  width: max-content;
+  max-width: min(20rem, 80vw);
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  background: #1f2a22;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.glossary-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
 .leaf-preview {
   margin: 0;
 }

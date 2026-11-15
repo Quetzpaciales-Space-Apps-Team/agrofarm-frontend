@@ -9,6 +9,7 @@ import type {
   EnsoSeries,
   Farm,
   NasaPowerSeries,
+  Priorities,
   RecommendationSet,
   ScenarioInput,
   SimulationResult,
@@ -65,6 +66,15 @@ export const fetchRecommendations = (
   client.post<RecommendationSet>(`/v1/farms/${encodeURIComponent(farmId)}/recommendations`, {
     body: { scenario },
     signal,
+  });
+
+export const fetchPriorities = (client: ApiClient, farmId: string, signal?: AbortSignal) =>
+  client.get<Priorities>(`/v1/farms/${encodeURIComponent(farmId)}/priorities`, { signal });
+
+/** Priorities are stored per farm. The recommendations call reads them on the server. */
+export const savePriorities = (client: ApiClient, farmId: string, priorities: Priorities) =>
+  client.put<Priorities>(`/v1/farms/${encodeURIComponent(farmId)}/priorities`, {
+    body: priorities,
   });
 
 /** `POST /v1/farms/{farm_id}/uploads`: one CSV or GeoJSON file, validated again by the server. */

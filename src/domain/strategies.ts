@@ -19,7 +19,7 @@ export interface RotationStrategy {
   scores: Record<PriorityKey, number>;
   uncertainty: { low: number; high: number };
   why: string[];
-  evidence: { statement: string; source: string }[];
+  evidence: { statement: string; source: string; url?: string }[];
   benefits: string[];
   gaps: string[];
   risks: { description: string; needs_local_review: boolean }[];
