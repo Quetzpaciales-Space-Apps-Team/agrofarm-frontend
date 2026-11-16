@@ -3037,123 +3037,6 @@ button.demo-badge:hover,
   gap: 1.5rem;
 }
 
-.farm-zone-map {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.farm-zone-map__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.farm-zone-map__title {
-  margin: 0;
-  font-size: 1.15rem;
-  color: var(--color-primary);
-}
-
-.farm-zone-map__subtitle {
-  margin: 0.2rem 0 0;
-  font-size: 0.85rem;
-  color: var(--color-muted);
-}
-
-.farm-zone-map__tabs {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.farm-zone-map__frame-wrapper {
-  position: relative;
-  width: 100%;
-  height: 320px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--color-border-soft);
-  background: var(--color-surface-alt);
-}
-
-.farm-zone-map__iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.farm-zone-map__svg-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 240px;
-  background: var(--color-surface-alt);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border-soft);
-  padding: 1rem;
-}
-
-.farm-zone-map__svg {
-  max-width: 100%;
-  max-height: 100%;
-  overflow: visible;
-}
-
-.farm-zone-map__meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border-soft);
-}
-
-.farm-zone-map__coords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  font-size: 0.85rem;
-}
-
-.farm-zone-map__coord-item {
-  color: var(--color-text);
-}
-
-.farm-zone-map__coord-item strong {
-  color: var(--color-muted);
-  font-weight: 500;
-}
-
-.farm-zone-map__links {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.farm-zone-map__link {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--color-primary);
-  text-decoration: underline;
-}
-
-.farm-zone-map__link:hover {
-  text-decoration: none;
-}
-
-.farm-zone-map--empty {
-  padding: 1.5rem;
-  text-align: center;
-  color: var(--color-muted);
-}
-
 /* Driver.js theme styling */
 .driver-popover {
   background-color: var(--color-surface, #ffffff) !important;
@@ -3232,13 +3115,401 @@ button.demo-badge:hover,
   border: 1px solid #334638 !important;
 }
 
-:root[data-theme='dark'] .farm-zone-map {
-  background: #19241d;
-  border: 1px solid #334638;
+/* ===== Inside the app: readable type, steady spacing, clear steps ===== */
+:root {
+  --font: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', serif;
+  --space-section: clamp(1.25rem, 2.4vw, 1.75rem);
+}
+body {
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+.dashboard-page {
+  gap: var(--space-section);
+}
+.dashboard-page h2,
+.dashboard-page h3,
+.dashboard-page h4 {
+  font-family: var(--font-heading);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.dashboard-page h2 {
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  line-height: 1.1;
+}
+.dashboard-page .card h3 {
+  font-size: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+.dashboard-title {
+  display: grid;
+  gap: 0.2rem;
+}
+.dashboard-step {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-muted);
 }
 
-:root[data-theme='dark'] .farm-zone-map__frame-wrapper,
-:root[data-theme='dark'] .farm-zone-map__svg-wrapper {
-  background: #121915;
-  border-color: #2b3b2f;
+/* what is this page, and what to do */
+.page-intro {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  padding: clamp(1.1rem, 2.4vw, 1.6rem);
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, var(--color-border-soft));
+  border-radius: var(--radius-lg);
+}
+@media (min-width: 52rem) {
+  .page-intro {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+}
+.page-intro__lead {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  max-width: 38rem;
+}
+.page-intro__todo h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+.page-intro__todo ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  counter-reset: todo;
+}
+.page-intro__todo li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: start;
+  counter-increment: todo;
+  line-height: 1.45;
+}
+.page-intro__todo li::before {
+  content: counter(todo);
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-surface);
+  background: var(--color-primary);
+  border-radius: 50%;
+}
+
+/* the next step, always at the end of a page */
+.next-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1rem, 2.4vw, 1.4rem) clamp(1.1rem, 2.4vw, 1.6rem);
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+}
+.next-step p {
+  margin: 0;
+}
+.next-step__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.next-step__hint {
+  font-size: 1.05rem;
+}
+.next-step .button {
+  text-decoration: none;
+}
+
+/* numbered steps in the side menu and on the first page */
+.app-nav__num {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 50%;
+  border: 1.5px solid currentcolor;
+}
+.app-nav a.active .app-nav__num {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-surface);
+}
+.overview-links {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr));
+}
+.overview-link__num {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  font-weight: 700;
+  color: var(--color-surface);
+  background: var(--color-primary);
+  border-radius: 50%;
+}
+
+/* the farm map */
+.farm-map {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.1rem, 2.4vw, 1.6rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.farm-map h4 {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+}
+.farm-map__lead {
+  margin: 0;
+  line-height: 1.55;
+  max-width: 42rem;
+}
+.farm-map__frame {
+  position: relative;
+  height: 22rem;
+  overflow: hidden;
+  background: #dfe6d6;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-soft);
+}
+.farm-map__stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.farm-map__tile {
+  position: absolute;
+  display: block;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  user-select: none;
+}
+.farm-map__outline {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  overflow: visible;
+}
+.farm-map__outline polygon {
+  stroke-linejoin: round;
+}
+.farm-map__outline-halo {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 7;
+}
+.farm-map__outline-fill {
+  fill: rgb(40 92 68 / 28%);
+  stroke: #1d4935;
+  stroke-width: 3;
+}
+.farm-map__zoom {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.farm-map__zoom-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #20382c;
+  background: #fffefa;
+  border: 1px solid #6b7a70;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+.farm-map__zoom-btn:hover:not(:disabled) {
+  background: #e8eedf;
+}
+.farm-map__zoom-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.farm-map__credit {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  background: rgb(255 255 255 / 85%);
+}
+.farm-map__credit a {
+  color: #20382c;
+}
+.farm-map__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+.farm-map__legend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-weight: 600;
+}
+.farm-map__swatch {
+  width: 1.4rem;
+  height: 1rem;
+  background: rgb(40 92 68 / 28%);
+  border: 3px solid #1d4935;
+  border-radius: 3px;
+}
+.farm-map__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+.farm-map__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+.farm-map__notice {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--color-warn-bg);
+  color: var(--color-warn-text);
+  border-radius: var(--radius);
+}
+.farm-map__details summary {
+  cursor: pointer;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.farm-map__details dl {
+  display: grid;
+  gap: 0.5rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  margin: 0.5rem 0 0;
+}
+.farm-map__details dt {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.farm-map__details dd {
+  margin: 0;
+}
+
+/* accessibility: big enough targets and a focus ring that is always visible */
+.dashboard-page
+  :is(button, .button, select, input:not([type='range'], [type='checkbox'], [type='radio'])) {
+  min-height: 2.75rem;
+}
+.dashboard-page :focus-visible,
+.app-nav a:focus-visible,
+.app-header a:focus-visible,
+.app-header button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.dashboard-page input[type='range'] {
+  min-height: 2rem;
+  accent-color: var(--color-primary);
+}
+.dashboard-page label {
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .farm-map__zoom-btn {
+    transition: none;
+  }
+}
+/* page titles take focus from code (for screen readers); they are not controls, so no ring */
+.dashboard-page h2[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* small screens: the numbered steps become a bar under the header, and the header fits */
+@media (max-width: 47.99rem) {
+  .app-root--internal .app-nav.app-sidebar {
+    position: fixed;
+    z-index: 6;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    height: 3rem;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .app-root--internal .app-nav ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.25rem;
+    height: 100%;
+    padding-inline: 0.5rem;
+  }
+  .app-root--internal .app-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.9rem;
+  }
+  .app-root--internal .app-nav__icon {
+    display: none;
+  }
+  .app-header__actions {
+    gap: 0.35rem;
+  }
+  .app-header__actions .demo-badge,
+  .app-header__actions .tour-button span {
+    display: none;
+  }
+  .app-header__actions .header-action {
+    padding-inline: 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* keep a page title clear of the fixed header and step bar when it takes focus */
+.dashboard-page h2 {
+  scroll-margin-top: 8rem;
 }

@@ -72,17 +72,17 @@ describe('Landing and guest demo entry (FE-090)', () => {
   it('keeps dashboard sections available through the navigation', async () => {
     renderApp();
     await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
-    await userEvent.click(screen.getAllByRole('link', { name: /explore scenarios/i })[0]);
+    await userEvent.click(screen.getAllByRole('link', { name: /try a season/i })[0]);
     expect(
       await screen.findByRole('heading', { name: /what if the weather changes/i }),
     ).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('link', { name: /recommendations/i }));
+    await userEvent.click(screen.getByRole('link', { name: /^best crops$/i }));
     expect(
       await screen.findByRole('heading', { name: /compare rotation strategies/i }),
     ).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('link', { name: /climate/i }));
+    await userEvent.click(screen.getByRole('link', { name: /^weather$/i }));
     expect(await screen.findByRole('heading', { name: /climate history/i })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('link', { name: /farm data/i }));
+    await userEvent.click(screen.getByRole('link', { name: /^add your data$/i }));
     expect(
       await screen.findByRole('heading', { name: /upload your farm data/i }),
     ).toBeInTheDocument();

@@ -11,168 +11,203 @@ export interface FarmZoneMapProps {
   };
 }
 
+const TILE = 256;
+const COLUMNS = [-3, -2, -1, 0, 1, 2, 3] as const;
+const ROWS = [-1, 0, 1] as const;
+const MIN_ZOOM = 5;
+const MAX_ZOOM = 19;
+const FOOTBALL_FIELD_HA = 0.714;
+
+/** Web Mercator: longitude and latitude to pixels of the whole world at a zoom level. */
+function project(lon: number, lat: number, zoom: number) {
+  const world = TILE * 2 ** zoom;
+  const sin = Math.sin((lat * Math.PI) / 180);
+  return {
+    x: ((lon + 180) / 360) * world,
+    y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * world,
+  };
+}
+
+/** The highest zoom at which the whole farm outline still fits comfortably in the frame. */
+function fitZoom(minLon: number, maxLon: number, minLat: number, maxLat: number) {
+  for (let zoom = 18; zoom > MIN_ZOOM; zoom -= 1) {
+    const a = project(minLon, maxLat, zoom);
+    const b = project(maxLon, minLat, zoom);
+    if (b.x - a.x <= 380 && b.y - a.y <= 150) return zoom;
+  }
+  return MIN_ZOOM;
+}
+
 export function FarmZoneMap({ farmName, areaHa, boundary }: FarmZoneMapProps) {
   const { t, i18n } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'map' | 'vector'>('map');
+  const [zoomShift, setZoomShift] = useState(0);
+  const [tilesFailed, setTilesFailed] = useState(false);
 
   const ring = boundary?.coordinates?.[0] || [];
-  const hasCoordinates = ring.length > 2;
-
-  if (!hasCoordinates) {
+  if (ring.length <= 2) {
     return (
-      <div className="farm-zone-map farm-zone-map--empty">
-        <p className="farm-zone-map__notice">{t('farm.map.noCoordinates')}</p>
-      </div>
+      <section aria-labelledby="farm-zone-map-heading" className="farm-map farm-map--empty">
+        <h4 id="farm-zone-map-heading">{t('farm.map.title')}</h4>
+        <p className="farm-map__notice">{t('farm.map.noCoordinates')}</p>
+      </section>
     );
   }
 
   const lons = ring.map((p) => p[0]);
   const lats = ring.map((p) => p[1]);
-  const centroidLon = lons.reduce((sum, v) => sum + v, 0) / lons.length;
-  const centroidLat = lats.reduce((sum, v) => sum + v, 0) / lats.length;
   const minLon = Math.min(...lons);
   const maxLon = Math.max(...lons);
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);
+  const centerLon = (minLon + maxLon) / 2;
+  const centerLat = (minLat + maxLat) / 2;
 
-  const padLon = Math.max((maxLon - minLon) * 0.45, 0.008);
-  const padLat = Math.max((maxLat - minLat) * 0.45, 0.008);
-  const embedBbox = `${(minLon - padLon).toFixed(5)}%2C${(minLat - padLat).toFixed(5)}%2C${(maxLon + padLon).toFixed(5)}%2C${(maxLat + padLat).toFixed(5)}`;
-  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${embedBbox}&layer=mapnik&marker=${centroidLat.toFixed(5)}%2C${centroidLon.toFixed(5)}`;
-  const osmUrl = `https://www.openstreetmap.org/?mlat=${centroidLat.toFixed(5)}&mlon=${centroidLon.toFixed(5)}#map=15/${centroidLat.toFixed(5)}/${centroidLon.toFixed(5)}`;
-  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${centroidLat.toFixed(5)},${centroidLon.toFixed(5)}`;
+  const baseZoom = fitZoom(minLon, maxLon, minLat, maxLat);
+  const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, baseZoom + zoomShift));
+  const center = project(centerLon, centerLat, zoom);
+  const worldTiles = 2 ** zoom;
+  const centerTileX = Math.floor(center.x / TILE);
+  const centerTileY = Math.floor(center.y / TILE);
 
-  // SVG Normalized Polygon calculation
-  const svgWidth = 320;
-  const svgHeight = 200;
-  const pad = 24;
-  const lonSpan = maxLon - minLon || 0.001;
-  const latSpan = maxLat - minLat || 0.001;
+  const tiles = ROWS.flatMap((dy) =>
+    COLUMNS.map((dx) => {
+      const tileX = centerTileX + dx;
+      const tileY = centerTileY + dy;
+      return {
+        key: `${zoom}-${tileX}-${tileY}`,
+        src:
+          tileY < 0 || tileY >= worldTiles
+            ? null
+            : `https://tile.openstreetmap.org/${zoom}/${((tileX % worldTiles) + worldTiles) % worldTiles}/${tileY}.png`,
+        left: tileX * TILE - center.x,
+        top: tileY * TILE - center.y,
+      };
+    }),
+  );
 
   const points = ring
     .map(([lon, lat]) => {
-      const x = pad + ((lon - minLon) / lonSpan) * (svgWidth - 2 * pad);
-      const y = svgHeight - pad - ((lat - minLat) / latSpan) * (svgHeight - 2 * pad);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
+      const p = project(lon, lat, zoom);
+      return `${(p.x - center.x).toFixed(1)},${(p.y - center.y).toFixed(1)}`;
     })
     .join(' ');
 
-  const formattedArea = formatArea(areaHa, i18n.language);
-  const subtitle = `${farmName} • ${formattedArea}`;
-  const bboxText = `[${minLon.toFixed(3)}, ${minLat.toFixed(3)}] → [${maxLon.toFixed(3)}, ${maxLat.toFixed(3)}]`;
-  const latText = `${centroidLat.toFixed(4)}°`;
-  const lonText = `${centroidLon.toFixed(4)}°`;
+  const fields = Math.max(1, Math.round(areaHa / FOOTBALL_FIELD_HA));
+  const lat = centerLat.toFixed(5);
+  const lon = centerLon.toFixed(5);
+  const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
+  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
 
   return (
-    <section aria-labelledby="farm-zone-map-heading" className="farm-zone-map">
-      <div className="farm-zone-map__header">
+    <section aria-labelledby="farm-zone-map-heading" className="farm-map">
+      <div className="farm-map__head">
         <div>
-          <h4 id="farm-zone-map-heading" className="farm-zone-map__title">
-            {t('farm.map.title')}
-          </h4>
-          <p className="farm-zone-map__subtitle">{subtitle}</p>
-        </div>
-        <div className="farm-zone-map__tabs" role="tablist" aria-label={t('farm.map.title')}>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'map'}
-            className={`button button--sm ${activeTab === 'map' ? 'button--primary' : 'button--ghost'}`}
-            onClick={() => setActiveTab('map')}
-          >
-            {t('farm.map.mapView')}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'vector'}
-            className={`button button--sm ${activeTab === 'vector' ? 'button--primary' : 'button--ghost'}`}
-            onClick={() => setActiveTab('vector')}
-          >
-            {t('farm.map.boundaryVector')}
-          </button>
+          <h4 id="farm-zone-map-heading">{t('farm.map.title')}</h4>
+          <p className="farm-map__lead">
+            {t('farm.map.lead', {
+              name: farmName,
+              area: formatArea(areaHa, i18n.language),
+              fields,
+            })}
+          </p>
         </div>
       </div>
 
-      <div className="farm-zone-map__content">
-        {activeTab === 'map' ? (
-          <div className="farm-zone-map__frame-wrapper">
-            <iframe
-              title={`Interactive map of ${farmName}`}
-              className="farm-zone-map__iframe"
-              src={osmEmbedUrl}
-              loading="lazy"
-            />
-          </div>
-        ) : (
-          <div className="farm-zone-map__svg-wrapper">
-            <svg
-              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-              className="farm-zone-map__svg"
-              role="img"
-              aria-label={`Boundary polygon for ${farmName}`}
-            >
-              <polygon
-                points={points}
-                fill="rgba(77, 179, 128, 0.25)"
-                stroke="var(--color-primary, #4db380)"
-                strokeWidth="2.5"
-                strokeLinejoin="round"
+      <div className="farm-map__frame">
+        <div
+          className="farm-map__stage"
+          role="img"
+          aria-label={t('farm.map.alt', { name: farmName })}
+        >
+          {tiles.map((tile) =>
+            tile.src ? (
+              <img
+                key={tile.key}
+                className="farm-map__tile"
+                src={tile.src}
+                alt=""
+                width={TILE}
+                height={TILE}
+                draggable={false}
+                style={{ left: `calc(50% + ${tile.left}px)`, top: `calc(50% + ${tile.top}px)` }}
+                onError={() => setTilesFailed(true)}
               />
-              {ring.map(([lon, lat], i) => {
-                const cx = pad + ((lon - minLon) / lonSpan) * (svgWidth - 2 * pad);
-                const cy = svgHeight - pad - ((lat - minLat) / latSpan) * (svgHeight - 2 * pad);
-                return (
-                  <circle
-                    key={i}
-                    cx={cx}
-                    cy={cy}
-                    r="4"
-                    fill="var(--color-accent, #f0c968)"
-                    stroke="#141c17"
-                    strokeWidth="1.5"
-                  />
-                );
-              })}
-            </svg>
-          </div>
-        )}
+            ) : null,
+          )}
+          <svg className="farm-map__outline" width="1" height="1" aria-hidden="true">
+            <polygon points={points} className="farm-map__outline-halo" />
+            <polygon points={points} className="farm-map__outline-fill" />
+          </svg>
+        </div>
+        <div className="farm-map__zoom">
+          <button
+            type="button"
+            className="farm-map__zoom-btn"
+            aria-label={t('farm.map.zoomIn')}
+            disabled={zoom >= MAX_ZOOM}
+            onClick={() => setZoomShift((value) => value + 1)}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="farm-map__zoom-btn"
+            aria-label={t('farm.map.zoomOut')}
+            disabled={zoom <= MIN_ZOOM}
+            onClick={() => setZoomShift((value) => value - 1)}
+          >
+            {'\u2212'}
+          </button>
+        </div>
+        <p className="farm-map__credit">
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('farm.map.credit')}
+          </a>
+        </p>
+      </div>
 
-        <div className="farm-zone-map__meta">
-          <div className="farm-zone-map__coords">
-            <span className="farm-zone-map__coord-item">
-              <strong>{t('farm.map.latitude')}: </strong>
-              {latText}
-            </span>
-            <span className="farm-zone-map__coord-item">
-              <strong>{t('farm.map.longitude')}: </strong>
-              {lonText}
-            </span>
-            <span className="farm-zone-map__coord-item">
-              <strong>{t('farm.map.bbox')}: </strong>
-              {bboxText}
-            </span>
-          </div>
-          <div className="farm-zone-map__links">
-            <a
-              href={osmUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="farm-zone-map__link"
-            >
-              {t('farm.map.openOsm')}
-            </a>
-            <a
-              href={gmapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="farm-zone-map__link"
-            >
-              {t('farm.map.openGmaps')}
-            </a>
-          </div>
+      {tilesFailed ? (
+        <p role="status" className="farm-map__notice">
+          {t('farm.map.tilesFailed')}
+        </p>
+      ) : null}
+
+      <div className="farm-map__foot">
+        <p className="farm-map__legend">
+          <span className="farm-map__swatch" aria-hidden="true" />
+          {t('farm.map.legend')}
+        </p>
+        <div className="farm-map__links">
+          <a href={osmUrl} target="_blank" rel="noopener noreferrer">
+            {t('farm.map.openOsm')}
+          </a>
+          <a href={gmapsUrl} target="_blank" rel="noopener noreferrer">
+            {t('farm.map.openGmaps')}
+          </a>
         </div>
       </div>
+
+      <details className="farm-map__details">
+        <summary>{t('farm.map.technical')}</summary>
+        <dl>
+          <div>
+            <dt>{t('farm.map.latitude')}</dt>
+            <dd>{`${centerLat.toFixed(4)}°`}</dd>
+          </div>
+          <div>
+            <dt>{t('farm.map.longitude')}</dt>
+            <dd>{`${centerLon.toFixed(4)}°`}</dd>
+          </div>
+          <div>
+            <dt>{t('farm.map.corners')}</dt>
+            <dd>{`${minLat.toFixed(3)}°, ${minLon.toFixed(3)}° → ${maxLat.toFixed(3)}°, ${maxLon.toFixed(3)}°`}</dd>
+          </div>
+        </dl>
+      </details>
     </section>
   );
 }

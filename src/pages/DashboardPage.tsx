@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { Drawer } from '../components/Drawer';
@@ -18,14 +18,31 @@ import { fetchFarms } from '../services/api';
 import { useRoute } from '../services/navigation';
 import type { Farm } from '../services/types';
 
-function Sections({ farmId, path }: { farmId: string; path: string }) {
+const SECTION_ORDER = ['farm', 'data', 'scenarios', 'recommendations', 'climate'] as const;
+const NEXT_PATH = {
+  farm: '/data',
+  data: '/scenarios',
+  scenarios: '/recommendations',
+  recommendations: '/climate',
+  climate: '/farm',
+} as const;
+
+function Sections({
+  farmId,
+  path,
+  overviewLinks,
+}: {
+  farmId: string;
+  path: string;
+  overviewLinks: ReactNode;
+}) {
   const { debounced } = useScenario();
 
   return (
     <>
       {path === '/farm' && (
         <>
-          <FarmDashboard farmId={farmId} />
+          <FarmDashboard farmId={farmId} after={overviewLinks} />
           {/* Kept accessible for smoke evaluation without cluttering visual overview */}
           <div className="sr-only">
             <ScenarioPanel farmId={farmId} />
@@ -112,12 +129,78 @@ export function DashboardPage({ farmId, isDemoGuest = true }: DashboardPageProps
     };
   }, [client, isDemoGuest, farmId]);
 
+  const overviewLinks =
+    path === '/farm' ? (
+      <nav className="overview-links" aria-label={t('dashboard.quickLinksLabel')}>
+        {(['data', 'scenarios', 'recommendations', 'climate'] as const).map((section, index) => (
+          <a key={section} className="overview-link" href={`#/${section}`}>
+            <div className="overview-link__header">
+              <span className="overview-link__num" aria-hidden="true">
+                {index + 2}
+              </span>
+              <span className="overview-link__icon" aria-hidden="true">
+                {section === 'data' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                )}
+                {section === 'scenarios' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                  </svg>
+                )}
+                {section === 'recommendations' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg>
+                )}
+                {section === 'climate' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                  </svg>
+                )}
+              </span>
+              <strong className="overview-link__title">
+                {t(`dashboard.quickLinks.${section}.title`)}
+              </strong>
+            </div>
+            <span className="overview-link__desc">
+              {t(`dashboard.quickLinks.${section}.description`)}
+            </span>
+            <span className="overview-link__action">{t('dashboard.quickLinks.open')} &rarr;</span>
+          </a>
+        ))}
+      </nav>
+    ) : null;
+
+  const stepIndex = Math.max(
+    0,
+    SECTION_ORDER.indexOf(sectionKey as (typeof SECTION_ORDER)[number]),
+  );
+  const nextKey = SECTION_ORDER[stepIndex] as keyof typeof NEXT_PATH;
+
   return (
     <div className="stack dashboard-page">
       <header className="toolbar dashboard-page-heading">
-        <h2 ref={headingRef} tabIndex={-1}>
-          {t(`dashboard.sections.${sectionKey}`)}
-        </h2>
+        <div className="dashboard-title">
+          <h2 ref={headingRef} tabIndex={-1}>
+            {t(`dashboard.sections.${sectionKey}`)}
+          </h2>
+          <p className="dashboard-step">
+            {t('dashboard.stepOf', { n: stepIndex + 1, total: SECTION_ORDER.length })}
+          </p>
+        </div>
         <div className="dashboard-context toolbar">
           {farms.length > 1 ? (
             <div className="farm-selector-wrapper">
@@ -151,61 +234,33 @@ export function DashboardPage({ farmId, isDemoGuest = true }: DashboardPageProps
           ) : null}
         </div>
       </header>
+      <section className="page-intro" aria-labelledby="page-intro-title">
+        <p className="page-intro__lead">{t(`dashboard.pages.${sectionKey}.lead`)}</p>
+        <div className="page-intro__todo">
+          <h3 id="page-intro-title">{t(`dashboard.pages.${sectionKey}.doTitle`)}</h3>
+          <ol>
+            {(t(`dashboard.pages.${sectionKey}.steps`, { returnObjects: true }) as string[]).map(
+              (step) => (
+                <li key={step}>{step}</li>
+              ),
+            )}
+          </ol>
+        </div>
+      </section>
       <ScenarioProvider>
-        <Sections farmId={farmId} path={path} />
-        {path === '/farm' ? (
-          <nav className="overview-links" aria-label={t('dashboard.quickLinksLabel')}>
-            {(['data', 'scenarios', 'recommendations', 'climate'] as const).map((section) => (
-              <a key={section} className="overview-link" href={`#/${section}`}>
-                <div className="overview-link__header">
-                  <span className="overview-link__icon" aria-hidden="true">
-                    {section === 'data' && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="17 8 12 3 7 8" />
-                        <line x1="12" y1="3" x2="12" y2="15" />
-                      </svg>
-                    )}
-                    {section === 'scenarios' && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="5" />
-                        <line x1="12" y1="1" x2="12" y2="3" />
-                        <line x1="12" y1="21" x2="12" y2="23" />
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                        <line x1="1" y1="12" x2="3" y2="12" />
-                        <line x1="21" y1="12" x2="23" y2="12" />
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                      </svg>
-                    )}
-                    {section === 'recommendations' && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                        <polyline points="17 6 23 6 23 12" />
-                      </svg>
-                    )}
-                    {section === 'climate' && (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
-                      </svg>
-                    )}
-                  </span>
-                  <strong className="overview-link__title">
-                    {t(`dashboard.quickLinks.${section}.title`)}
-                  </strong>
-                </div>
-                <span className="overview-link__desc">
-                  {t(`dashboard.quickLinks.${section}.description`)}
-                </span>
-                <span className="overview-link__action">
-                  {t('dashboard.quickLinks.open')} &rarr;
-                </span>
-              </a>
-            ))}
-          </nav>
-        ) : null}
+        <Sections farmId={farmId} path={path} overviewLinks={overviewLinks} />
       </ScenarioProvider>
+      {path !== '/farm' ? (
+        <aside className="next-step" aria-label={t('dashboard.next.label')}>
+          <div>
+            <p className="next-step__label">{t('dashboard.next.label')}</p>
+            <p className="next-step__hint">{t(`dashboard.next.${nextKey}.hint`)}</p>
+          </div>
+          <a className="button button--primary" href={`#${NEXT_PATH[nextKey]}`}>
+            {t(`dashboard.next.${nextKey}.to`)} &rarr;
+          </a>
+        </aside>
+      ) : null}
       {showCreateDrawer ? (
         <Drawer
           title={t('farm.create.title')}

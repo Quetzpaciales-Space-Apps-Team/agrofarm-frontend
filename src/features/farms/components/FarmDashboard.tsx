@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/AsyncState';
 import { formatArea, humanizeId } from '../../../domain/months';
 import { FarmZoneMap } from '../../map/components/FarmZoneMap';
 import { useFarm } from '../hooks/useFarm';
 
-export function FarmDashboard({ farmId }: { farmId: string }) {
+export function FarmDashboard({ farmId, after }: { farmId: string; after?: ReactNode }) {
   const { t, i18n } = useTranslation();
   const { resource, reload } = useFarm(farmId);
 
@@ -37,6 +38,7 @@ export function FarmDashboard({ farmId }: { farmId: string }) {
           </div>
         </dl>
       </section>
+      {after}
       <FarmZoneMap farmName={farm.name} areaHa={farm.area_ha} boundary={farm.boundary} />
     </div>
   );
