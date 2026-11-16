@@ -1,6 +1,8 @@
 import { forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { UploadResult } from '../../../services/types';
+import { buildErrorReportCsv } from '../domain/csv';
+import { downloadCsvFile } from './downloadCsv';
 import { IssuesTable } from './IssuesTable';
 
 /**
@@ -56,14 +58,27 @@ export const UploadSummary = forwardRef<
         </div>
       </dl>
       {result.errors.length > 0 ? (
-        <IssuesTable
-          caption={t('uploads.issues.serverCaption')}
-          lines={result.errors.map((error) => ({
-            row: error.row,
-            column: error.column,
-            text: error.message,
-          }))}
-        />
+        <div className="stack">
+          <IssuesTable
+            caption={t('uploads.issues.serverCaption')}
+            lines={result.errors.map((error) => ({
+              row: error.row,
+              column: error.column,
+              text: error.message,
+            }))}
+          />
+          <div className="upload-actions">
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() =>
+                downloadCsvFile('upload-error-report.csv', buildErrorReportCsv(result.errors))
+              }
+            >
+              {t('uploads.result.downloadErrors')}
+            </button>
+          </div>
+        </div>
       ) : null}
       <p>{t('uploads.result.kept')}</p>
       <p className="state state--warning">{t('uploads.result.notUsed')}</p>

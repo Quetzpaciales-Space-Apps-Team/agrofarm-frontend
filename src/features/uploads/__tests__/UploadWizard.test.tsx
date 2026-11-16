@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -303,5 +303,63 @@ describe('UploadWizard', () => {
     await waitFor(() =>
       expect(screen.queryByRole('table', { name: /preview/i })).not.toBeInTheDocument(),
     );
+  });
+
+  it('loads a sample file with one click from Try with a sample file', async () => {
+    server.use(
+      http.get('*/samples/farm-valid.csv', () =>
+        HttpResponse.text([HEADER, GOOD_ROW].join('\n'), {
+          headers: { 'Content-Type': 'text/csv' },
+        }),
+      ),
+    );
+    const { user } = renderWizard();
+    await user.click(screen.getByRole('button', { name: /continue/i }));
+    await user.click(screen.getByRole('button', { name: /^valid csv/i }));
+    expect(await screen.findByRole('heading', { name: /check your file/i })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(/1 row read/i);
+  });
+
+  it('accepts a dropped file in the accessible dropzone', async () => {
+    const { user } = renderWizard();
+    await user.click(screen.getByRole('button', { name: /continue/i }));
+    const dropzone = screen.getByRole('button', { name: /drop.*file.*or browse/i });
+    const file = csvFile([GOOD_ROW], 'dropped.csv');
+    fireEvent.drop(dropzone, { dataTransfer: { files: [file] } });
+    expect(await screen.findByRole('heading', { name: /check your file/i })).toBeInTheDocument();
+    expect(screen.getByText(/dropped\.csv/i)).toBeInTheDocument();
+  });
+
+  it('downloads a CSV error report when the server returns row errors', async () => {
+    server.use(
+      http.post('*/v1/farms/:id/uploads', () =>
+        HttpResponse.json(
+          {
+            id: 'u2',
+            farm_id: DEMO_FARM_ID,
+            filename: 'farm.csv',
+            format: 'csv',
+            status: 'accepted_with_errors',
+            rows_total: 2,
+            rows_accepted: 1,
+            errors: [{ row: 2, column: 'sowing_date', message: '=BAD() date' }],
+            created_at: '2026-11-15T10:00:00Z',
+          },
+          { status: 201 },
+        ),
+      ),
+    );
+    const { user } = renderWizard();
+    await chooseFile(user, csvFile([GOOD_ROW]));
+    await user.click(await screen.findByRole('button', { name: /send to the server/i }));
+    await screen.findByRole('heading', { name: /accepted with row errors/i });
+
+    await user.click(screen.getByRole('button', { name: /download error report/i }));
+    const blob = createObjectURL.mock.calls.at(-1)?.[0] as Blob;
+    const text = await blob.text();
+    expect(text).toContain('row,column,message');
+    expect(text).toContain('2,sowing_date');
+    expect(text).toContain("'=BAD() date");
+    expect(anchorClick).toHaveBeenCalled();
   });
 });

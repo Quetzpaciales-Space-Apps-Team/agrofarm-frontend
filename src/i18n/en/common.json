@@ -497,6 +497,16 @@
       "cannotSend": "This file cannot be sent. {{count}} problem(s) stop the whole file.",
       "back": "Back to the template"
     },
+    "samples": {
+      "label": "Try with a sample file",
+      "validCsv": "Valid CSV (3 parcels)",
+      "validGeojson": "Valid GeoJSON (polygon)",
+      "invalidCsv": "Invalid CSV (validation demo)",
+      "error": "Could not load the sample file. Try choosing one from your device."
+    },
+    "dropzone": {
+      "prompt": "Drop a CSV or GeoJSON file here, or browse"
+    },
     "fileProblem": {
       "type": "Only .csv and .geojson files can be uploaded (.json is read as GeoJSON).",
       "empty": "This file is empty.",
@@ -583,7 +593,8 @@
       "problems": "Problems reported",
       "kept": "The server keeps a record of this upload and a copy of the original file.",
       "notUsed": "Uploaded data is not used yet. Recommendations, scenarios and model results do not change because of this upload.",
-      "another": "Upload another file"
+      "another": "Upload another file",
+      "downloadErrors": "Download error report"
     }
   },
   "leaf": {
@@ -591,6 +602,9 @@
     "intro": "Upload a clear photo to look for a possible match among supported maize leaf conditions.",
     "review": "Photo screening supports inspection. It is not a confirmed diagnosis and has not been field validated in Guatemala.",
     "choose": "Choose a maize leaf photo",
+    "dropzone": {
+      "prompt": "Drop a maize leaf photo here, or browse"
+    },
     "privacy": "JPEG or PNG, up to 5 MiB. Your photo is processed for this request and is not saved or used for training.",
     "preview": "Selected maize leaf photo",
     "submit": "Assess photo",
