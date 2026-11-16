@@ -51,7 +51,61 @@
         "description": "Empowers agronomists and farmers with clear risk indicators and explicit reminders for local validation."
       }
     },
-    "badge": "Agroforestry & Crops"
+    "badge": "Agroforestry & Crops",
+    "what": {
+      "eyebrow": "What is AgroFarm?",
+      "title": "A simulator that lets a farm try a season before living it",
+      "body1": "Guatemalan smallholders plan each season with rain that arrives early, late or not at all. AgroFarm takes a farm's own data, adds public weather, soil and satellite records, and estimates how a crop could grow under different conditions, including El Nino and La Nina years.",
+      "body2": "It then compares several crop rotations side by side, such as maize followed by beans or by a fallow year. Every result is a range with its reasons, its evidence and its gaps, so a farmer and a local agronomist can discuss it and decide."
+    },
+    "how": {
+      "title": "How it works",
+      "steps": {
+        "data": {
+          "title": "Bring the farm's data",
+          "description": "Upload plots, soil tests and past harvests. The tool checks what was accepted and says what is missing."
+        },
+        "scenario": {
+          "title": "Choose a season",
+          "description": "Move rainfall, temperature and the El Nino or La Nina phase to see how the likely yield range shifts."
+        },
+        "compare": {
+          "title": "Compare rotations",
+          "description": "Strategies are scored with the priorities you set: water, income, soil and more."
+        },
+        "decide": {
+          "title": "Read the reasons and the limits",
+          "description": "Each recommendation shows its evidence, its risks and what we do not know. The decision stays with you."
+        }
+      }
+    },
+    "crops": {
+      "title": "Built around the crops that feed and fund the region",
+      "maize": {
+        "name": "Maize",
+        "description": "The staple of the milpa and the crop the demo simulates today, with rotation partners such as beans."
+      },
+      "cacao": {
+        "name": "Cacao",
+        "description": "A tree crop that is very sensitive to rain and heat. It shows the kind of long-lived crop this approach should reach later; it is not modelled yet."
+      },
+      "credit": "Photos: Wikimedia Commons, public domain or CC0."
+    },
+    "hero": {
+      "rangeTitle": "Maize yield versus a normal year",
+      "rangeNote": "Example range from the demo",
+      "low": "-12 %",
+      "high": "+11 %",
+      "scene": "Maize growing in rows under rain, with cacao pods on a branch"
+    },
+    "principles": {
+      "title": "What we promise, and what we do not"
+    },
+    "finalCta": {
+      "title": "See it with an example farm",
+      "body": "The demo needs no account. It loads a pilot farm near Guatemala City so you can move the sliders and read a real comparison.",
+      "button": "Open the demo farm"
+    }
   },
   "auth": {
     "demo": {
