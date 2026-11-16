@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_SCENARIO,
   SCENARIO_LIMITS,
+  SCENARIO_PRESETS,
   bandLayout,
+  classifyScenarioOutcome,
   formatSigned,
   isStubModel,
+  matchingPresetId,
   scenarioAxis,
   sortAttributions,
 } from '../scenario';
@@ -80,5 +83,38 @@ describe('scenarioAxis and bandLayout', () => {
     expect(layout.p50X).toBeLessThan(layout.bandX + layout.bandWidth);
     expect(layout.bandX).toBeGreaterThanOrEqual(0);
     expect(layout.bandX + layout.bandWidth).toBeLessThanOrEqual(400);
+  });
+});
+
+describe('SCENARIO_PRESETS and matchingPresetId', () => {
+  it('defines four presets within contract limits', () => {
+    expect(SCENARIO_PRESETS).toHaveLength(4);
+    for (const preset of SCENARIO_PRESETS) {
+      expect(preset.values.rainfall_change_pct).toBeGreaterThanOrEqual(
+        SCENARIO_LIMITS.rainfall.min,
+      );
+      expect(preset.values.rainfall_change_pct).toBeLessThanOrEqual(SCENARIO_LIMITS.rainfall.max);
+      expect(preset.values.temperature_change_c).toBeGreaterThanOrEqual(
+        SCENARIO_LIMITS.temperature.min,
+      );
+      expect(preset.values.temperature_change_c).toBeLessThanOrEqual(
+        SCENARIO_LIMITS.temperature.max,
+      );
+    }
+  });
+
+  it('matches a preset when all three inputs match, and returns null when customized', () => {
+    const elNino = SCENARIO_PRESETS.find((p) => p.id === 'el_nino_drier')!;
+    expect(matchingPresetId(elNino.values)).toBe('el_nino_drier');
+    expect(matchingPresetId({ ...elNino.values, rainfall_change_pct: -25 })).toBeNull();
+  });
+});
+
+describe('classifyScenarioOutcome', () => {
+  it('classifies positive, negative, mixed (crosses zero), and neutral bands', () => {
+    expect(classifyScenarioOutcome({ p10: 3, p50: 8, p90: 14 })).toBe('positive');
+    expect(classifyScenarioOutcome({ p10: -28, p50: -13, p90: -2 })).toBe('negative');
+    expect(classifyScenarioOutcome({ p10: -12, p50: -3, p90: 6 })).toBe('mixed');
+    expect(classifyScenarioOutcome({ p10: 0, p50: 0, p90: 0 })).toBe('neutral');
   });
 });

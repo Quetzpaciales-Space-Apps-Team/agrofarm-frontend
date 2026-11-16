@@ -281,13 +281,41 @@
     "crop": "Crop",
     "reset": "Reset scenario",
     "noCrops": "No crops recorded for this farm yet, so a crop simulation is not possible.",
-    "range": "From {{min}} to {{max}}"
+    "range": "From {{min}} to {{max}}",
+    "presets": {
+      "label": "Quick scenarios",
+      "el_nino_drier": {
+        "title": "El Nino: drier year",
+        "meta": "-20 % rain, +1.5 °C"
+      },
+      "la_nina_wetter": {
+        "title": "La Nina: wetter year",
+        "meta": "+25 % rain, -0.5 °C"
+      },
+      "heatwave": {
+        "title": "Heatwave",
+        "meta": "-10 % rain, +3.5 °C"
+      },
+      "normal": {
+        "title": "Normal year (reset)",
+        "meta": "0 % rain, 0 °C"
+      }
+    }
   },
   "simulation": {
     "loading": "Running the simulation...",
     "updating": "Updating the result...",
     "baseline": "Baseline",
     "scenario": "Scenario",
+    "summary": {
+      "directional": "Under this scenario, the middle estimate for {{crop}} yield is {{mid}} compared with a normal year, within a likely range of {{low}} to {{high}}.",
+      "mixed": "Under this scenario, {{crop}} yield could be higher or lower than a normal year, within a likely range of {{low}} to {{high}} (middle estimate {{mid}}).",
+      "neutral": "Under this scenario, the middle estimate for {{crop}} yield matches a normal year ({{mid}})."
+    },
+    "provenanceBar": {
+      "model": "Model: {{name}} ({{version}})",
+      "stubNote": "Illustrative rule-based model, not a forecast."
+    },
     "outOfRange": "Some inputs are outside the range the model was trained on, so read this result with extra care:",
     "input": {
       "rainfall_change_pct": "Rainfall change",
