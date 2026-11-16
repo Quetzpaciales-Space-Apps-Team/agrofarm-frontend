@@ -265,7 +265,7 @@ describe('ScenarioPanel (FE-304)', () => {
     expect(elNinoBtn).toHaveAttribute('aria-pressed', 'true');
     expect(rain()).toHaveValue('-20');
     expect(temp()).toHaveValue('1.5');
-    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('el_nino');
+    expect(screen.getByLabelText(/weather pattern/i)).toHaveValue('el_nino');
 
     // Manual slider change clears active preset
     fireEvent.change(rain(), { target: { value: '-35' } });
@@ -277,7 +277,7 @@ describe('ScenarioPanel (FE-304)', () => {
     expect(normalBtn).toHaveAttribute('aria-pressed', 'true');
     expect(rain()).toHaveValue('0');
     expect(temp()).toHaveValue('0');
-    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('neutral');
+    expect(screen.getByLabelText(/weather pattern/i)).toHaveValue('neutral');
   });
 
   it.each([

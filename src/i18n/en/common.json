@@ -99,16 +99,49 @@
       "back": "Back to the step"
     },
     "crops": {
-      "title": "Built around the crops that feed and fund the region",
-      "maize": {
-        "name": "Maize",
-        "description": "The staple of the milpa and the crop the demo simulates today, with rotation partners such as beans."
+      "title": "The crops AgroFarm compares",
+      "intro": "Four options for a plot, from planting maize to leaving the land to rest. Each one gives something and asks for something in return.",
+      "photoCredit": "Photo: {{author}}, {{license}}, Wikimedia Commons",
+      "cacaoCredit": "Photo: Daderot, public domain, Wikimedia Commons",
+      "items": {
+        "maize": {
+          "name": "Maize",
+          "description": "A cereal. It sells well and needs plenty of water. It does not add nitrogen to the soil."
+        },
+        "black_beans": {
+          "name": "Black beans",
+          "description": "A legume. It adds nitrogen to the soil and needs less water than maize."
+        },
+        "cover_crop": {
+          "name": "Cover crop",
+          "description": "Grown to protect the soil. Best against erosion, with little income."
+        },
+        "fallow": {
+          "name": "Fallow",
+          "description": "Letting the plot rest. It needs no water and brings no income, and the bare soil is exposed."
+        },
+        "cacao": {
+          "name": "Cacao (not modelled yet)",
+          "description": "A tree crop, very sensitive to rain and heat. We show it as the kind of crop this approach should reach later."
+        }
       },
-      "cacao": {
-        "name": "Cacao",
-        "description": "A tree crop that is very sensitive to rain and heat. It shows the kind of long-lived crop this approach should reach later; it is not modelled yet."
-      },
-      "credit": "Photos: Wikimedia Commons, public domain or CC0."
+      "compare": {
+        "title": "How they compare at a glance",
+        "note": "A longer bar means more of it. Water is a cost, not a prize: more water needed is not better.",
+        "traits": {
+          "water": "Needs water",
+          "nitrogen": "Adds nitrogen to the soil",
+          "income": "Brings income",
+          "erosion": "Protects soil from washing away",
+          "market": "Easy to sell"
+        },
+        "levels": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        },
+        "source": "Illustration with the starting values of the team's crop table (version 0.1.0). They are provisional and not yet checked against sources. They are not measurements of your farm."
+      }
     },
     "hero": {
       "rangeTitle": "Maize yield versus a normal year",

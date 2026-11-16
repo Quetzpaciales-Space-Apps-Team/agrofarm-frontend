@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { useSession } from '../features/auth/state/session';
+import { CropsBlock } from './landing/CropsBlock';
 
 const STEPS = ['field', 'plant', 'cob', 'decision'] as const;
 const FLIPS = ['data', 'scenario', 'compare', 'decide'] as const;
@@ -413,26 +414,7 @@ export function LandingPage() {
       </section>
 
       <section id="crops" aria-labelledby="crops-title" className="band band--sage">
-        <div className="band__inner landing-crops">
-          <h3 id="crops-title">{t('landing.crops.title')}</h3>
-          <div className="crop-photos">
-            <figure className="crop-photo" {...reveal(0)}>
-              <img src="/landing/maize.jpg" alt="" loading="lazy" width="1400" height="1050" />
-              <figcaption>
-                <strong>{t('landing.crops.maize.name')}</strong>
-                <span>{t('landing.crops.maize.description')}</span>
-              </figcaption>
-            </figure>
-            <figure className="crop-photo" {...reveal(1)}>
-              <img src="/landing/cacao.jpg" alt="" loading="lazy" width="1100" height="512" />
-              <figcaption>
-                <strong>{t('landing.crops.cacao.name')}</strong>
-                <span>{t('landing.crops.cacao.description')}</span>
-              </figcaption>
-            </figure>
-          </div>
-          <p className="landing-credit">{t('landing.crops.credit')}</p>
-        </div>
+        <CropsBlock />
       </section>
 
       <section id="limits" aria-labelledby="principles-title" className="band band--night">
