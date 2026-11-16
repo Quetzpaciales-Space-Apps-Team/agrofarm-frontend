@@ -432,20 +432,20 @@
     "noRotation": "No rotation recorded for this farm yet.",
     "selectFarm": "Select farm",
     "map": {
-      "title": "Geographic Zone Map",
+      "title": "Where your farm is",
       "subtitle": "Parcel boundary and coordinates",
       "coordinates": "Coordinates",
       "latitude": "Latitude",
       "longitude": "Longitude",
-      "bbox": "Bounding Box",
+      "bbox": "Corners of the farm area",
       "openOsm": "OpenStreetMap ↗",
       "openGmaps": "Google Maps ↗",
       "viewExternal": "Open external map",
-      "boundaryVector": "Boundary Geometry",
-      "mapView": "OSM Map Tiles",
-      "interactiveOsm": "OpenStreetMap View",
+      "boundaryVector": "Outline only",
+      "mapView": "Map",
+      "interactiveOsm": "Full OpenStreetMap",
       "noCoordinates": "No geographic boundary coordinates recorded for this farm.",
-      "editButton": "Edit parcel geometry & location",
+      "editButton": "Edit location and shape",
       "editTitle": "Edit Parcel Geometry & Location",
       "editDescription": "Update parcel vertices, shift geographic location, or select a regional preset.",
       "saveButton": "Save changes",
@@ -462,8 +462,8 @@
       "presetSquare": "Square parcel (10 ha)",
       "presetIrregular": "Extended plot (20 ha)",
       "presetPilot": "Guatemala Pilot (19 ha)",
-      "zoomIn": "Zoom In",
-      "zoomOut": "Zoom Out"
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
     },
     "create": {
       "title": "Create your farm",
@@ -617,7 +617,9 @@
         "title": "Normal year (reset)",
         "meta": "0 % rain, 0 °C"
       }
-    }
+    },
+    "ensoHelp": "What are El Nino and La Nina?",
+    "cropHelp": "The result below is about this crop."
   },
   "simulation": {
     "loading": "Running the simulation...",
@@ -669,6 +671,18 @@
       "lowers": "(lowers the result)",
       "raises": "(raises the result)",
       "noEffect": "(no effect)"
+    },
+    "insight": {
+      "headline": {
+        "positive": "{{crop}} could do better than a normal year",
+        "negative": "{{crop}} could do worse than a normal year",
+        "mixed": "{{crop}} could go either way",
+        "neutral": "{{crop}} stays about the same as a normal year"
+      },
+      "low": "If things go worse",
+      "mid": "Most likely",
+      "high": "If things go better",
+      "barLabel": "The likely range of the change in yield"
     }
   },
   "provenance": {

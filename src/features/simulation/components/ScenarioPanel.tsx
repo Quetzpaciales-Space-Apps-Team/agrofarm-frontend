@@ -145,7 +145,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
                 ))}
               </select>
               <span className="slider-hint">
-                <GlossaryTerm term="enso" label={t('glossary.terms.enso.label')} />
+                <GlossaryTerm term="enso" label={t('scenario.ensoHelp')} />
               </span>
             </div>
             <div className="field">
@@ -161,6 +161,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
                   </option>
                 ))}
               </select>
+              <span className="slider-hint">{t('scenario.cropHelp')}</span>
             </div>
             <button type="button" className="button button--secondary" onClick={reset}>
               {t('scenario.reset')}
