@@ -1,9 +1,12 @@
-import { useEffect, useRef, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FileDropzone } from '../../../components/FileDropzone';
+import { fetchSampleAsset } from '../../../services/samples';
 import { formatFileSize } from '../domain/format';
 import { TEMPLATE_FILENAME, buildTemplateCsv } from '../domain/schema';
 import type { Issue } from '../domain/validate';
 import { useUploadWizard, type Stage } from '../hooks/useUploadWizard';
+import { downloadCsvFile } from './downloadCsv';
 import { IssuesTable } from './IssuesTable';
 import { PreviewTable } from './PreviewTable';
 import { UploadSummary } from './UploadSummary';
@@ -25,22 +28,33 @@ const STEP_INDEX: Record<Stage, number> = {
   result: 4,
 };
 
-function downloadTemplate() {
-  const blob = new Blob([buildTemplateCsv()], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = TEMPLATE_FILENAME;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
+const SAMPLES = [
+  {
+    id: 'validCsv',
+    url: '/samples/farm-valid.csv',
+    filename: 'farm-valid.csv',
+    mimeType: 'text/csv',
+  },
+  {
+    id: 'validGeojson',
+    url: '/samples/farm-valid.geojson',
+    filename: 'farm-valid.geojson',
+    mimeType: 'application/geo+json',
+  },
+  {
+    id: 'invalidCsv',
+    url: '/samples/farm-invalid.csv',
+    filename: 'farm-invalid.csv',
+    mimeType: 'text/csv',
+  },
+] as const;
 
 export function UploadWizard({ farmId }: { farmId: string }) {
   const { t, i18n } = useTranslation();
   const wizard = useUploadWizard(farmId);
   const { stage, file, report, problem, reading, result, sendError } = wizard;
+  const [sampleError, setSampleError] = useState(false);
+  const [loadingSample, setLoadingSample] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
@@ -60,9 +74,17 @@ export function UploadWizard({ farmId }: { farmId: string }) {
       text: t(`uploads.rule.${issue.code}`, issue.params ?? {}),
     }));
 
-  const onPick = (event: ChangeEvent<HTMLInputElement>) => {
-    const picked = event.target.files?.[0];
-    if (picked) void wizard.chooseFile(picked);
+  const loadSample = async (sample: (typeof SAMPLES)[number]) => {
+    setSampleError(false);
+    setLoadingSample(true);
+    try {
+      const sampleFile = await fetchSampleAsset(sample.url, sample.filename, sample.mimeType);
+      await wizard.chooseFile(sampleFile);
+    } catch {
+      setSampleError(true);
+    } finally {
+      setLoadingSample(false);
+    }
   };
 
   const rowsInvalid = report ? report.rowsTotal - report.rowsValid : 0;
@@ -122,7 +144,11 @@ export function UploadWizard({ farmId }: { farmId: string }) {
           <p>{t('uploads.template.columns')}</p>
           <p>{t('uploads.template.examples')}</p>
           <div className="upload-actions">
-            <button type="button" className="button button--secondary" onClick={downloadTemplate}>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => downloadCsvFile(TEMPLATE_FILENAME, buildTemplateCsv())}
+            >
               {t('uploads.template.download')}
             </button>
             <button type="button" className="button" onClick={wizard.goToChoose}>
@@ -135,17 +161,38 @@ export function UploadWizard({ farmId }: { farmId: string }) {
       {stage === 'choose' ? (
         <div className="stack">
           {heading('uploads.choose.heading')}
-          <div className="field">
-            <label htmlFor="upload-file">{t('uploads.choose.label')}</label>
-            <input
-              id="upload-file"
-              type="file"
-              accept=".csv,.geojson,.json,text/csv,application/geo+json,application/json"
-              aria-describedby="upload-file-hint"
-              onChange={onPick}
-            />
-            <small id="upload-file-hint">{t('uploads.choose.hint')}</small>
+          <div className="stack">
+            <p className="source">{t('uploads.samples.label')}</p>
+            <div className="upload-actions" role="group" aria-label={t('uploads.samples.label')}>
+              {SAMPLES.map((sample) => (
+                <button
+                  key={sample.id}
+                  type="button"
+                  className="button button--secondary"
+                  disabled={loadingSample}
+                  onClick={() => void loadSample(sample)}
+                >
+                  {t(`uploads.samples.${sample.id}`)}
+                </button>
+              ))}
+            </div>
+            {sampleError ? (
+              <p role="alert" className="state state--error">
+                {t('uploads.samples.error')}
+              </p>
+            ) : null}
           </div>
+          <FileDropzone
+            inputId="upload-file"
+            inputLabel={t('uploads.choose.label')}
+            prompt={t('uploads.dropzone.prompt')}
+            hint={t('uploads.choose.hint')}
+            hintId="upload-file-hint"
+            accept=".csv,.geojson,.json,text/csv,application/geo+json,application/json"
+            onSelect={(picked) => {
+              if (picked) void wizard.chooseFile(picked);
+            }}
+          />
           {problem ? (
             <p role="alert" className="state state--error">
               {problem.kind === 'size'
