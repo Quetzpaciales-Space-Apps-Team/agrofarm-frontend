@@ -22,7 +22,7 @@ describe('FarmZoneMap', () => {
   it('renders farm zone map heading, tile map overlay and external links', () => {
     render(<FarmZoneMap farmName="Finca La Esperanza" areaHa={12.5} boundary={sampleBoundary} />);
 
-    expect(screen.getByRole('heading', { name: /geographic zone map/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /where your farm is/i })).toBeInTheDocument();
     expect(screen.getByText(/12\.5 ha/i)).toBeInTheDocument();
     expect(
       screen.getByRole('img', { name: /overlay terrain boundary map for finca la esperanza/i }),
@@ -41,13 +41,13 @@ describe('FarmZoneMap', () => {
     const user = userEvent.setup();
     render(<FarmZoneMap farmName="Finca La Esperanza" areaHa={12.5} boundary={sampleBoundary} />);
 
-    const vectorTab = screen.getByRole('tab', { name: /boundary geometry/i });
+    const vectorTab = screen.getByRole('tab', { name: /outline only/i });
     await user.click(vectorTab);
     expect(
       screen.getByRole('img', { name: /boundary polygon for finca la esperanza/i }),
     ).toBeInTheDocument();
 
-    const embedTab = screen.getByRole('tab', { name: /openstreetmap view/i });
+    const embedTab = screen.getByRole('tab', { name: /full openstreetmap/i });
     await user.click(embedTab);
     expect(screen.getByTitle(/interactive map of finca la esperanza/i)).toBeInTheDocument();
   });
@@ -65,7 +65,7 @@ describe('FarmZoneMap', () => {
       />,
     );
 
-    const editButton = screen.getByRole('button', { name: /edit parcel geometry & location/i });
+    const editButton = screen.getByRole('button', { name: /edit location and shape/i });
     await user.click(editButton);
 
     expect(
