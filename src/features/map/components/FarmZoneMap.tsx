@@ -14,6 +14,9 @@ export interface FarmZoneMapProps {
   isSaving?: boolean;
 }
 
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 18;
+
 function lon2pixel(lon: number, zoom: number) {
   return ((lon + 180) / 360) * Math.pow(2, zoom) * 256;
 }
@@ -33,7 +36,7 @@ export function FarmZoneMap({
 }: FarmZoneMapProps) {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState<'tiles' | 'vector' | 'embed'>('tiles');
-  const [zoom, setZoom] = useState(15);
+  const [zoomShift, setZoomShift] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -84,6 +87,22 @@ export function FarmZoneMap({
   // Map viewport dimensions
   const viewWidth = dimensions.width;
   const viewHeight = dimensions.height;
+
+  // Start at the highest zoom where the whole farm fits in the frame (with some margin), so the
+  // outline is never cut off on a small screen. The zoom buttons move from there. The fit uses the
+  // saved outline, so it does not jump while the outline is being edited.
+  const fitLons = (initialRing.length > 2 ? initialRing : ring).map((p) => p[0]);
+  const fitLats = (initialRing.length > 2 ? initialRing : ring).map((p) => p[1]);
+  let fit = MIN_ZOOM;
+  for (let z = MAX_ZOOM; z >= MIN_ZOOM; z -= 1) {
+    const widthPx = lon2pixel(Math.max(...fitLons), z) - lon2pixel(Math.min(...fitLons), z);
+    const heightPx = lat2pixel(Math.min(...fitLats), z) - lat2pixel(Math.max(...fitLats), z);
+    if (widthPx <= viewWidth * 0.7 && heightPx <= viewHeight * 0.7) {
+      fit = z;
+      break;
+    }
+  }
+  const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, fit + zoomShift));
   const halfW = viewWidth / 2;
   const halfH = viewHeight / 2;
   const centerPixelX = lon2pixel(centroidLon, zoom);
@@ -364,7 +383,8 @@ export function FarmZoneMap({
               <button
                 type="button"
                 className="button button--sm button--ghost"
-                onClick={() => setZoom((z) => Math.min(z + 1, 18))}
+                disabled={zoom >= MAX_ZOOM}
+                onClick={() => setZoomShift((value) => value + 1)}
                 aria-label={t('farm.map.zoomIn')}
               >
                 +
@@ -372,7 +392,8 @@ export function FarmZoneMap({
               <button
                 type="button"
                 className="button button--sm button--ghost"
-                onClick={() => setZoom((z) => Math.max(z - 1, 13))}
+                disabled={zoom <= MIN_ZOOM}
+                onClick={() => setZoomShift((value) => value - 1)}
                 aria-label={t('farm.map.zoomOut')}
               >
                 -
