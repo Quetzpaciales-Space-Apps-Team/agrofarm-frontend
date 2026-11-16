@@ -1,7 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { ErrorState, LoadingState } from '../../../components/AsyncState';
+import { GlossaryTerm } from '../../../components/GlossaryTerm';
+import { PanelErrorState, PanelLoadingState } from '../../../components/PanelState';
 import { ProvenanceBlock } from '../../../components/ProvenanceBlock';
-import { formatSigned, sortAttributions } from '../../../domain/scenario';
+import {
+  classifyScenarioOutcome,
+  formatSigned,
+  isStubModel,
+  sortAttributions,
+} from '../../../domain/scenario';
 import { formatValue, humanizeId } from '../../../domain/months';
 import type { ScenarioInput, SimulationResult } from '../../../services/types';
 import { useSimulation } from '../hooks/useSimulation';
@@ -15,6 +21,28 @@ function Result({ result, busy }: { result: SimulationResult; busy: boolean }) {
   const label = (prefix: string, id: string) =>
     t(`${prefix}.${id}`, { defaultValue: humanizeId(id) });
   const biggest = Math.max(0.0001, ...attributions.map((a) => Math.abs(a.contribution)));
+  const outcome = classifyScenarioOutcome(result.scenario);
+  const cropName = humanizeId(result.crop).toLowerCase();
+  const midText = formatSigned(result.scenario.p50, result.unit, locale);
+  const lowText = formatSigned(result.scenario.p10, result.unit, locale);
+  const highText = formatSigned(result.scenario.p90, result.unit, locale);
+  const summaryText =
+    outcome === 'neutral'
+      ? t('simulation.summary.neutral', { crop: cropName, mid: midText })
+      : outcome === 'mixed'
+        ? t('simulation.summary.mixed', {
+            crop: cropName,
+            low: lowText,
+            high: highText,
+            mid: midText,
+          })
+        : t('simulation.summary.directional', {
+            crop: cropName,
+            low: lowText,
+            high: highText,
+            mid: midText,
+          });
+  const stub = isStubModel(result.provenance.model_name);
 
   return (
     <div className="stack" aria-busy={busy}>
@@ -34,6 +62,24 @@ function Result({ result, busy }: { result: SimulationResult; busy: boolean }) {
         </div>
       ) : null}
 
+      <p className="scenario-summary" aria-live="polite">
+        {summaryText}
+      </p>
+      <div className="simulation-provenance-bar">
+        <span>
+          {t('simulation.provenanceBar.model', {
+            name: result.provenance.model_name,
+            version: result.provenance.model_version,
+          })}
+        </span>
+        {stub ? (
+          <span className="simulation-provenance-note">
+            {t('simulation.provenanceBar.stubNote')}
+          </span>
+        ) : null}
+      </div>
+      {result.disclaimer ? <p className="simulation-disclaimer">{result.disclaimer}</p> : null}
+
       <p>
         {t('simulation.target.intro', {
           target: label('simulation.target', result.target),
@@ -44,7 +90,10 @@ function Result({ result, busy }: { result: SimulationResult; busy: boolean }) {
       <div className="chart-box">
         <RangeChart baseline={result.baseline} scenario={result.scenario} unit={result.unit} />
       </div>
-      <p className="source">{t('simulation.chart.help')}</p>
+      <p className="source">
+        {t('simulation.chart.help')}{' '}
+        <GlossaryTerm term="percentile" label={t('glossary.terms.percentile.label')} />
+      </p>
 
       <div className="data-table-wrap">
         <table>
@@ -111,8 +160,9 @@ export function SimulationResults({
   const { t } = useTranslation();
   const { resource, reload, stale } = useSimulation(farmId, crop, scenario);
 
-  if (resource.status === 'error') return <ErrorState error={resource.error} onRetry={reload} />;
+  if (resource.status === 'error')
+    return <PanelErrorState error={resource.error} onRetry={reload} />;
   if (resource.status === 'success') return <Result result={resource.data} busy={false} />;
   if (stale) return <Result result={stale} busy />;
-  return <LoadingState label={t('simulation.loading')} />;
+  return <PanelLoadingState label={t('simulation.loading')} />;
 }

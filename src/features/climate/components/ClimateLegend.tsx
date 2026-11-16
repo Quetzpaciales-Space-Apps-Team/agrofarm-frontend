@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export function ClimateLegend() {
+export function ClimateLegend({ showEnso = false }: { showEnso?: boolean }) {
   const { t } = useTranslation();
   const id = useId();
   const line = (cls: string, dash?: string, cap?: 'round') => (
@@ -51,6 +51,28 @@ export function ClimateLegend() {
         </svg>
         {t('climate.legend.noData')}
       </li>
+      {showEnso ? (
+        <>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 36 12">
+              <rect className="swatch-enso--el_nino" x="8" y="1" width="20" height="10" />
+            </svg>
+            {t('climate.legend.elNino')}
+          </li>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 36 12">
+              <rect className="swatch-enso--la_nina" x="8" y="1" width="20" height="10" />
+            </svg>
+            {t('climate.legend.laNina')}
+          </li>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 36 12">
+              <rect className="swatch-enso--neutral" x="8" y="1" width="20" height="10" />
+            </svg>
+            {t('climate.legend.neutral')}
+          </li>
+        </>
+      ) : null}
     </ul>
   );
 }

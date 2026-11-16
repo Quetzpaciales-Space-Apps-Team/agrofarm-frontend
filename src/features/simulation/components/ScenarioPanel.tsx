@@ -1,12 +1,25 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState, ErrorState, LoadingState } from '../../../components/AsyncState';
+import { GlossaryTerm } from '../../../components/GlossaryTerm';
+import {
+  PanelEmptyState,
+  PanelErrorState,
+  PanelLoadingState,
+} from '../../../components/PanelState';
 import { humanizeId } from '../../../domain/months';
-import { ENSO_PHASES, SCENARIO_LIMITS, formatSigned } from '../../../domain/scenario';
+import {
+  ENSO_PHASES,
+  SCENARIO_LIMITS,
+  SCENARIO_PRESETS,
+  formatSigned,
+  matchingPresetId,
+} from '../../../domain/scenario';
 import { useFarm } from '../../farms/hooks/useFarm';
 import { useScenario } from '../state/scenario';
+import { ClimateRealityCheck } from './ClimateRealityCheck';
 import { CropStressTest } from './CropStressTest';
 import { SimulationResults } from './SimulationResults';
+import '../simulation.css';
 
 interface SliderProps {
   label: string;
@@ -54,14 +67,16 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
   const selectId = useId();
   const locale = i18n.language;
 
-  if (resource.status === 'loading') return <LoadingState label={t('scenario.loading')} />;
-  if (resource.status === 'error') return <ErrorState error={resource.error} onRetry={reload} />;
+  if (resource.status === 'loading') return <PanelLoadingState label={t('scenario.loading')} />;
+  if (resource.status === 'error')
+    return <PanelErrorState error={resource.error} onRetry={reload} />;
 
   const crops = resource.data.current_rotation.filter((crop) => crop !== 'fallow');
   const crop = scenario.crop && crops.includes(scenario.crop) ? scenario.crop : (crops[0] ?? null);
   const debouncedCrop =
     debounced.crop && crops.includes(debounced.crop) ? debounced.crop : (crops[0] ?? null);
   const { rainfall, temperature } = SCENARIO_LIMITS;
+  const activePreset = matchingPresetId(scenario);
   const range = (min: number, max: number, unit: string) =>
     t('scenario.range', {
       min: formatSigned(min, unit, locale),
@@ -75,9 +90,26 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
         <p>{t('scenario.intro')}</p>
       </div>
       {crop === null ? (
-        <EmptyState>{t('scenario.noCrops')}</EmptyState>
+        <PanelEmptyState>{t('scenario.noCrops')}</PanelEmptyState>
       ) : (
         <>
+          <div className="scenario-presets" role="group" aria-label={t('scenario.presets.label')}>
+            <p className="scenario-presets-label">{t('scenario.presets.label')}</p>
+            <div className="scenario-presets-row">
+              {SCENARIO_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={`preset-btn ${activePreset === preset.id ? 'preset-btn--active' : ''}`}
+                  aria-pressed={activePreset === preset.id}
+                  onClick={() => update(preset.values)}
+                >
+                  <span>{t(`scenario.presets.${preset.id}.title`)}</span>
+                  <span className="preset-btn-meta">{t(`scenario.presets.${preset.id}.meta`)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="controls controls--sliders">
             <Slider
               label={t('scenario.rainfall')}
@@ -112,6 +144,9 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
                   </option>
                 ))}
               </select>
+              <span className="slider-hint">
+                <GlossaryTerm term="enso" label={t('glossary.terms.enso.label')} />
+              </span>
             </div>
             <div className="field">
               <label htmlFor={`${selectId}-crop`}>{t('scenario.crop')}</label>
@@ -144,6 +179,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
           ) : null}
         </>
       )}
+      <ClimateRealityCheck onApplyPreset={update} />
       <CropStressTest farmId={farmId} />
     </section>
   );

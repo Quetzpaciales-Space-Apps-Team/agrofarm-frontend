@@ -2,77 +2,77 @@ import { useTranslation } from 'react-i18next';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
+export function startDemoTour(t: (key: string) => string) {
+  if (typeof window === 'undefined') return;
+  try {
+    const driverObj = driver({
+      showProgress: true,
+      animate: true,
+      nextBtnText: t('tour.next'),
+      prevBtnText: t('tour.prev'),
+      doneBtnText: t('tour.done'),
+      steps: [
+        {
+          element: '.app-sidebar',
+          popover: {
+            title: t('tour.step1Title'),
+            description: t('tour.step1Desc'),
+            side: 'right',
+            align: 'start',
+          },
+        },
+        {
+          element: '.dashboard-page-heading',
+          popover: {
+            title: t('tour.step2Title'),
+            description: t('tour.step2Desc'),
+            side: 'bottom',
+            align: 'start',
+          },
+        },
+        {
+          element: '.farm-dashboard-card, .farm-summary',
+          popover: {
+            title: t('tour.step3Title'),
+            description: t('tour.step3Desc'),
+            side: 'bottom',
+            align: 'start',
+          },
+        },
+        {
+          element: '.overview-links',
+          popover: {
+            title: t('tour.step4Title'),
+            description: t('tour.step4Desc'),
+            side: 'top',
+            align: 'start',
+          },
+        },
+        {
+          element: '.theme-toggle',
+          popover: {
+            title: t('tour.step5Title'),
+            description: t('tour.step5Desc'),
+            side: 'bottom',
+            align: 'end',
+          },
+        },
+      ],
+    });
+    driverObj.drive();
+  } catch (err) {
+    console.warn('Demo tour could not start:', err);
+  }
+}
+
 export function TourButton() {
   const { t } = useTranslation();
-
-  const handleStartTour = () => {
-    if (typeof window === 'undefined') return;
-    try {
-      const driverObj = driver({
-        showProgress: true,
-        animate: true,
-        nextBtnText: t('tour.next'),
-        prevBtnText: t('tour.prev'),
-        doneBtnText: t('tour.done'),
-        steps: [
-          {
-            element: '.app-sidebar',
-            popover: {
-              title: t('tour.step1Title'),
-              description: t('tour.step1Desc'),
-              side: 'right',
-              align: 'start',
-            },
-          },
-          {
-            element: '.dashboard-page-heading',
-            popover: {
-              title: t('tour.step2Title'),
-              description: t('tour.step2Desc'),
-              side: 'bottom',
-              align: 'start',
-            },
-          },
-          {
-            element: '.farm-summary',
-            popover: {
-              title: t('tour.step3Title'),
-              description: t('tour.step3Desc'),
-              side: 'bottom',
-              align: 'start',
-            },
-          },
-          {
-            element: '.overview-links',
-            popover: {
-              title: t('tour.step4Title'),
-              description: t('tour.step4Desc'),
-              side: 'top',
-              align: 'start',
-            },
-          },
-          {
-            element: '.theme-toggle',
-            popover: {
-              title: t('tour.step5Title'),
-              description: t('tour.step5Desc'),
-              side: 'bottom',
-              align: 'end',
-            },
-          },
-        ],
-      });
-      driverObj.drive();
-    } catch (err) {
-      console.warn('Demo tour could not start:', err);
-    }
-  };
 
   return (
     <button
       type="button"
       className="header-action tour-button"
-      onClick={handleStartTour}
+      onClick={() => startDemoTour(t)}
       aria-label={t('tour.startAria')}
       title={t('tour.startAria')}
     >

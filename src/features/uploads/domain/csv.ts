@@ -61,3 +61,19 @@ export function parseCsv(input: string): CsvParseResult {
   if (cell !== '' || row.length > 0 || cellStarted) endRow();
   return { rows, error: null };
 }
+
+function escapeCsvCell(raw: string): string {
+  const safe = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  return /[",\n\r]/.test(safe) ? `"${safe.replaceAll('"', '""')}"` : safe;
+}
+
+/** Builds an RFC 4180 CSV error report with spreadsheet formula-injection escaping (DEC-005). */
+export function buildErrorReportCsv(
+  errors: readonly { row: number; column: string | null; message: string }[],
+): string {
+  const header = 'row,column,message';
+  const lines = errors.map((item) =>
+    [String(item.row), escapeCsvCell(item.column ?? ''), escapeCsvCell(item.message)].join(','),
+  );
+  return [header, ...lines].join('\n');
+}

@@ -42,13 +42,16 @@ async function openLogin() {
 }
 
 describe('Landing keeps the demo first (G12)', () => {
-  it('shows the demo button before the login and register links', () => {
+  it('keeps the demo as the main action in the page and login and register in the header', () => {
     renderApp();
     const demo = screen.getByRole('button', { name: /try the demo/i });
     const login = screen.getByRole('link', { name: /^log in$/i });
     const register = screen.getByRole('link', { name: /create an account/i });
-    expect(demo.compareDocumentPosition(login) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(demo.compareDocumentPosition(register) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const header = screen.getByRole('banner');
+    const main = screen.getByRole('main');
+    expect(main).toContainElement(demo);
+    expect(header).toContainElement(login);
+    expect(header).toContainElement(register);
   });
 
   it('does not block the demo while the session restore runs', async () => {

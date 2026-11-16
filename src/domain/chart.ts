@@ -1,3 +1,5 @@
+import type { EnsoPhase } from './enso';
+
 export type SeriesKey =
   'rainfall_mm' | 'temperature_mean_c' | 'temperature_min_c' | 'temperature_max_c';
 
@@ -199,5 +201,64 @@ export function summarizeClimate(rows: readonly ClimateRow[]): ClimateSummary {
     monthsWithGaps: rows.filter((row) => ALL_KEYS.some((key) => row[key] === null)).length,
     rain: extent(present(rows.map((r) => r.rainfall_mm))),
     temp: extent(present(rows.flatMap((r) => TEMP_KEYS.map((key) => r[key])))),
+  };
+}
+
+export interface ClimatePeriodSummary {
+  months: number;
+  wettest: { month: string; rainfall_mm: number } | null;
+  driest: { month: string; rainfall_mm: number } | null;
+  totalRainMm: number | null;
+  meanTempC: number | null;
+  elNinoMonths: number;
+  laNinaMonths: number;
+}
+
+/** Client-side summary for the selected climate range, with non-causal ENSO counts. */
+export function summarizeClimatePeriod(
+  rows: readonly ClimateRow[],
+  ensoItems: readonly { month: string; phase: EnsoPhase }[],
+): ClimatePeriodSummary {
+  let wettest: { month: string; rainfall_mm: number } | null = null;
+  let driest: { month: string; rainfall_mm: number } | null = null;
+  let rainSum = 0;
+  let rainCount = 0;
+  let tempSum = 0;
+  let tempCount = 0;
+
+  for (const row of rows) {
+    if (row.rainfall_mm !== null) {
+      rainSum += row.rainfall_mm;
+      rainCount += 1;
+      if (wettest === null || row.rainfall_mm > wettest.rainfall_mm) {
+        wettest = { month: row.month, rainfall_mm: row.rainfall_mm };
+      }
+      if (driest === null || row.rainfall_mm < driest.rainfall_mm) {
+        driest = { month: row.month, rainfall_mm: row.rainfall_mm };
+      }
+    }
+    if (row.temperature_mean_c !== null) {
+      tempSum += row.temperature_mean_c;
+      tempCount += 1;
+    }
+  }
+
+  const phaseByMonth = new Map(ensoItems.map((item) => [item.month, item.phase]));
+  let elNinoMonths = 0;
+  let laNinaMonths = 0;
+  for (const row of rows) {
+    const phase = phaseByMonth.get(row.month);
+    if (phase === 'el_nino') elNinoMonths += 1;
+    else if (phase === 'la_nina') laNinaMonths += 1;
+  }
+
+  return {
+    months: rows.length,
+    wettest,
+    driest,
+    totalRainMm: rainCount > 0 ? Math.round(rainSum * 10) / 10 : null,
+    meanTempC: tempCount > 0 ? Math.round((tempSum / tempCount) * 10) / 10 : null,
+    elNinoMonths,
+    laNinaMonths,
   };
 }

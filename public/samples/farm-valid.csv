@@ -1,0 +1,4 @@
+parcel_id,season_year,crop,sowing_date,harvest_date,area_ha,latitude,longitude,yield_kg_ha,irrigation,soil_ph,soil_om_pct,soil_n_mg_kg,soil_p_mg_kg,soil_k_mg_kg,rainfall_season_mm,notes
+parcel_01,2024,maize,2024-05-15,2024-10-20,2.5,14.5892,-90.5315,3200,rainfed,6.2,3.1,42.0,18.5,165.0,980.5,Provisional Guatemala City reference plot
+parcel_01,2025,beans,2025-05-20,2025-09-10,2.5,14.5892,-90.5315,1450,rainfed,6.3,3.3,48.0,19.0,170.0,1040.0,Legume rotation after maize
+parcel_02,2025,squash,2025-06-01,,1.2,14.5901,-90.5302,,drip,6.1,2.9,,,,,Harvest pending

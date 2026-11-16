@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { summarizeClimate, type ClimateRow } from '../chart';
+import { summarizeClimate, summarizeClimatePeriod, type ClimateRow } from '../chart';
 
 const row = (month: string, over: Partial<ClimateRow> = {}): ClimateRow => ({
   month,
@@ -35,5 +35,52 @@ describe('summarizeClimate', () => {
     ]);
     expect(none.rain).toBeNull();
     expect(none.temp).toBeNull();
+  });
+});
+
+describe('summarizeClimatePeriod', () => {
+  it('computes wettest, driest, total rain, mean temperature, and ENSO phase counts', () => {
+    const rows = [
+      row('2024-01', { rainfall_mm: 10, temperature_mean_c: 18 }),
+      row('2024-02', { rainfall_mm: null, temperature_mean_c: 20 }),
+      row('2024-03', { rainfall_mm: 120, temperature_mean_c: 22 }),
+      row('2024-04', { rainfall_mm: 0, temperature_mean_c: null }),
+    ];
+    const enso = [
+      { month: '2024-01', phase: 'el_nino' as const },
+      { month: '2024-02', phase: 'el_nino' as const },
+      { month: '2024-03', phase: 'neutral' as const },
+      { month: '2024-04', phase: 'la_nina' as const },
+    ];
+    const summary = summarizeClimatePeriod(rows, enso);
+    expect(summary.months).toBe(4);
+    expect(summary.wettest).toEqual({ month: '2024-03', rainfall_mm: 120 });
+    expect(summary.driest).toEqual({ month: '2024-04', rainfall_mm: 0 });
+    expect(summary.totalRainMm).toBe(130);
+    expect(summary.meanTempC).toBe(20);
+    expect(summary.elNinoMonths).toBe(2);
+    expect(summary.laNinaMonths).toBe(1);
+  });
+
+  it('returns null metrics and zero ENSO counts for an empty or no-data range', () => {
+    expect(summarizeClimatePeriod([], [])).toEqual({
+      months: 0,
+      wettest: null,
+      driest: null,
+      totalRainMm: null,
+      meanTempC: null,
+      elNinoMonths: 0,
+      laNinaMonths: 0,
+    });
+    const noData = summarizeClimatePeriod(
+      [row('2024-01', { rainfall_mm: null, temperature_mean_c: null })],
+      [],
+    );
+    expect(noData.wettest).toBeNull();
+    expect(noData.driest).toBeNull();
+    expect(noData.totalRainMm).toBeNull();
+    expect(noData.meanTempC).toBeNull();
+    expect(noData.elNinoMonths).toBe(0);
+    expect(noData.laNinaMonths).toBe(0);
   });
 });

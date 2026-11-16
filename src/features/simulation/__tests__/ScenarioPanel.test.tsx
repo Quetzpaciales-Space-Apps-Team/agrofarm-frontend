@@ -257,4 +257,63 @@ describe('ScenarioPanel (FE-304)', () => {
     const { container } = await ready();
     await expectNoAxeViolations(container);
   });
+
+  it('applies one-click presets, marks the active preset, and clears it on manual slider change', async () => {
+    await ready();
+    const elNinoBtn = screen.getByRole('button', { name: /el ni.o: drier year/i });
+    await userEvent.click(elNinoBtn);
+    expect(elNinoBtn).toHaveAttribute('aria-pressed', 'true');
+    expect(rain()).toHaveValue('-20');
+    expect(temp()).toHaveValue('1.5');
+    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('el_nino');
+
+    // Manual slider change clears active preset
+    fireEvent.change(rain(), { target: { value: '-35' } });
+    expect(elNinoBtn).toHaveAttribute('aria-pressed', 'false');
+
+    // Normal year preset resets back to 0 / 0 / neutral
+    const normalBtn = screen.getByRole('button', { name: /normal year/i });
+    await userEvent.click(normalBtn);
+    expect(normalBtn).toHaveAttribute('aria-pressed', 'true');
+    expect(rain()).toHaveValue('0');
+    expect(temp()).toHaveValue('0');
+    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('neutral');
+  });
+
+  it.each([
+    {
+      name: 'positive',
+      scenario: { p10: 4, p50: 9, p90: 15 },
+      pattern: /middle estimate for maize yield is \+9 %.*likely range of \+4 % to \+15 %/i,
+    },
+    {
+      name: 'negative',
+      scenario: { p10: -25, p50: -12, p90: -3 },
+      pattern: /middle estimate for maize yield is -12 %.*likely range of -25 % to -3 %/i,
+    },
+    {
+      name: 'crosses zero',
+      scenario: { p10: -14, p50: -2, p90: 8 },
+      pattern: /could be higher or lower.*likely range of -14 % to \+8 %/i,
+    },
+  ])('renders a plain-language summary sentence for $name range', async ({ scenario, pattern }) => {
+    server.use(
+      http.post('*/v1/scenarios/simulate', async ({ request }) => {
+        const body = (await request.json()) as { crop: string; scenario: object };
+        return HttpResponse.json({
+          ...simulateStub(body.scenario),
+          crop: body.crop,
+          scenario,
+        });
+      }),
+    );
+    await ready();
+    expect(screen.getByText(pattern)).toBeInTheDocument();
+  });
+
+  it('shows discrete provenance model name/version and stub notice near the results', async () => {
+    await ready();
+    expect(screen.getByText(/Model: agrofarm-stub \(stub-0\.1\.0\)/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/illustrative rule-based model/i).length).toBeGreaterThanOrEqual(1);
+  });
 });
