@@ -1,0 +1,137 @@
+.reality-panel {
+  border-top: 1px solid var(--color-border-soft, #e2e8f0);
+  padding-top: 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.reality-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem;
+}
+
+.reality-group-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border, #cbd5e1);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: var(--surface, transparent);
+}
+
+.reality-group-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.25rem;
+  width: 100%;
+  min-height: 44px;
+}
+
+.reality-group-btn:focus-visible,
+.reality-year-dot:focus-visible {
+  outline: 3px solid var(--color-focus, #1b4d3e);
+  outline-offset: 2px;
+}
+
+.reality-group-card--selected {
+  border-color: var(--color-primary, #1b4d3e);
+  background: var(--accent-soft, rgba(27, 77, 62, 0.08));
+}
+
+.reality-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+
+.reality-phase-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.reality-phase--el_nino {
+  background: rgba(217, 119, 6, 0.18);
+  border: 1px solid rgba(217, 119, 6, 0.7);
+}
+
+.reality-phase--la_nina {
+  background: rgba(2, 132, 199, 0.18);
+  border: 1px solid rgba(2, 132, 199, 0.7);
+}
+
+.reality-phase--neutral {
+  background: rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(100, 116, 139, 0.7);
+}
+
+.reality-strip-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 0.25rem 0;
+}
+
+.reality-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.reality-year-dot {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  min-height: 44px;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.375rem;
+  font: inherit;
+  font-size: 0.75rem;
+  color: inherit;
+  cursor: pointer;
+}
+
+.reality-year-dot--active {
+  outline: 2px solid var(--color-primary, #1b4d3e);
+  outline-offset: 1px;
+  font-weight: 700;
+}
+
+.reality-detail {
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--color-primary, #1b4d3e);
+  background: var(--accent-soft, rgba(27, 77, 62, 0.08));
+  border-radius: 0 0.375rem 0.375rem 0;
+  font-size: 0.9rem;
+}
+
+.reality-preset-check {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border-soft, #e2e8f0);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.reality-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}

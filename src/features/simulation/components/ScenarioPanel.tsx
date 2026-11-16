@@ -16,6 +16,7 @@ import {
 } from '../../../domain/scenario';
 import { useFarm } from '../../farms/hooks/useFarm';
 import { useScenario } from '../state/scenario';
+import { ClimateRealityCheck } from './ClimateRealityCheck';
 import { SimulationResults } from './SimulationResults';
 import '../simulation.css';
 
@@ -177,6 +178,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
           ) : null}
         </>
       )}
+      <ClimateRealityCheck onApplyPreset={update} />
     </section>
   );
 }
