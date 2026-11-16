@@ -86,6 +86,32 @@ describe('ScenarioPanel (FE-304)', () => {
     );
   });
 
+  it('puts the most important result in a highlighted card: a plain headline and three big figures', async () => {
+    await ready();
+    const insight = await screen.findByRole('region', { name: /maize could go either way/i });
+    expect(insight).toHaveTextContent(/if things go worse/i);
+    expect(insight).toHaveTextContent(/most likely/i);
+    expect(insight).toHaveTextContent(/if things go better/i);
+    expect(insight).toHaveTextContent('-12 %');
+    expect(insight).toHaveTextContent('+11 %');
+    expect(insight.className).toMatch(/insight--mixed/);
+    expect(
+      within(insight).getByRole('img', { name: /likely range of the change in yield/i }),
+    ).toBeInTheDocument();
+    // the full sentence stays available for screen readers and for people who want the detail
+    expect(
+      within(insight).getByText(/within a likely range of -12 % to \+11 %/i),
+    ).toBeInTheDocument();
+  });
+
+  it('says what the weather pattern help is about, without the bare acronym', async () => {
+    await ready();
+    expect(
+      screen.getByRole('button', { name: /what are el nino and la nina\?/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/the result below is about this crop/i)).toBeInTheDocument();
+  });
+
   it('debounces calls: many quick changes make one request', async () => {
     let calls = 0;
     server.use(
