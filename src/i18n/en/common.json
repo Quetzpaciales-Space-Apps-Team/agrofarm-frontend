@@ -601,7 +601,9 @@
         "title": "Normal year (reset)",
         "meta": "0 % rain, 0 °C"
       }
-    }
+    },
+    "ensoHelp": "What are El Nino and La Nina?",
+    "cropHelp": "The result below is about this crop."
   },
   "simulation": {
     "loading": "Running the simulation...",
@@ -653,6 +655,18 @@
       "lowers": "(lowers the result)",
       "raises": "(raises the result)",
       "noEffect": "(no effect)"
+    },
+    "insight": {
+      "headline": {
+        "positive": "{{crop}} could do better than a normal year",
+        "negative": "{{crop}} could do worse than a normal year",
+        "mixed": "{{crop}} could go either way",
+        "neutral": "{{crop}} stays about the same as a normal year"
+      },
+      "low": "If things go worse",
+      "mid": "Most likely",
+      "high": "If things go better",
+      "barLabel": "The likely range of the change in yield"
     }
   },
   "provenance": {

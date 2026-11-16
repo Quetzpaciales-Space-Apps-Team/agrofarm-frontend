@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GlossaryTerm } from '../../../components/GlossaryTerm';
 import { PanelErrorState, PanelLoadingState } from '../../../components/PanelState';
@@ -43,6 +44,12 @@ function Result({ result, busy }: { result: SimulationResult; busy: boolean }) {
             mid: midText,
           });
   const stub = isStubModel(result.provenance.model_name);
+  const headingId = useId();
+  const low = result.scenario.p10;
+  const mid = result.scenario.p50;
+  const high = result.scenario.p90;
+  const axis = Math.max(1, Math.abs(low), Math.abs(high));
+  const position = (value: number) => ((value + axis) / (2 * axis)) * 100;
 
   return (
     <div className="stack" aria-busy={busy}>
@@ -62,9 +69,36 @@ function Result({ result, busy }: { result: SimulationResult; busy: boolean }) {
         </div>
       ) : null}
 
-      <p className="scenario-summary" aria-live="polite">
-        {summaryText}
-      </p>
+      <section className={`insight insight--${outcome}`} aria-labelledby={`${headingId}-insight`}>
+        <h4 id={`${headingId}-insight`}>
+          {t(`simulation.insight.headline.${outcome}`, { crop: humanizeId(result.crop) })}
+        </h4>
+        <dl className="insight__figures">
+          <div className="insight__figure insight__figure--low">
+            <dt>{t('simulation.insight.low')}</dt>
+            <dd>{lowText}</dd>
+          </div>
+          <div className="insight__figure insight__figure--mid">
+            <dt>{t('simulation.insight.mid')}</dt>
+            <dd>{midText}</dd>
+          </div>
+          <div className="insight__figure insight__figure--high">
+            <dt>{t('simulation.insight.high')}</dt>
+            <dd>{highText}</dd>
+          </div>
+        </dl>
+        <div className="insight__bar" role="img" aria-label={t('simulation.insight.barLabel')}>
+          <span
+            className="insight__band"
+            style={{ left: `${position(low)}%`, width: `${position(high) - position(low)}%` }}
+          />
+          <span className="insight__zero" />
+          <span className="insight__mid" style={{ left: `${position(mid)}%` }} />
+        </div>
+        <p className="scenario-summary" aria-live="polite">
+          {summaryText}
+        </p>
+      </section>
       <div className="simulation-provenance-bar">
         <span>
           {t('simulation.provenanceBar.model', {
