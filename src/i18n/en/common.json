@@ -669,5 +669,43 @@
     "explanation": "These SHAP differences explain the raw median model, not causes. Rainfall changes apply uniformly across the season. ENSO phases assume RONI +1, 0 or −1 in seasonal and preseason inputs. Quantile sorting can move the raw median.",
     "delta": "Explained raw median change: {{delta}} percentage points.",
     "limits": "Model limits and assumptions"
+  },
+  "realityCheck": {
+    "title": "Climate reality check",
+    "subtitle": "What happened here in past El Nino and La Nina years?",
+    "loading": "Loading historical climate reality check...",
+    "insufficient": "Not enough overlapping data for 1995-2025 (NASA POWER months: {{nasaCount}}, ENSO months: {{ensoCount}}, excluded years: {{excluded}}).",
+    "seasonSummary": "May-October wet season across {{years}} years (1995-2025). All-years average: {{mean}}. Excluded years (missing > 2 months): {{excluded}}.",
+    "groupsLabel": "Historical years by seasonal phase",
+    "groupTitle_one": "{{phase}} ({{count}} year)",
+    "groupTitle_other": "{{phase}} ({{count}} years)",
+    "groupStats": "Mean: {{mean}} ({{diff}} vs overall average)",
+    "groupRange": "Range: {{min}} to {{max}}",
+    "applyButton": "Apply this to the scenario",
+    "applyAria": "Apply {{phase}} preset to the scenario",
+    "stripLabel": "May-October wet-season rainfall by year (1995-2025)",
+    "yearAria": "{{year}}, {{phase}}, {{rain}}",
+    "yearDetail": "In {{year}} (dominant phase: {{phase}}), May-October rainfall was {{rain}} (mean ONI: {{oni}}, missing months: {{missing}}).",
+    "groupDetail": "In the {{count}} {{phase}} years ({{years}}), mean May-October rainfall was {{mean}} ({{diff}} vs overall average).",
+    "selectPrompt": "Select a phase group or a year above to inspect its May-October rainfall.",
+    "presetNames": {
+      "el_nino_drier": "El Nino: drier year",
+      "la_nina_wetter": "La Nina: wetter year"
+    },
+    "presetCheck": {
+      "same_direction_close": "Preset \"{{presetName}}\" ({{presetRain}}) goes in the same direction as the observed {{count}}-year average ({{observed}}) and is fairly close, though individual years vary widely.",
+      "same_direction_partly": "Preset \"{{presetName}}\" ({{presetRain}}) goes in the same direction as the observed {{count}}-year average ({{observed}}), but the magnitude differs: the data only partly supports this assumption.",
+      "diverges": "Preset \"{{presetName}}\" ({{presetRain}}) differs in direction from the observed {{count}}-year average ({{observed}}): the data does not support this assumption here.",
+      "insufficient_data": "Preset \"{{presetName}}\" ({{presetRain}}) cannot be reliably checked because only {{count}} years are in this group (observed: {{observed}})."
+    },
+    "table": {
+      "caption": "May-October seasonal rainfall by year",
+      "year": "Year",
+      "phase": "Dominant ENSO phase",
+      "rain": "May-Oct rainfall",
+      "oni": "Mean ONI"
+    },
+    "limitations": "Limitations: NASA POWER is a ~50 km reanalysis grid cell (14.59, -90.53), not a local weather station. ENSO alone does not explain any single year's rainfall, and the sample size (n) per group is small.",
+    "sources": "Sources: {{nasaSource}}; {{ensoSource}}."
   }
 }
