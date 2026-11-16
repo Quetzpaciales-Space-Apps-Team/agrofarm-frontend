@@ -23,7 +23,14 @@ export function LandingPage() {
               className="button button--primary landing-primary-btn"
               disabled={starting}
               aria-busy={starting}
-              onClick={() => void startDemo()}
+              onClick={() => {
+                try {
+                  sessionStorage.setItem('agrofarm_auto_tour', 'true');
+                } catch {
+                  // ignore in private browsing
+                }
+                void startDemo();
+              }}
             >
               {starting ? t('landing.starting') : t('landing.tryDemo')}
             </button>

@@ -1569,6 +1569,9 @@ td:first-child {
 }
 
 .demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: var(--color-accent-soft);
   color: #183d30;
   font-size: 0.8rem;
@@ -1578,6 +1581,29 @@ td:first-child {
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
   border: 1px solid #183d30;
+}
+button.demo-badge,
+.demo-badge--interactive {
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+button.demo-badge:hover,
+.demo-badge--interactive:hover {
+  background: var(--color-accent);
+  color: #141c17;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.demo-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #183d30;
+  display: inline-block;
+}
+:root[data-theme='dark'] .demo-badge__dot {
+  background: var(--color-accent);
 }
 
 .header-action {
