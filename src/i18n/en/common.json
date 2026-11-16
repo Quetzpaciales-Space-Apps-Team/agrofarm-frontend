@@ -1,0 +1,1137 @@
+{
+  "app": {
+    "shell": {
+      "title": "AgroFarm",
+      "tagline": "Decision support for crop growth and rotation planning.",
+      "disclaimer": "This tool supports farmers and local experts. It never replaces local agronomic judgment.",
+      "skipLink": "Skip to main content",
+      "disclaimerShort": "Supports your decisions. Consult a local agronomist.",
+      "sources": "Sources",
+      "aboutDemo": "About the demo",
+      "demo": "Demo"
+    },
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "body": "This page could not be shown. Reload the page to try again.",
+      "reload": "Reload the page"
+    }
+  },
+  "common": {
+    "retry": "Try again",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "theme": {
+    "toggle": "Toggle color theme",
+    "light": "Switch to light mode",
+    "dark": "Switch to dark mode"
+  },
+  "tour": {
+    "button": "Demo Tour",
+    "startAria": "Start interactive guided demo tour",
+    "next": "Next",
+    "prev": "Previous",
+    "done": "Finish",
+    "step1Title": "Platform Navigation",
+    "step1Desc": "Access farm profiles, uploaded farm data, weather scenarios, crop recommendations, and climate history from the sidebar.",
+    "step2Title": "Farm & Parcel Selector",
+    "step2Desc": "Inspect your active farm or switch parcels. Registered farmers can add new parcels with custom geographic boundaries.",
+    "step3Title": "Farm Zone & Geometry",
+    "step3Desc": "Check verified hectares, current crop rotation, and the interactive geographic zone map.",
+    "step4Title": "Decision Workflow",
+    "step4Desc": "Jump directly to data uploads, weather stress simulations, agronomic rotation rankings, and NASA POWER climate data.",
+    "step5Title": "Theme & Session Control",
+    "step5Desc": "Switch between dark and light themes at any time, or exit the demo session when finished."
+  },
+  "landing": {
+    "title": "Plan the season before the rain does",
+    "intro": "See how rain, heat and El Nino could change your maize, and which rotation holds up best.",
+    "demoNote": "Example farm near Guatemala City. No account needed.",
+    "tryDemo": "Try the demo",
+    "starting": "Starting the demo...",
+    "accountNote": "Have your own farm data?",
+    "login": "Log in",
+    "register": "Create an account",
+    "eyebrow": "Decision support for agriculture",
+    "benefits": {
+      "evidence": {
+        "title": "Evidence-based advice",
+        "description": "Ground-level soil data, NASA POWER weather statistics, and satellite vegetation indices tailored to your farm."
+      },
+      "uncertainty": {
+        "title": "Honest uncertainty ranges",
+        "description": "Simulations clearly present confidence intervals and probabilistic projections rather than false certainties."
+      },
+      "support": {
+        "title": "Supports local experts",
+        "description": "Empowers agronomists and farmers with clear risk indicators and explicit reminders for local validation."
+      }
+    },
+    "badge": "Agroforestry & Crops",
+    "what": {
+      "eyebrow": "What is AgroFarm?",
+      "title": "Try a season before you live it",
+      "body1": "Guatemalan smallholders plan each season with rain that arrives early, late or not at all. AgroFarm takes a farm's own data, adds public weather, soil and satellite records, and estimates how a crop could grow under different conditions, including El Nino and La Nina years.",
+      "body2": "It then compares several crop rotations side by side, such as maize followed by beans or by a fallow year. Every result is a range with its reasons, its evidence and its gaps, so a farmer and a local agronomist can discuss it and decide."
+    },
+    "how": {
+      "title": "How it works",
+      "steps": {
+        "data": {
+          "title": "Bring the farm's data",
+          "description": "Upload plots, soil tests and past harvests. The tool checks what was accepted and says what is missing."
+        },
+        "scenario": {
+          "title": "Choose a season",
+          "description": "Move rainfall, temperature and the El Nino or La Nina phase to see how the likely yield range shifts."
+        },
+        "compare": {
+          "title": "Compare rotations",
+          "description": "Strategies are scored with the priorities you set: water, income, soil and more."
+        },
+        "decide": {
+          "title": "Read the reasons and the limits",
+          "description": "Each recommendation shows its evidence, its risks and what we do not know. The decision stays with you."
+        }
+      },
+      "hint": "Tap to flip",
+      "back": "Back to the step"
+    },
+    "crops": {
+      "title": "The crops AgroFarm compares",
+      "intro": "Four options for a plot, from planting maize to leaving the land to rest. Each one gives something and asks for something in return.",
+      "photoCredit": "Photo: {{author}}, {{license}}, Wikimedia Commons",
+      "cacaoCredit": "Photo: Daderot, public domain, Wikimedia Commons",
+      "items": {
+        "maize": {
+          "name": "Maize",
+          "description": "A cereal. It sells well and needs plenty of water. It does not add nitrogen to the soil."
+        },
+        "black_beans": {
+          "name": "Black beans",
+          "description": "A legume. It adds nitrogen to the soil and needs less water than maize."
+        },
+        "cover_crop": {
+          "name": "Cover crop",
+          "description": "Grown to protect the soil. Best against erosion, with little income."
+        },
+        "fallow": {
+          "name": "Fallow",
+          "description": "Letting the plot rest. It needs no water and brings no income, and the bare soil is exposed."
+        },
+        "cacao": {
+          "name": "Cacao (not modelled yet)",
+          "description": "A tree crop, very sensitive to rain and heat. We show it as the kind of crop this approach should reach later."
+        }
+      },
+      "compare": {
+        "title": "How they compare at a glance",
+        "note": "A longer bar means more of it. Water is a cost, not a prize: more water needed is not better.",
+        "traits": {
+          "water": "Needs water",
+          "nitrogen": "Adds nitrogen to the soil",
+          "income": "Brings income",
+          "erosion": "Protects soil from washing away",
+          "market": "Easy to sell"
+        },
+        "levels": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        },
+        "source": "Illustration with the starting values of the team's crop table (version 0.1.0). They are provisional and not yet checked against sources. They are not measurements of your farm."
+      }
+    },
+    "hero": {
+      "rangeTitle": "Maize yield versus a normal year",
+      "rangeNote": "Example range from the demo",
+      "low": "-12 %",
+      "high": "+11 %",
+      "scene": "A rendered ear of maize with its husk peeled back and golden kernels in tidy rows"
+    },
+    "principles": {
+      "title": "What we promise, and what we do not"
+    },
+    "finalCta": {
+      "title": "See it with an example farm",
+      "body": "The demo needs no account. It loads a pilot farm near Guatemala City so you can move the sliders and read a real comparison.",
+      "button": "Open the demo farm"
+    },
+    "nav": {
+      "label": "Page blocks",
+      "journey": "From field to decision",
+      "how": "How it works",
+      "decisions": "Decisions",
+      "crops": "Crops",
+      "limits": "Limits",
+      "project": "The project"
+    },
+    "journey": {
+      "title": "From the field to one decision",
+      "scrollHint": "Scroll to move closer",
+      "steps": {
+        "field": {
+          "title": "The weather",
+          "body": "AgroFarm starts wide: the rain, the heat and the El Nino or La Nina phase expected for your area."
+        },
+        "plant": {
+          "title": "The plant",
+          "body": "Then it looks at the crop. Satellite readings of how green the plants are tell how a season is going."
+        },
+        "cob": {
+          "title": "The harvest",
+          "body": "It estimates the yield as a range compared with a normal year, never as a single promised number."
+        },
+        "decision": {
+          "title": "The decision",
+          "body": "Last it compares rotations and shows its reasons, risks and gaps. Then you and your agronomist decide."
+        }
+      },
+      "scene": "A maize ear that turns and moves closer as you scroll, then its kernels pop out"
+    },
+    "decisions": {
+      "title": "Decisions this helps you make",
+      "intro": "Each question below is one the demo can already help you think through. The last column says where the tool stops.",
+      "columns": {
+        "question": "The question",
+        "shows": "What AgroFarm shows",
+        "limit": "What it cannot decide"
+      },
+      "rows": {
+        "rotate": {
+          "question": "Maize again, or rotate to beans?",
+          "shows": "Several rotations side by side, each scored with your priorities for water, income and soil.",
+          "limit": "Your market prices and your own plot history are yours to weigh."
+        },
+        "dry": {
+          "question": "Is a dry El Nino season too risky?",
+          "shows": "How the likely yield range moves when you lower rainfall or switch the El Nino or La Nina phase.",
+          "limit": "It cannot say when the rain will fall, only how the range shifts."
+        },
+        "fallow": {
+          "question": "Should a plot rest this year?",
+          "shows": "The fallow option next to the planted ones, with the reasons it ranks where it does.",
+          "limit": "Local soil tests and an agronomist must confirm it."
+        },
+        "doubt": {
+          "question": "How much can I trust this answer?",
+          "shows": "The evidence behind each result, the data that is missing and the risks, written in plain words.",
+          "limit": "It never replaces a visit from someone who knows your land."
+        }
+      }
+    },
+    "cta": {
+      "arrow": "Go"
+    },
+    "footer": {
+      "title": "The team behind AgroFarm",
+      "about": "AgroFarm was built by the Quetzpaciales team for the NASA International Space Apps Challenge, to help farmers and local agronomists in Guatemala plan with the weather in mind.",
+      "teamTitle": "The team",
+      "reposTitle": "The code",
+      "repos": {
+        "frontend": "The web app you are using",
+        "api": "The service that answers the app",
+        "analytic": "Models, data and experiments",
+        "docs": "The plan, decisions and documents"
+      },
+      "copyright": "© {{year}} Quetzpaciales Space Apps Team. All rights reserved.",
+      "nasa": "Made for the NASA International Space Apps Challenge. AgroFarm is not affiliated with or endorsed by NASA. It uses public data, including NASA POWER.",
+      "photoCredits": "Photo credits",
+      "newTab": "(opens in a new tab)"
+    }
+  },
+  "auth": {
+    "demo": {
+      "disabled": "Demo mode is turned off on this server. Try again later or ask the team for access.",
+      "rateLimited": "Too many demo requests from your network. Wait a minute and try again.",
+      "full": "The demo is full right now (at capacity). Try again in a few minutes.",
+      "failed": "The demo could not be started. Try again."
+    },
+    "restoring": "Restoring your session...",
+    "optionalDemo": "Or try the demo without an account",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "Use at least 10 characters. 72 bytes at most (accented letters count as 2 bytes)."
+    },
+    "validation": {
+      "email": {
+        "required": "Enter your email address.",
+        "invalid": "Enter a valid email address, like name@example.com.",
+        "tooLong": "The email address is too long (254 characters at most)."
+      },
+      "password": {
+        "required": "Enter your password.",
+        "tooShort": "The password needs at least 10 characters.",
+        "tooLong": "The password is too long (72 bytes at most). Accented letters count as 2 bytes."
+      },
+      "name": {
+        "required": "Enter your name.",
+        "tooLong": "The name is too long (120 characters at most)."
+      }
+    },
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "failed": "The email or password is not correct. Check them and try again.",
+      "rateLimited": "Too many login attempts. Wait a minute and try again.",
+      "noAccount": "Create an account",
+      "intro": "Access your farm workspace and saved decisions."
+    },
+    "register": {
+      "title": "Create an account",
+      "submit": "Create account",
+      "submitting": "Creating your account...",
+      "emailTaken": "This email cannot be used for a new account. If it is yours, log in instead.",
+      "rejected": "The account could not be created with these details. Check them and try again.",
+      "createdNotLoggedIn": "Your account was created, but we could not log you in. Use the log in page.",
+      "haveAccount": "Log in"
+    },
+    "account": {
+      "title": "Your account",
+      "signedInAs": "You are signed in as {{name}}.",
+      "noFarm": "You do not have a farm registered yet. Create your farm below to get started with satellite insights and climate risk simulations."
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong while loading this. Try again.",
+    "network": "The server could not be reached. Check your connection and try again.",
+    "timeout": "The server took too long to answer. Try again.",
+    "unauthorized": "Your demo session expired. Start the demo again from the start page.",
+    "notFound": "This information was not found.",
+    "rateLimited": "Too many requests. Wait a moment and try again.",
+    "unavailable": "The service is busy right now. Try again in a moment."
+  },
+  "dashboard": {
+    "title": "Your demo farm",
+    "leave": "Leave the demo",
+    "climate": "Climate",
+    "scenarioTitle": "Scenario",
+    "titleAccount": "Your farm",
+    "logout": "Log out",
+    "sections": {
+      "farm": "My farm",
+      "data": "Add your farm data",
+      "scenarios": "Try a season",
+      "recommendations": "Best crops for your farm",
+      "climate": "Weather history"
+    },
+    "quickLinksLabel": "The steps",
+    "quickLinks": {
+      "open": "Go to this step",
+      "data": {
+        "title": "Add your data",
+        "description": "Upload what you know about your fields. Optional."
+      },
+      "scenarios": {
+        "title": "Try a season",
+        "description": "Move the sliders and see how a different season could change your harvest."
+      },
+      "recommendations": {
+        "title": "See the best crops",
+        "description": "Compare what to plant, with the reasons and the risks."
+      },
+      "climate": {
+        "title": "Check the weather",
+        "description": "See how rain, heat and El Nino or La Nina years behaved."
+      }
+    },
+    "stepOf": "Step {{n}} of {{total}}",
+    "pages": {
+      "farm": {
+        "lead": "This is your farm at a glance: how big it is, what is planted and where it sits. Start here, then follow the numbered steps.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Check that the size and the crops are right.",
+          "Look at the map to see where the farm is.",
+          "Pick a step below. Step 3 is the quickest way to see results."
+        ]
+      },
+      "data": {
+        "lead": "Tell us what you know about your fields, such as past harvests, soil and rain. The more you add, the better the results fit your farm. You can also skip this and keep using the example data.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Download the blank table. It is a CSV file you can open in Excel.",
+          "Fill it in and upload it.",
+          "Read the check. It says what was accepted and what is missing."
+        ]
+      },
+      "scenarios": {
+        "lead": "No season repeats. Move the sliders to imagine a drier, wetter, hotter or cooler season and see how the harvest could change. The answer is a range, not a promise.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Move the rainfall and temperature sliders.",
+          "Choose a weather pattern: normal, El Nino or La Nina.",
+          "Read the bar. The coloured band is the likely range."
+        ]
+      },
+      "recommendations": {
+        "lead": "Here we compare crop rotations, which means what to plant and in what order. Tell us what matters most to you and we rank the options.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Set what matters to you: water, income, soil and more.",
+          "Compare the options in the list.",
+          "Open one to see why, the evidence and the risks."
+        ]
+      },
+      "climate": {
+        "lead": "How rain and temperature have behaved near your farm. Use it to see what is normal and which years were unusual.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Pick the months you want to see.",
+          "Bars show rain. Lines show temperature.",
+          "Grey bands mean there is no data for that month."
+        ]
+      }
+    },
+    "next": {
+      "label": "Your next step",
+      "farm": {
+        "to": "Add your farm data",
+        "hint": "Optional. Skip it if you just want to explore."
+      },
+      "data": {
+        "to": "Try a season",
+        "hint": "See how the weather could change your harvest."
+      },
+      "scenarios": {
+        "to": "See the best crops",
+        "hint": "Compare rotations for your farm."
+      },
+      "recommendations": {
+        "to": "Check the weather history",
+        "hint": "See what rain and heat were like in past years."
+      },
+      "climate": {
+        "to": "Back to My farm",
+        "hint": "Start again or pick another step."
+      }
+    }
+  },
+  "navigation": {
+    "label": "Main navigation",
+    "comingSoon": "This section is ready for the next step in your farm review.",
+    "items": {
+      "overview": "My farm",
+      "farm": "My farm",
+      "data": "Add your data",
+      "scenario": "Try a season",
+      "scenarios": "Try a season",
+      "climate": "Weather",
+      "results": "Results",
+      "recommendations": "Best crops"
+    }
+  },
+  "farm": {
+    "loading": "Loading farm...",
+    "area": "Size",
+    "rotation": "What you plant, in order",
+    "noRotation": "No rotation recorded for this farm yet.",
+    "selectFarm": "Select farm",
+    "map": {
+      "title": "Where your farm is",
+      "subtitle": "Parcel boundary and coordinates",
+      "coordinates": "Coordinates",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "bbox": "Corners of the farm area",
+      "openOsm": "OpenStreetMap ↗",
+      "openGmaps": "Google Maps ↗",
+      "viewExternal": "Open external map",
+      "boundaryVector": "Outline only",
+      "mapView": "Map",
+      "interactiveOsm": "Full OpenStreetMap",
+      "noCoordinates": "No geographic boundary coordinates recorded for this farm.",
+      "editButton": "Edit location and shape",
+      "editTitle": "Edit Parcel Geometry & Location",
+      "editDescription": "Update parcel vertices, shift geographic location, or select a regional preset.",
+      "saveButton": "Save changes",
+      "saving": "Saving changes...",
+      "cancel": "Cancel",
+      "saved": "Parcel updated successfully!",
+      "presets": "Preset location",
+      "custom": "Custom coordinates",
+      "shiftLocation": "Center Coordinates",
+      "vertices": "Polygon Vertices",
+      "addVertex": "Add vertex",
+      "removeVertex": "Remove",
+      "quickPresets": "Quick Geometry Presets",
+      "presetSquare": "Square parcel (10 ha)",
+      "presetIrregular": "Extended plot (20 ha)",
+      "presetPilot": "Guatemala Pilot (19 ha)",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
+    },
+    "create": {
+      "title": "Create your farm",
+      "description": "Register your parcel boundary and initial crop rotation to connect satellite climate records and yield models.",
+      "newFarmButton": "New parcel",
+      "nameLabel": "Farm name",
+      "namePlaceholder": "e.g. Finca La Esperanza",
+      "regionLabel": "Region / Preset location",
+      "cropsLabel": "Initial crops (comma-separated)",
+      "cropsPlaceholder": "maize, beans",
+      "cropsHint": "List of current crops or rotation stages in your parcel.",
+      "customCoordinatesLabel": "GeoJSON Coordinates (Coordinates array)",
+      "customCoordinatesHint": "Array of [longitude, latitude] coordinates closing the polygon (at least 4 points).",
+      "submit": "Create farm",
+      "submitting": "Creating farm...",
+      "presets": {
+        "guatemalaCentral": "Guatemala Central (Pilot)",
+        "corredorSeco": "Corredor Seco (Chiquimula / Zacapa)",
+        "altiplano": "Altiplano Occidental (Quetzaltenango)",
+        "peten": "Petén (Flores / Tierras Bajas)",
+        "custom": "Custom coordinates"
+      },
+      "errors": {
+        "nameRequired": "Please enter a farm name.",
+        "invalidCoordinates": "Invalid coordinates. The coordinates must be a valid GeoJSON polygon ring with at least 4 coordinate positions.",
+        "generic": "Failed to create farm. Please verify inputs and try again."
+      }
+    },
+    "cropMap": {
+      "alt": "Map of the area around {{name}}. A green shape shows where the farm is.",
+      "legend": "Your farm",
+      "zoomIn": "Zoom in on the map",
+      "zoomOut": "Zoom out on the map",
+      "credit": "© OpenStreetMap contributors",
+      "tilesFailed": "The map picture could not load. The green outline of your farm is still correct."
+    }
+  },
+  "climate": {
+    "title": "Rain and temperature near your farm",
+    "intro": "Each blue bar is one month of rain. The red line is the average temperature. Coloured stripes behind show El Nino and La Nina periods.",
+    "loading": "Loading climate data...",
+    "empty": "No climate data is available for this location yet.",
+    "from": "From",
+    "to": "To",
+    "showEnso": "Show El Nino and La Nina periods",
+    "noData": "No data",
+    "noDataShort": "no data",
+    "chart": {
+      "title": "Monthly rainfall and temperature, {{start}} to {{end}}",
+      "description": "Bars show rainfall in mm per month, from {{rainMin}} to {{rainMax}}. Lines show mean, minimum and maximum temperature in °C, from {{tempMin}} to {{tempMax}}.",
+      "gaps_zero": "Every month has data.",
+      "gaps_one": "{{count}} month has no data and is left blank.",
+      "gaps_other": "{{count}} months have no data and are left blank.",
+      "howToRead": "How to read it: a taller bar means a rainier month. The red line going up means a warmer month."
+    },
+    "axis": {
+      "rain": "Rainfall (mm per month)",
+      "temp": "Temperature (°C)"
+    },
+    "legend": {
+      "title": "Chart legend",
+      "rain": "Blue bars: how much rain fell each month (mm)",
+      "mean": "Red line: average temperature (°C)",
+      "min": "Dashed line: coolest temperature (°C)",
+      "max": "Dotted line: warmest temperature (°C)",
+      "noData": "Grey stripes: no data for that month",
+      "elNino": "Orange background: El Nino period (EN)",
+      "laNina": "Blue background: La Nina period (LN)",
+      "neutral": "No colour: a normal period (NE)"
+    },
+    "summary": {
+      "title": "This period in plain words",
+      "wettest": "Rainiest month",
+      "driest": "Driest month",
+      "totalRain": "Total rain",
+      "meanTemp": "Average temperature",
+      "monthValue": "{{month}} ({{value}})",
+      "typical": "Usually the rainiest months are {{wet}}, and the driest are {{dry}}.",
+      "ensoCoincidence": "Across {{months}} months, this period coincides with {{elNino}} El Nino month(s) and {{laNina}} La Nina month(s)."
+    },
+    "missing": {
+      "title": "Months with no data",
+      "none": "Every month in this range has data.",
+      "item": "{{month}}: {{series}}"
+    },
+    "series": {
+      "rainfall_mm": "rainfall",
+      "temperature_mean_c": "mean temperature",
+      "temperature_min_c": "minimum temperature",
+      "temperature_max_c": "maximum temperature"
+    },
+    "table": {
+      "show": "Show data table",
+      "hide": "Hide data table",
+      "caption": "Monthly climate data",
+      "month": "Month",
+      "rain": "Rainfall (mm per month)",
+      "mean": "Mean temperature (°C)",
+      "min": "Minimum temperature (°C)",
+      "max": "Maximum temperature (°C)"
+    },
+    "source": {
+      "title": "Where this data comes from",
+      "dataset": "Source",
+      "link": "NASA POWER website",
+      "attribution": "Attribution",
+      "resolution": "Resolution",
+      "disclaimer": "Disclaimer"
+    },
+    "showRange": "Also show the coolest and warmest temperatures"
+  },
+  "enso": {
+    "title": "El Nino and La Nina phases",
+    "intro": "El Nino and La Nina change rainfall patterns in Central America. Each box is one month of the range above.",
+    "listLabel": "El Nino and La Nina phase by month",
+    "legend": "Phase key",
+    "phase": {
+      "el_nino": "El Nino",
+      "la_nina": "La Nina",
+      "neutral": "Neutral",
+      "none": "No data"
+    },
+    "source": "Source: {{source}}. A month counts as El Nino when the ocean temperature index is {{threshold}} °C or higher, and as La Nina at minus {{threshold}} °C or lower."
+  },
+  "scenario": {
+    "title": "What if the weather changes?",
+    "intro": "Move the sliders to try a different season. The result is a range, because nobody can predict a season exactly.",
+    "loading": "Loading farm crops...",
+    "rainfall": "Rainfall change",
+    "temperature": "Temperature change",
+    "enso": "Weather pattern (El Nino, La Nina or normal)",
+    "crop": "Crop",
+    "reset": "Reset scenario",
+    "noCrops": "No crops recorded for this farm yet, so a crop simulation is not possible.",
+    "range": "From {{min}} to {{max}}",
+    "presets": {
+      "label": "Quick scenarios",
+      "el_nino_drier": {
+        "title": "El Nino: drier year",
+        "meta": "-20 % rain, +1.5 °C"
+      },
+      "la_nina_wetter": {
+        "title": "La Nina: wetter year",
+        "meta": "+25 % rain, -0.5 °C"
+      },
+      "heatwave": {
+        "title": "Heatwave",
+        "meta": "-10 % rain, +3.5 °C"
+      },
+      "normal": {
+        "title": "Normal year (reset)",
+        "meta": "0 % rain, 0 °C"
+      }
+    },
+    "ensoHelp": "What are El Nino and La Nina?",
+    "cropHelp": "The result below is about this crop."
+  },
+  "simulation": {
+    "loading": "Running the simulation...",
+    "updating": "Updating the result...",
+    "baseline": "Baseline",
+    "scenario": "Scenario",
+    "summary": {
+      "directional": "Under this scenario, the middle estimate for {{crop}} yield is {{mid}} compared with a normal year, within a likely range of {{low}} to {{high}}.",
+      "mixed": "Under this scenario, {{crop}} yield could be higher or lower than a normal year, within a likely range of {{low}} to {{high}} (middle estimate {{mid}}).",
+      "neutral": "Under this scenario, the middle estimate for {{crop}} yield matches a normal year ({{mid}})."
+    },
+    "provenanceBar": {
+      "model": "Model: {{name}} ({{version}})",
+      "stubNote": "Illustrative rule-based model, not a forecast."
+    },
+    "outOfRange": "Some inputs are outside the range the model was trained on, so read this result with extra care:",
+    "input": {
+      "rainfall_change_pct": "Rainfall change",
+      "temperature_change_c": "Temperature change",
+      "enso_phase": "Weather pattern"
+    },
+    "target": {
+      "intro": "{{crop}}: {{target}}, shown in {{unit}}.",
+      "yield_anomaly_pct": "change in yield compared with a normal year"
+    },
+    "feature": {
+      "rainfall_anomaly_jja": "Summer rainfall (June to August)",
+      "temperature_anomaly_jja": "Summer temperature (June to August)",
+      "enso_roni_lag3": "El Nino or La Nina, 3 months earlier",
+      "rainfall_change_pct": "Rainfall change",
+      "temperature_change_c": "Temperature change",
+      "enso_phase": "El Nino or La Nina phase"
+    },
+    "chart": {
+      "title": "Baseline and scenario compared",
+      "row": "{{name}}: likely range from {{low}} to {{high}}, middle estimate {{mid}}.",
+      "axis": "Change ({{unit}})",
+      "help": "The coloured band is the likely range (10th to 90th percentile). The dark mark is the middle estimate (50th percentile). Zero means no change."
+    },
+    "table": {
+      "caption": "Baseline and scenario results in {{unit}}",
+      "low": "Low (10th percentile)",
+      "mid": "Middle (50th percentile)",
+      "high": "High (90th percentile)"
+    },
+    "attributions": {
+      "title": "What drives the change",
+      "help": "Each line shows how much one input moves the middle estimate. Minus lowers it, plus raises it.",
+      "lowers": "(lowers the result)",
+      "raises": "(raises the result)",
+      "noEffect": "(no effect)"
+    },
+    "insight": {
+      "headline": {
+        "positive": "{{crop}} could do better than a normal year",
+        "negative": "{{crop}} could do worse than a normal year",
+        "mixed": "{{crop}} could go either way",
+        "neutral": "{{crop}} stays about the same as a normal year"
+      },
+      "low": "If things go worse",
+      "mid": "Most likely",
+      "high": "If things go better",
+      "barLabel": "The likely range of the change in yield"
+    }
+  },
+  "provenance": {
+    "title": "Where these numbers come from",
+    "stubNotice": "The numbers shown here come from fixed rules, not from a trained model. They show how the tool will work and must not be used for decisions.",
+    "model": "Model",
+    "version": "Model version",
+    "data": "Data versions",
+    "noData": "Not reported",
+    "dataItem": "{{name}}: {{version}}",
+    "generated": "Generated",
+    "generatedAt": "{{date}} (UTC)",
+    "disclaimer": "Disclaimer"
+  },
+  "rotations": {
+    "title": "Compare rotation strategies",
+    "intro": "Each strategy is scored for the priorities set for this farm, under the scenario above. Read the gaps and risks before you decide.",
+    "loading": "Loading the rotation comparison...",
+    "updating": "Updating the comparison...",
+    "empty": "No rotation strategies are available for this farm yet.",
+    "order": "Strategies are listed from the highest score to the lowest. A higher score does not mean a strategy is right for your farm: check each one with a local expert.",
+    "omitted_one": "{{count}} strategy was left out because it is missing reasons, evidence, benefits, gaps or risks.",
+    "omitted_other": "{{count}} strategies were left out because they are missing reasons, evidence, benefits, gaps or risks.",
+    "fewerThanThree": "Fewer than three strategies could be compared, so this comparison is incomplete.",
+    "markers": "Strategy markers",
+    "topScore": "Highest score for the priorities you set",
+    "current": "Your current rotation",
+    "needsReview": "Needs local review",
+    "sequenceJoin": ", then ",
+    "overall": "Overall score: {{score}} out of 100",
+    "interval": "Likely range: {{low}} to {{high}} out of 100",
+    "priorityScores": "Scores by priority",
+    "outOf100": "{{value}} out of 100",
+    "priority": {
+      "water_use": "Water use",
+      "income": "Income",
+      "soil_structure": "Soil structure",
+      "forage_value": "Forage value",
+      "nitrogen_fixing": "Nitrogen fixing",
+      "erosion_reduction": "Erosion reduction",
+      "market_suitability": "Market suitability"
+    },
+    "blocks": {
+      "why": "Why it was suggested",
+      "evidence": "Evidence",
+      "benefits": "Expected benefits",
+      "gaps": "Information gaps",
+      "risks": "Risks to check locally"
+    },
+    "source": "Source: {{source}}",
+    "riskReview": "(needs local review)",
+    "viewDetails": "View details",
+    "viewDetailsFor": "View details: {{name}}",
+    "backToPriorities": "Back to priorities",
+    "drawer": {
+      "closeLabel": "Close details",
+      "intro": "Everything below comes from a rule-based comparison that uses a provisional table of crop traits. The traits have not been reviewed by an agronomist yet. Use this as support for your decision, and check it with a local expert before you change what you plant.",
+      "scoresHeading": "How it scores",
+      "sourceLink": "Open source document: {{source}}",
+      "sourceLinkHint": "(opens in a new tab)",
+      "noLink": "No link is available for this source.",
+      "termsHeading": "Terms used in this comparison",
+      "termsHint": "Hover, focus or tap a term to see what it means.",
+      "glossaryNote": "These plain-language definitions are drafts and still need an agronomist's review."
+    },
+    "crops": {
+      "maize": {
+        "name": "Maize",
+        "happens": "Takes a lot of water and sells well. It uses up nitrogen, so the soil needs something that gives it back."
+      },
+      "black_beans": {
+        "name": "Black beans",
+        "happens": "Puts nitrogen back into the soil and needs less water than maize. It sells reasonably well."
+      },
+      "cover_crop": {
+        "name": "Cover crop",
+        "happens": "Covers the ground, so rain washes away less soil. It brings little or no income this season."
+      },
+      "fallow": {
+        "name": "Fallow",
+        "happens": "The plot rests: no water is used and there is no income. The bare soil is open to rain and washing away."
+      }
+    },
+    "detail": {
+      "back": "Back to the comparison",
+      "season": "Season {{n}}",
+      "sequenceLabel": "Crops in order",
+      "unknownCrop": "No photo for this crop",
+      "overall": "Overall score: {{score}} out of 100",
+      "happensTitle": "What happens in each season",
+      "mapTitle": "How your farm would look",
+      "mapIntro": "The same plot in each season. The pattern shows what is growing on it.",
+      "mapLabel": "Your farm seen from above in {{season}}: {{crop}}",
+      "mapLoading": "Loading the map of your farm...",
+      "noMap": "This farm has no map outline yet, so the plot cannot be drawn.",
+      "moreTitle": "All the details"
+    }
+  },
+  "glossary": {
+    "terms": {
+      "evapotranspiration": {
+        "label": "Evapotranspiration",
+        "definition": "The water that leaves the field in two ways at once: it evaporates from the soil and the crop's leaves release it as vapor. It is measured in millimeters (mm) of water, like rain."
+      },
+      "ndvi": {
+        "label": "NDVI",
+        "definition": "A vegetation index: a number from satellite images that shows how green and healthy the plants in a field look. Low values mean bare soil or stressed plants, high values mean thick, healthy plants."
+      },
+      "soil_moisture_anomaly": {
+        "label": "Soil moisture anomaly",
+        "definition": "How much wetter or drier the soil is than it usually is at this time of year. A negative value means drier than normal."
+      },
+      "frost_risk": {
+        "label": "Frost risk",
+        "definition": "The chance that temperatures fall low enough to damage crops. It depends on the place and on the season, so local knowledge matters."
+      },
+      "water_balance": {
+        "label": "Water balance",
+        "definition": "Rain and irrigation that come in, minus the water the crops and soil use up or lose. When more leaves than comes in, plants can run short."
+      },
+      "percentile": {
+        "label": "Percentile",
+        "definition": "A way to show a range of outcomes: the 10th percentile is a low outcome, the 50th is the middle estimate, and the 90th is a high outcome."
+      },
+      "enso": {
+        "label": "ENSO",
+        "definition": "El Nino-Southern Oscillation: a Pacific Ocean temperature cycle (El Nino, La Nina, or Neutral) that shifts seasonal rainfall in Central America."
+      },
+      "reanalysis": {
+        "label": "Reanalysis",
+        "definition": "A gridded weather dataset built by combining past observations with a weather model. It represents a ~50 km area, not a single farm rain gauge."
+      }
+    }
+  },
+  "panelState": {
+    "wakingUp": "Waking up the server…",
+    "startNewDemo": "Start a new demo",
+    "validation": "The server could not process those inputs. Check the values and try again.",
+    "rateLimited": "The demo is busy, try again in a minute.",
+    "unavailable": "The demo has reached its capacity or is busy right now. Try again in a moment."
+  },
+  "priorities": {
+    "title": "Your priorities for this farm",
+    "jumpToComparison": "Jump to comparison",
+    "presets": {
+      "label": "Quick priority profiles",
+      "save_water": "Save water",
+      "more_income": "More income",
+      "build_soil": "Build soil",
+      "balanced": "Balanced (reset)"
+    },
+    "intro": "Tell us what matters most. These values change the scores in the comparison below. They are saved for this farm only.",
+    "starting": "All priorities start at 50 out of 100. Use Reset to defaults to go back to the starting values.",
+    "decision": "The scores support your decision. They do not replace your own knowledge or a local expert.",
+    "loading": "Loading your priorities...",
+    "weightsLegend": "How much does each one matter?",
+    "valueText": "{{value}} out of 100",
+    "scale": "0 means it does not matter, 100 means it matters most.",
+    "weights": {
+      "water_use": {
+        "hint": "Prefer strategies that use less water."
+      },
+      "income": {
+        "hint": "Prefer strategies with more expected income."
+      },
+      "soil_structure": {
+        "hint": "Prefer strategies that keep the soil loose, covered and alive."
+      },
+      "forage_value": {
+        "hint": "Prefer strategies that give feed for animals."
+      },
+      "nitrogen_fixing": {
+        "hint": "Prefer crops that add nitrogen to the soil, so you need less fertilizer."
+      },
+      "erosion_reduction": {
+        "hint": "Prefer strategies that keep soil from washing away."
+      },
+      "market_suitability": {
+        "hint": "Prefer crops that are easy to sell in your area."
+      }
+    },
+    "constraintsLegend": "Limits on your farm",
+    "water": {
+      "label": "Water available",
+      "hint": "Choose Low if water is limited on your farm. The comparison then favors strategies that need less water.",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "equipment": {
+      "legend": "Equipment you have",
+      "hint": "Tick everything you can use. You can leave all of them empty.",
+      "hand_tools": "Hand tools",
+      "animal_traction": "Animal traction",
+      "tractor": "Tractor",
+      "irrigation": "Irrigation"
+    },
+    "save": "Save priorities",
+    "saving": "Saving...",
+    "saved": "Priorities saved. The comparison is updating.",
+    "saveError": "We could not save your priorities. Your changes are still here. Try again.",
+    "reset": "Reset to defaults",
+    "resetDone": "Priorities reset to the starting values. Save to keep them."
+  },
+  "uploads": {
+    "title": "Upload your farm data",
+    "intro": "Send a CSV or GeoJSON file with your parcels and seasons. The server checks it and stores the rows that pass.",
+    "notice": "Uploaded data is checked and stored, but it is not used yet. Recommendations, scenarios and model results do not change because of it. This tool supports decisions and does not replace local agronomic judgment.",
+    "steps": {
+      "label": "Upload steps",
+      "template": "Template",
+      "choose": "File",
+      "review": "Check",
+      "send": "Send",
+      "result": "Result",
+      "current": "(current step)"
+    },
+    "template": {
+      "heading": "Get the template",
+      "body": "The template is a CSV file with one column for each field the server reads. A cell left empty means the value is not known. It is never read as zero.",
+      "download": "Download the CSV template",
+      "examples": "The template has two example rows. Replace the example values with your own data.",
+      "columns": "Dates use YYYY-MM-DD. Numbers use a decimal point. Units: area in ha, yield in kg/ha, rainfall in mm, soil nutrients in mg/kg, organic matter in %.",
+      "continue": "Continue"
+    },
+    "choose": {
+      "heading": "Choose your file",
+      "label": "File to upload",
+      "hint": "CSV (.csv) or GeoJSON (.geojson or .json), up to 2 MB, UTF-8 text.",
+      "reading": "Reading {{name}}...",
+      "cannotSend": "This file cannot be sent. {{count}} problem(s) stop the whole file.",
+      "back": "Back to the template"
+    },
+    "samples": {
+      "label": "Try with a sample file",
+      "validCsv": "Valid CSV (3 parcels)",
+      "validGeojson": "Valid GeoJSON (polygon)",
+      "invalidCsv": "Invalid CSV (validation demo)",
+      "error": "Could not load the sample file. Try choosing one from your device."
+    },
+    "dropzone": {
+      "prompt": "Drop a CSV or GeoJSON file here, or browse"
+    },
+    "fileProblem": {
+      "type": "Only .csv and .geojson files can be uploaded (.json is read as GeoJSON).",
+      "empty": "This file is empty.",
+      "size": "This file is too large ({{size}}). The limit is 2 MB.",
+      "encoding": "This file is not valid UTF-8 text. Save it as UTF-8 and try again.",
+      "read": "This file could not be read. Try choosing it again."
+    },
+    "review": {
+      "heading": "Check your file",
+      "fileLine": "{{name}} ({{size}})",
+      "rowsRead_one": "{{count}} row read: {{valid}} without problems, {{invalid}} with problems.",
+      "rowsRead_other": "{{count}} rows read: {{valid}} without problems, {{invalid}} with problems.",
+      "clientNote": "This check runs in your browser. The server checks the file again and its answer is the one that counts. Rows with problems are not stored.",
+      "send": "Send to the server",
+      "another": "Choose another file",
+      "previewCaption": "Preview of the first {{count}} rows",
+      "previewHint": "Row 1 is the first row below the header. Empty cells are shown as empty and are not read as zero.",
+      "empty": "(empty)",
+      "rowColumn": "Row",
+      "noneSendable": "No row passed the check, so there is nothing to send."
+    },
+    "issues": {
+      "clientCaption": "Problems found in your file",
+      "serverCaption": "Problems found by the server",
+      "row": "Row",
+      "column": "Column",
+      "problem": "Problem",
+      "wholeFile": "(whole row or file)",
+      "truncated": "Showing the first {{shown}} of {{total}} problems.",
+      "serverSays": "From the server"
+    },
+    "rule": {
+      "required": "A value is required.",
+      "parcel_id": "Use 1 to 64 letters, digits, underscores or hyphens.",
+      "integer": "Use a whole number, for example 2025.",
+      "year_range": "Use a year from 1980 to 2030.",
+      "date_format": "Use the date format YYYY-MM-DD.",
+      "date_invalid": "This date does not exist in the calendar.",
+      "harvest_before_sowing": "The harvest date cannot be before the sowing date.",
+      "number": "Use a number with a decimal point, for example 2.5.",
+      "gt": "Use a number greater than {{min}}.",
+      "min": "Use a number of at least {{min}}.",
+      "max": "Use a number of at most {{max}}.",
+      "irrigation": "Use one of: {{values}}. Or leave it empty.",
+      "too_long": "Use at most {{max}} characters.",
+      "extra_cells": "This row has more cells than the header has columns ({{expected}}). A comma inside text needs quotes.",
+      "geometry": "The shape must be a closed Polygon or MultiPolygon in longitude, latitude order.",
+      "missing_column": "Missing required column.",
+      "no_rows": "The file has no data rows.",
+      "unterminated_quote": "A quoted cell is never closed.",
+      "bad_json": "The file is not valid JSON.",
+      "not_feature_collection": "GeoJSON must be a FeatureCollection.",
+      "features_not_list": "The features entry must be a list.",
+      "not_feature": "This item is not a GeoJSON Feature."
+    },
+    "sending": {
+      "heading": "Sending",
+      "status": "Sending {{name}} ({{size}}). Waiting for the server to check it...",
+      "progress": "Sending the file",
+      "note": "The browser does not report how much of the file has left, so this bar does not show a percentage."
+    },
+    "error": {
+      "tooLarge": "The server says this file is too large. The limit is 2 MB.",
+      "rejected": "The server did not accept this file: {{message}}",
+      "maybeStored": "The server may have received the file before the connection failed. Check with the team before you send it again.",
+      "retry": "You can send the file again."
+    },
+    "result": {
+      "region": "Upload result",
+      "statusLine": "Upload finished: {{status}}.",
+      "accepted": "File accepted",
+      "accepted_with_errors": "File accepted with row errors",
+      "rejected": "File rejected",
+      "leadAccepted": "The server checked the file and stored every row.",
+      "leadPartial": "The server stored the rows that passed its checks. The rows with problems listed below were left out.",
+      "leadRejected": "No rows were stored. Fix the problems listed below and upload the file again.",
+      "file": "File name",
+      "format": "Format",
+      "formatCsv": "CSV",
+      "formatGeojson": "GeoJSON",
+      "rowsRead": "Rows read",
+      "rowsStored": "Rows stored",
+      "rowsLeftOut": "Rows not stored",
+      "problems": "Problems reported",
+      "kept": "The server keeps a record of this upload and a copy of the original file.",
+      "notUsed": "Uploaded data is not used yet. Recommendations, scenarios and model results do not change because of this upload.",
+      "another": "Upload another file",
+      "downloadErrors": "Download error report"
+    }
+  },
+  "leaf": {
+    "title": "Check a maize leaf photo",
+    "intro": "Upload a clear photo to look for a possible match among supported maize leaf conditions.",
+    "review": "Photo screening supports inspection. It is not a confirmed diagnosis and has not been field validated in Guatemala.",
+    "choose": "Choose a maize leaf photo",
+    "dropzone": {
+      "prompt": "Drop a maize leaf photo here, or browse"
+    },
+    "privacy": "JPEG or PNG, up to 5 MiB. Your photo is processed for this request and is not saved or used for training.",
+    "preview": "Selected maize leaf photo",
+    "submit": "Assess photo",
+    "working": "Assessing the photo...",
+    "clear": "Clear photo",
+    "uncertain": "Could not identify a supported condition",
+    "possible": "Possible match: {{condition}}",
+    "scoresNote": "Model scores are not calibrated probabilities or diagnostic certainty. Other plants and conditions may be misclassified, even with a high score.",
+    "scores": "Scores for supported conditions",
+    "condition": "Condition",
+    "score": "Model score (0 to 100)",
+    "next": "What to check next",
+    "guidanceNote": "Guidance references need local review. A photo score does not select a pesticide or a treatment.",
+    "reference": "Read guidance reference {{number}}",
+    "limits": "Limits of this result",
+    "model": "Model: {{version}}",
+    "classes": {
+      "common_rust": "Common rust",
+      "corn_leaf_blight": "Corn leaf blight",
+      "gray_leaf_spot": "Gray leaf spot",
+      "healthy": "Healthy appearance",
+      "insect_damage": "Insect damage (species not identified)"
+    },
+    "errors": {
+      "type": "Choose a JPEG or PNG photo.",
+      "size": "The photo exceeds 5 MiB. Use a smaller photo.",
+      "unavailable": "The photo model is not available right now. Try again later."
+    }
+  },
+  "vegetation": {
+    "title": "How green the crops could look from space",
+    "intro": "Estimate regional cropland greenness using the rainfall, temperature and ENSO controls above. This is a conditional scenario, not parcel yield, crop growth or an ENSO forecast. The original validation goal was not reached.",
+    "run": "Estimate regional greenness",
+    "loading": "Estimating regional greenness…",
+    "validation": "Whole-year validation ({{years}} years): {{skill}}% improvement against climatology; the {{goal}}% goal was not reached. Interval coverage: {{coverage}}% versus nominal 80%. Annual mean correlation: {{correlation}}. Local review is required.",
+    "caption": "Seasonal peak NDVI anomaly against the cell’s own normal (%)",
+    "low": "Low (p10)",
+    "mid": "Middle (p50)",
+    "high": "High (p90)",
+    "baseline": "Neutral baseline",
+    "scenario": "Selected scenario",
+    "cell": "Reference cropland cell: {{cell}}, {{distance}} km from the farm centre; approximately 0.05 degrees. This regional cell includes mixed land cover.",
+    "outside": "Outside training range: {{inputs}}. Treat this estimate with extra caution.",
+    "attributions": "What changed the median model estimate",
+    "explanation": "These SHAP differences explain the raw median model, not causes. Rainfall changes apply uniformly across the season. ENSO phases assume RONI +1, 0 or −1 in seasonal and preseason inputs. Quantile sorting can move the raw median.",
+    "delta": "Explained raw median change: {{delta}} percentage points.",
+    "limits": "Model limits and assumptions"
+  },
+  "stressTest": {
+    "title": "Crop stress test matrix",
+    "intro": "Compare how each supported crop responds across all four scenario presets.",
+    "caveat": "These are per-crop results from an illustrative rule-based model, not a full rotation evaluation and not a forecast.",
+    "caveatWithModel": "These are per-crop results from {{model}} ({{version}}), an illustrative rule-based model — not a full rotation evaluation and not a forecast.",
+    "run": "Run stress test",
+    "progress": "Running {{completed}} of {{total}}...",
+    "cancelled": "Stress test cancelled ({{completed}} of {{total}} completed).",
+    "tableCaption": "Crop stress test matrix (median and 10th to 90th percentile yield anomaly)",
+    "cropCol": "Crop",
+    "pendingCell": "—",
+    "rangeCell": "{{low}} to {{high}}",
+    "worstForCrop": "Worst for crop",
+    "mostResilient": "Most resilient",
+    "summaryWorst": "Lowest median estimate: {{crop}} under {{scenario}} ({{median}}).",
+    "summaryEqual": "All tested crops return identical estimates under the current rule-based model.",
+    "summaryDiffers": "Each scenario highlights the most resilient crop and each crop marks its worst scenario.",
+    "presets": {
+      "el_nino_drier": "El Nino: drier",
+      "la_nina_wetter": "La Nina: wetter",
+      "heatwave": "Heatwave",
+      "normal": "Normal year"
+    }
+  },
+  "realityCheck": {
+    "title": "Climate reality check",
+    "subtitle": "What happened here in past El Nino and La Nina years?",
+    "loading": "Loading historical climate reality check...",
+    "insufficient": "Not enough overlapping data for 1995-2025 (NASA POWER months: {{nasaCount}}, ENSO months: {{ensoCount}}, excluded years: {{excluded}}).",
+    "seasonSummary": "May-October wet season across {{years}} years (1995-2025). All-years average: {{mean}}. Excluded years (missing > 2 months): {{excluded}}.",
+    "groupsLabel": "Historical years by seasonal phase",
+    "groupTitle_one": "{{phase}} ({{count}} year)",
+    "groupTitle_other": "{{phase}} ({{count}} years)",
+    "groupStats": "Mean: {{mean}} ({{diff}} vs overall average)",
+    "groupRange": "Range: {{min}} to {{max}}",
+    "applyButton": "Apply this to the scenario",
+    "applyAria": "Apply {{phase}} preset to the scenario",
+    "stripLabel": "May-October wet-season rainfall by year (1995-2025)",
+    "yearAria": "{{year}}, {{phase}}, {{rain}}",
+    "yearDetail": "In {{year}} (dominant phase: {{phase}}), May-October rainfall was {{rain}} (mean ONI: {{oni}}, missing months: {{missing}}).",
+    "groupDetail": "In the {{count}} {{phase}} years ({{years}}), mean May-October rainfall was {{mean}} ({{diff}} vs overall average).",
+    "selectPrompt": "Select a phase group or a year above to inspect its May-October rainfall.",
+    "presetNames": {
+      "el_nino_drier": "El Nino: drier year",
+      "la_nina_wetter": "La Nina: wetter year"
+    },
+    "presetCheck": {
+      "same_direction_close": "Preset \"{{presetName}}\" ({{presetRain}}) goes in the same direction as the observed {{count}}-year average ({{observed}}) and is fairly close, though individual years vary widely.",
+      "same_direction_partly": "Preset \"{{presetName}}\" ({{presetRain}}) goes in the same direction as the observed {{count}}-year average ({{observed}}), but the magnitude differs: the data only partly supports this assumption.",
+      "diverges": "Preset \"{{presetName}}\" ({{presetRain}}) differs in direction from the observed {{count}}-year average ({{observed}}): the data does not support this assumption here.",
+      "insufficient_data": "Preset \"{{presetName}}\" ({{presetRain}}) cannot be reliably checked because only {{count}} years are in this group (observed: {{observed}})."
+    },
+    "table": {
+      "caption": "May-October seasonal rainfall by year",
+      "year": "Year",
+      "phase": "Dominant ENSO phase",
+      "rain": "May-Oct rainfall",
+      "oni": "Mean ONI"
+    },
+    "limitations": "Limitations: NASA POWER is a ~50 km reanalysis grid cell (14.59, -90.53), not a local weather station. ENSO alone does not explain any single year's rainfall, and the sample size (n) per group is small.",
+    "sources": "Sources: {{nasaSource}}; {{ensoSource}}."
+  }
+}

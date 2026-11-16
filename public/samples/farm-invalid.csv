@@ -1,0 +1,3 @@
+parcel_id,season_year,crop,sowing_date,harvest_date,area_ha,latitude,longitude,yield_kg_ha,irrigation,soil_ph,soil_om_pct,soil_n_mg_kg,soil_p_mg_kg,soil_k_mg_kg,rainfall_season_mm,notes
+parcel_01,2024,maize,2024-05-15,2024-10-20,2.5,14.5892,-90.5315,3200,rainfed,6.2,3.1,42.0,18.5,165.0,980.5,Valid reference row
+,2024,maize,15/05/2024,2024-04-01,-1.0,95.0,-90.5315,-50,unknown_method,12.5,3.1,,,,,Invalid parcel_id date order area lat yield irrigation and pH

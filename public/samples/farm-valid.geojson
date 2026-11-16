@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-90.5325, 14.5885],
+            [-90.5305, 14.5885],
+            [-90.5305, 14.59],
+            [-90.5325, 14.59],
+            [-90.5325, 14.5885]
+          ]
+        ]
+      },
+      "properties": {
+        "provisional": true,
+        "parcel_id": "parcel_01",
+        "season_year": 2025,
+        "crop": "maize",
+        "sowing_date": "2025-05-15",
+        "harvest_date": "2025-10-18",
+        "area_ha": 2.5,
+        "yield_kg_ha": 3150,
+        "irrigation": "rainfed",
+        "soil_ph": 6.2,
+        "soil_om_pct": 3.1,
+        "soil_n_mg_kg": 42.0,
+        "soil_p_mg_kg": 18.5,
+        "soil_k_mg_kg": 165.0,
+        "rainfall_season_mm": 995.0,
+        "notes": "Provisional Guatemala City polygon near INSIVUMEH reference station"
+      }
+    }
+  ]
+}

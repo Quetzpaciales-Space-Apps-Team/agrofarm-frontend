@@ -1,0 +1,67 @@
+.climate-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.enso-band--el_nino {
+  fill: rgba(217, 119, 6, 0.14);
+}
+
+.enso-band--la_nina {
+  fill: rgba(2, 132, 199, 0.14);
+}
+
+.enso-band--neutral,
+.enso-band--none {
+  fill: rgba(148, 163, 184, 0.08);
+}
+
+.enso-band-label {
+  font-size: 9px;
+  font-weight: 600;
+  fill: currentColor;
+  opacity: 0.7;
+}
+
+.swatch-enso--el_nino {
+  fill: rgba(217, 119, 6, 0.25);
+  stroke: rgba(217, 119, 6, 0.8);
+}
+
+.swatch-enso--la_nina {
+  fill: rgba(2, 132, 199, 0.25);
+  stroke: rgba(2, 132, 199, 0.8);
+}
+
+.swatch-enso--neutral {
+  fill: rgba(148, 163, 184, 0.18);
+  stroke: rgba(100, 116, 139, 0.7);
+}
+
+.climate-summary-card {
+  padding: 1rem;
+  border: 1px solid var(--color-border-soft, #e2e8f0);
+  border-radius: 0.5rem;
+  background: var(--surface, transparent);
+}
+
+.climate-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.climate-summary-grid dt {
+  font-size: 0.8125rem;
+  color: var(--color-muted, #64748b);
+}
+
+.climate-summary-grid dd {
+  margin: 0.125rem 0 0;
+  font-weight: 600;
+}

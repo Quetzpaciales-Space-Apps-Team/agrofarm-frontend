@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -39,12 +40,96 @@ jobs:
             *) echo "::error::Branch '$HEAD' does not follow the naming rule (feat/, fix/, chore/, docs/, test/, refactor/, ci/, hotfix/)."; exit 1 ;;
           esac
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: Verify generated OpenAPI types are up to date
+        run: |
+          npm run types
+          git diff --exit-code src/infrastructure/api/schema.d.ts
+      - run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx vitest run --coverage
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Check main bundle gzipped size budget (<= 250 kB)
+        run: |
+          MAX_BYTES=256000
+          for js_file in dist/assets/*.js; do
+            gzip_bytes=$(gzip -c "$js_file" | wc -c)
+            echo "$js_file gzipped size: ${gzip_bytes} bytes (budget: ${MAX_BYTES} bytes)"
+            if [ "$gzip_bytes" -gt "$MAX_BYTES" ]; then
+              echo "::error::Bundle $js_file exceeds 250 kB gzipped budget (${gzip_bytes} > ${MAX_BYTES})"
+              exit 1
+            fi
+          done
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t agrofarm-frontend:${{ github.sha }} .
+      - name: Verify non-root execution
+        run: |
+          uid=$(docker run --rm agrofarm-frontend:${{ github.sha }} id -u)
+          if [ "$uid" = "0" ]; then
+            echo "::error::Container must not run as root (uid=0)"
+            exit 1
+          fi
+
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image for scan
+        run: docker build -t agrofarm-frontend:${{ github.sha }} .
+      - name: Run Trivy vulnerability scanner
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.76.2
+          image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 agrofarm-frontend:${{ github.sha }}
+
   # The single required status check (rule G3). Keep the job name stable.
   # Add every new job to `needs`. A skipped job counts as passed, so path
   # filters (rule G3.1) never block or bypass this gate.
   ci-gate:
     if: always()
-    needs: [policy]
+    needs: [policy, lint, typecheck, test, build, docker-build, trivy]
     runs-on: ubuntu-latest
     steps:
       - name: Check results of all jobs
