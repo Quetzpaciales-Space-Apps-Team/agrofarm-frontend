@@ -108,7 +108,7 @@ export function Navigation() {
   return (
     <nav aria-label={t('navigation.label')} className="app-nav app-sidebar">
       <ul>
-        {links.map(({ to, key, icon }) => {
+        {links.map(({ to, key, icon }, index) => {
           const isActive = path === to;
           return (
             <li key={to}>
@@ -117,6 +117,9 @@ export function Navigation() {
                 className={isActive ? 'active' : undefined}
                 aria-current={isActive ? 'page' : undefined}
               >
+                <span className="app-nav__num" aria-hidden="true">
+                  {index + 1}
+                </span>
                 <span className="app-nav__icon">
                   <NavIcon icon={icon} />
                 </span>

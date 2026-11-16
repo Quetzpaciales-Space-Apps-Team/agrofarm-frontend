@@ -99,16 +99,49 @@
       "back": "Back to the step"
     },
     "crops": {
-      "title": "Built around the crops that feed and fund the region",
-      "maize": {
-        "name": "Maize",
-        "description": "The staple of the milpa and the crop the demo simulates today, with rotation partners such as beans."
+      "title": "The crops AgroFarm compares",
+      "intro": "Four options for a plot, from planting maize to leaving the land to rest. Each one gives something and asks for something in return.",
+      "photoCredit": "Photo: {{author}}, {{license}}, Wikimedia Commons",
+      "cacaoCredit": "Photo: Daderot, public domain, Wikimedia Commons",
+      "items": {
+        "maize": {
+          "name": "Maize",
+          "description": "A cereal. It sells well and needs plenty of water. It does not add nitrogen to the soil."
+        },
+        "black_beans": {
+          "name": "Black beans",
+          "description": "A legume. It adds nitrogen to the soil and needs less water than maize."
+        },
+        "cover_crop": {
+          "name": "Cover crop",
+          "description": "Grown to protect the soil. Best against erosion, with little income."
+        },
+        "fallow": {
+          "name": "Fallow",
+          "description": "Letting the plot rest. It needs no water and brings no income, and the bare soil is exposed."
+        },
+        "cacao": {
+          "name": "Cacao (not modelled yet)",
+          "description": "A tree crop, very sensitive to rain and heat. We show it as the kind of crop this approach should reach later."
+        }
       },
-      "cacao": {
-        "name": "Cacao",
-        "description": "A tree crop that is very sensitive to rain and heat. It shows the kind of long-lived crop this approach should reach later; it is not modelled yet."
-      },
-      "credit": "Photos: Wikimedia Commons, public domain or CC0."
+      "compare": {
+        "title": "How they compare at a glance",
+        "note": "A longer bar means more of it. Water is a cost, not a prize: more water needed is not better.",
+        "traits": {
+          "water": "Needs water",
+          "nitrogen": "Adds nitrogen to the soil",
+          "income": "Brings income",
+          "erosion": "Protects soil from washing away",
+          "market": "Easy to sell"
+        },
+        "levels": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        },
+        "source": "Illustration with the starting values of the team's crop table (version 0.1.0). They are provisional and not yet checked against sources. They are not measurements of your farm."
+      }
     },
     "hero": {
       "rangeTitle": "Maize yield versus a normal year",
@@ -264,30 +297,101 @@
     "titleAccount": "Your farm",
     "logout": "Log out",
     "sections": {
-      "farm": "Overview",
-      "data": "Farm data",
-      "scenarios": "Explore scenarios",
-      "recommendations": "Recommendations",
-      "climate": "Climate"
+      "farm": "My farm",
+      "data": "Add your farm data",
+      "scenarios": "Try a season",
+      "recommendations": "Best crops for your farm",
+      "climate": "Weather history"
     },
-    "quickLinksLabel": "Next steps",
+    "quickLinksLabel": "The steps",
     "quickLinks": {
-      "open": "Open section",
+      "open": "Go to this step",
       "data": {
-        "title": "Upload data",
-        "description": "Upload files and review what was accepted."
+        "title": "Add your data",
+        "description": "Upload what you know about your fields. Optional."
       },
       "scenarios": {
-        "title": "Explore scenarios",
-        "description": "Adjust weather assumptions and compare outcomes."
+        "title": "Try a season",
+        "description": "Move the sliders and see how a different season could change your harvest."
       },
       "recommendations": {
-        "title": "Compare rotations",
-        "description": "Review strategies, evidence and local risks."
+        "title": "See the best crops",
+        "description": "Compare what to plant, with the reasons and the risks."
       },
       "climate": {
-        "title": "View climate",
-        "description": "Review rainfall, temperature and ENSO history."
+        "title": "Check the weather",
+        "description": "See how rain, heat and El Nino or La Nina years behaved."
+      }
+    },
+    "stepOf": "Step {{n}} of {{total}}",
+    "pages": {
+      "farm": {
+        "lead": "This is your farm at a glance: how big it is, what is planted and where it sits. Start here, then follow the numbered steps.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Check that the size and the crops are right.",
+          "Look at the map to see where the farm is.",
+          "Pick a step below. Step 3 is the quickest way to see results."
+        ]
+      },
+      "data": {
+        "lead": "Tell us what you know about your fields, such as past harvests, soil and rain. The more you add, the better the results fit your farm. You can also skip this and keep using the example data.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Download the blank table. It is a CSV file you can open in Excel.",
+          "Fill it in and upload it.",
+          "Read the check. It says what was accepted and what is missing."
+        ]
+      },
+      "scenarios": {
+        "lead": "No season repeats. Move the sliders to imagine a drier, wetter, hotter or cooler season and see how the harvest could change. The answer is a range, not a promise.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Move the rainfall and temperature sliders.",
+          "Choose a weather pattern: normal, El Nino or La Nina.",
+          "Read the bar. The coloured band is the likely range."
+        ]
+      },
+      "recommendations": {
+        "lead": "Here we compare crop rotations, which means what to plant and in what order. Tell us what matters most to you and we rank the options.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Set what matters to you: water, income, soil and more.",
+          "Compare the options in the list.",
+          "Open one to see why, the evidence and the risks."
+        ]
+      },
+      "climate": {
+        "lead": "How rain and temperature have behaved near your farm. Use it to see what is normal and which years were unusual.",
+        "doTitle": "What to do here",
+        "steps": [
+          "Pick the months you want to see.",
+          "Bars show rain. Lines show temperature.",
+          "Grey bands mean there is no data for that month."
+        ]
+      }
+    },
+    "next": {
+      "label": "Your next step",
+      "farm": {
+        "to": "Add your farm data",
+        "hint": "Optional. Skip it if you just want to explore."
+      },
+      "data": {
+        "to": "Try a season",
+        "hint": "See how the weather could change your harvest."
+      },
+      "scenarios": {
+        "to": "See the best crops",
+        "hint": "Compare rotations for your farm."
+      },
+      "recommendations": {
+        "to": "Check the weather history",
+        "hint": "See what rain and heat were like in past years."
+      },
+      "climate": {
+        "to": "Back to My farm",
+        "hint": "Start again or pick another step."
       }
     }
   },
@@ -297,18 +401,18 @@
     "items": {
       "overview": "My farm",
       "farm": "My farm",
-      "data": "Farm data",
-      "scenario": "Explore scenarios",
-      "scenarios": "Explore scenarios",
-      "climate": "Climate",
+      "data": "Add your data",
+      "scenario": "Try a season",
+      "scenarios": "Try a season",
+      "climate": "Weather",
       "results": "Results",
-      "recommendations": "Recommendations"
+      "recommendations": "Best crops"
     }
   },
   "farm": {
     "loading": "Loading farm...",
-    "area": "Area",
-    "rotation": "Current rotation",
+    "area": "Size",
+    "rotation": "What you plant, in order",
     "noRotation": "No rotation recorded for this farm yet.",
     "selectFarm": "Select farm",
     "map": {
@@ -371,16 +475,24 @@
         "invalidCoordinates": "Invalid coordinates. The coordinates must be a valid GeoJSON polygon ring with at least 4 coordinate positions.",
         "generic": "Failed to create farm. Please verify inputs and try again."
       }
+    },
+    "cropMap": {
+      "alt": "Map of the area around {{name}}. A green shape shows where the farm is.",
+      "legend": "Your farm",
+      "zoomIn": "Zoom in on the map",
+      "zoomOut": "Zoom out on the map",
+      "credit": "© OpenStreetMap contributors",
+      "tilesFailed": "The map picture could not load. The green outline of your farm is still correct."
     }
   },
   "climate": {
-    "title": "Climate history",
-    "intro": "Monthly rainfall and temperature near the farm. Pick the months you want to look at.",
+    "title": "Rain and temperature near your farm",
+    "intro": "Each blue bar is one month of rain. The red line is the average temperature. Coloured stripes behind show El Nino and La Nina periods.",
     "loading": "Loading climate data...",
     "empty": "No climate data is available for this location yet.",
     "from": "From",
     "to": "To",
-    "showEnso": "Show ENSO phases",
+    "showEnso": "Show El Nino and La Nina periods",
     "noData": "No data",
     "noDataShort": "no data",
     "chart": {
@@ -388,7 +500,8 @@
       "description": "Bars show rainfall in mm per month, from {{rainMin}} to {{rainMax}}. Lines show mean, minimum and maximum temperature in °C, from {{tempMin}} to {{tempMax}}.",
       "gaps_zero": "Every month has data.",
       "gaps_one": "{{count}} month has no data and is left blank.",
-      "gaps_other": "{{count}} months have no data and are left blank."
+      "gaps_other": "{{count}} months have no data and are left blank.",
+      "howToRead": "How to read it: a taller bar means a rainier month. The red line going up means a warmer month."
     },
     "axis": {
       "rain": "Rainfall (mm per month)",
@@ -396,22 +509,23 @@
     },
     "legend": {
       "title": "Chart legend",
-      "rain": "Rainfall (mm per month), bars",
-      "mean": "Mean temperature (°C), solid line",
-      "min": "Minimum temperature (°C), dashed line",
-      "max": "Maximum temperature (°C), dotted line",
-      "noData": "No data, hatched band",
-      "elNino": "El Nino (EN), shaded warm band",
-      "laNina": "La Nina (LN), shaded cool band",
-      "neutral": "Neutral (NE), neutral band"
+      "rain": "Blue bars: how much rain fell each month (mm)",
+      "mean": "Red line: average temperature (°C)",
+      "min": "Dashed line: coolest temperature (°C)",
+      "max": "Dotted line: warmest temperature (°C)",
+      "noData": "Grey stripes: no data for that month",
+      "elNino": "Orange background: El Nino period (EN)",
+      "laNina": "Blue background: La Nina period (LN)",
+      "neutral": "No colour: a normal period (NE)"
     },
     "summary": {
-      "title": "Period summary",
-      "wettest": "Wettest month",
+      "title": "This period in plain words",
+      "wettest": "Rainiest month",
       "driest": "Driest month",
-      "totalRain": "Total rainfall",
-      "meanTemp": "Mean temperature",
+      "totalRain": "Total rain",
+      "meanTemp": "Average temperature",
       "monthValue": "{{month}} ({{value}})",
+      "typical": "Usually the rainiest months are {{wet}}, and the driest are {{dry}}.",
       "ensoCoincidence": "Across {{months}} months, this period coincides with {{elNino}} El Nino month(s) and {{laNina}} La Nina month(s)."
     },
     "missing": {
@@ -436,13 +550,14 @@
       "max": "Maximum temperature (°C)"
     },
     "source": {
-      "title": "Data source",
+      "title": "Where this data comes from",
       "dataset": "Source",
       "link": "NASA POWER website",
       "attribution": "Attribution",
       "resolution": "Resolution",
       "disclaimer": "Disclaimer"
-    }
+    },
+    "showRange": "Also show the coolest and warmest temperatures"
   },
   "enso": {
     "title": "El Nino and La Nina phases",
@@ -463,7 +578,7 @@
     "loading": "Loading farm crops...",
     "rainfall": "Rainfall change",
     "temperature": "Temperature change",
-    "enso": "ENSO phase (El Nino or La Nina)",
+    "enso": "Weather pattern (El Nino, La Nina or normal)",
     "crop": "Crop",
     "reset": "Reset scenario",
     "noCrops": "No crops recorded for this farm yet, so a crop simulation is not possible.",
@@ -506,7 +621,7 @@
     "input": {
       "rainfall_change_pct": "Rainfall change",
       "temperature_change_c": "Temperature change",
-      "enso_phase": "ENSO phase"
+      "enso_phase": "Weather pattern"
     },
     "target": {
       "intro": "{{crop}}: {{target}}, shown in {{unit}}.",
@@ -602,6 +717,38 @@
       "termsHeading": "Terms used in this comparison",
       "termsHint": "Hover, focus or tap a term to see what it means.",
       "glossaryNote": "These plain-language definitions are drafts and still need an agronomist's review."
+    },
+    "crops": {
+      "maize": {
+        "name": "Maize",
+        "happens": "Takes a lot of water and sells well. It uses up nitrogen, so the soil needs something that gives it back."
+      },
+      "black_beans": {
+        "name": "Black beans",
+        "happens": "Puts nitrogen back into the soil and needs less water than maize. It sells reasonably well."
+      },
+      "cover_crop": {
+        "name": "Cover crop",
+        "happens": "Covers the ground, so rain washes away less soil. It brings little or no income this season."
+      },
+      "fallow": {
+        "name": "Fallow",
+        "happens": "The plot rests: no water is used and there is no income. The bare soil is open to rain and washing away."
+      }
+    },
+    "detail": {
+      "back": "Back to the comparison",
+      "season": "Season {{n}}",
+      "sequenceLabel": "Crops in order",
+      "unknownCrop": "No photo for this crop",
+      "overall": "Overall score: {{score}} out of 100",
+      "happensTitle": "What happens in each season",
+      "mapTitle": "How your farm would look",
+      "mapIntro": "The same plot in each season. The pattern shows what is growing on it.",
+      "mapLabel": "Your farm seen from above in {{season}}: {{crop}}",
+      "mapLoading": "Loading the map of your farm...",
+      "noMap": "This farm has no map outline yet, so the plot cannot be drawn.",
+      "moreTitle": "All the details"
     }
   },
   "glossary": {
@@ -877,7 +1024,7 @@
     }
   },
   "vegetation": {
-    "title": "Regional vegetation outlook (NDVI)",
+    "title": "How green the crops could look from space",
     "intro": "Estimate regional cropland greenness using the rainfall, temperature and ENSO controls above. This is a conditional scenario, not parcel yield, crop growth or an ENSO forecast. The original validation goal was not reached.",
     "run": "Estimate regional greenness",
     "loading": "Estimating regional greenness…",

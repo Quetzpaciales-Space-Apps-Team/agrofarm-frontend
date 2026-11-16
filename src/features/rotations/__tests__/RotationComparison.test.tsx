@@ -148,9 +148,16 @@ describe('RotationComparison (FE-403)', () => {
     for (const item of items) expect(item.textContent).toMatch(/\b(\d{1,3}) out of 100/);
   });
 
-  it('shows the five required blocks with evidence sources and a needs-local-review marker on every strategy', async () => {
+  it('marks every strategy as needing local review, and shows the five blocks on its detail screen', async () => {
     await ready();
-    for (const card of cards()) {
+    const total = cards().length;
+    for (let index = 0; index < total; index += 1) {
+      const card = cards()[index];
+      expect(card).toHaveTextContent(/needs local review/i);
+      await userEvent.click(within(card).getByRole('button', { name: /view details/i }));
+      const detail = await screen.findByRole('article', {
+        name: card.querySelector('h4')?.textContent ?? '',
+      });
       for (const heading of [
         /why it was suggested/i,
         /evidence/i,
@@ -158,10 +165,11 @@ describe('RotationComparison (FE-403)', () => {
         /information gaps/i,
         /risks to check locally/i,
       ]) {
-        expect(within(card).getByRole('heading', { name: heading })).toBeInTheDocument();
+        expect(within(detail).getByRole('heading', { name: heading })).toBeInTheDocument();
       }
-      expect(within(card).getAllByText(/^Source: /).length).toBeGreaterThan(0);
-      expect(card).toHaveTextContent(/needs local review/i);
+      expect(within(detail).getAllByText(/^Source: /).length).toBeGreaterThan(0);
+      await userEvent.click(screen.getByRole('button', { name: /back to the comparison/i }));
+      await screen.findAllByRole('article');
     }
   });
 
@@ -218,10 +226,11 @@ describe('RotationComparison (FE-403)', () => {
     await expectNoAxeViolations(container);
   });
 
-  it('renders collapsible detail sections for why, evidence, benefits, gaps, and risks', async () => {
+  it('keeps the card short: no dropdown sections, the reasons live on the detail screen', async () => {
     await ready();
     const firstCard = cards()[0];
-    const details = firstCard.querySelectorAll('details');
-    expect(details).toHaveLength(5);
+    expect(firstCard.querySelectorAll('details')).toHaveLength(0);
+    expect(within(firstCard).queryByText(/why it was suggested/i)).toBeNull();
+    expect(within(firstCard).getByRole('button', { name: /view details/i })).toBeInTheDocument();
   });
 });

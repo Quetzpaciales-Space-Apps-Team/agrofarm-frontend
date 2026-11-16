@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/AsyncState';
 import { formatArea, humanizeId } from '../../../domain/months';
@@ -8,7 +8,7 @@ import { useApi } from '../../../services/ApiContext';
 import { updateFarm } from '../../../services/api';
 import type { Farm } from '../../../services/types';
 
-export function FarmDashboard({ farmId }: { farmId: string }) {
+export function FarmDashboard({ farmId, after }: { farmId: string; after?: ReactNode }) {
   const { t, i18n } = useTranslation();
   const { resource, reload } = useFarm(farmId);
   const { client } = useApi();
@@ -54,6 +54,7 @@ export function FarmDashboard({ farmId }: { farmId: string }) {
           </div>
         </dl>
       </section>
+      {after}
       <FarmZoneMap
         farmId={farm.id}
         farmName={farm.name}

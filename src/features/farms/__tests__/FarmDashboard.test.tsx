@@ -33,7 +33,7 @@ describe('FarmDashboard', () => {
       await screen.findByRole('heading', { name: /Guatemala Pilot Farm \(Provisional\)/ }),
     ).toBeInTheDocument();
     expect(screen.getByText('119.4 ha')).toBeInTheDocument();
-    const rotation = screen.getByRole('list', { name: /current rotation/i });
+    const rotation = screen.getByRole('list', { name: /what you plant/i });
     expect(rotation).toHaveTextContent('Maize');
     expect(rotation).toHaveTextContent('Fallow');
   });

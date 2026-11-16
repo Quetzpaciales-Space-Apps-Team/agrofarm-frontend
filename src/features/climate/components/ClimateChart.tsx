@@ -19,10 +19,13 @@ export function ClimateChart({
   rows,
   enso = [],
   showEnso = false,
+  showRange = true,
 }: {
   rows: ClimateRow[];
   enso?: readonly EnsoCell[];
   showEnso?: boolean;
+  /** Draw the coolest and warmest temperature lines as well as the average. */
+  showRange?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
@@ -159,23 +162,25 @@ export function ClimateChart({
           />
         ),
       )}
-      {chart.lines.map((line) =>
-        line.segments.map((segment, index) => {
-          const d = segment
-            .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
-            .join(' ');
-          const cls = line.key.replace('temperature_', '').replace('_c', '');
-          // A single isolated month has no line to draw: show it as a short dash.
-          const single = segment.length === 1 ? segment[0] : null;
-          return (
-            <path
-              key={`${line.key}-${index}`}
-              className={`line line--${cls}`}
-              d={single ? `M${single.x - 3} ${single.y} L${single.x + 3} ${single.y}` : d}
-            />
-          );
-        }),
-      )}
+      {chart.lines
+        .filter((line) => showRange || line.key === 'temperature_mean_c')
+        .map((line) =>
+          line.segments.map((segment, index) => {
+            const d = segment
+              .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+              .join(' ');
+            const cls = line.key.replace('temperature_', '').replace('_c', '');
+            // A single isolated month has no line to draw: show it as a short dash.
+            const single = segment.length === 1 ? segment[0] : null;
+            return (
+              <path
+                key={`${line.key}-${index}`}
+                className={`line line--${cls}`}
+                d={single ? `M${single.x - 3} ${single.y} L${single.x + 3} ${single.y}` : d}
+              />
+            );
+          }),
+        )}
       {chart.centers.map((center, index) =>
         index % step === 0 ? (
           <text key={center.month} x={center.x} y={bottom + 16} textAnchor="middle">

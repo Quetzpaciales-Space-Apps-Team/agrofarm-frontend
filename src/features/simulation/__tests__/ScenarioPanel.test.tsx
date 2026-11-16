@@ -48,7 +48,7 @@ describe('ScenarioPanel (FE-304)', () => {
     expect(temp()).toHaveAttribute('min', '-5');
     expect(temp()).toHaveAttribute('max', '8');
     expect(temp()).toHaveAttribute('step', '0.5');
-    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('neutral');
+    expect(screen.getByLabelText(/weather pattern/i)).toHaveValue('neutral');
   });
 
   it('lists the demo farm crops (without fallow) in the crop select', async () => {
@@ -73,7 +73,7 @@ describe('ScenarioPanel (FE-304)', () => {
     await ready();
     fireEvent.change(rain(), { target: { value: '-20' } });
     fireEvent.change(temp(), { target: { value: '1' } });
-    await userEvent.selectOptions(screen.getByLabelText(/enso phase/i), 'el_nino');
+    await userEvent.selectOptions(screen.getByLabelText(/weather pattern/i), 'el_nino');
     const table = await screen.findByRole('table', { name: /baseline and scenario/i });
     await waitFor(() => expect(table).toHaveTextContent('-15.5 %'));
     expect(table).toHaveTextContent('-27.5 %');
@@ -109,7 +109,7 @@ describe('ScenarioPanel (FE-304)', () => {
     await ready();
     fireEvent.change(rain(), { target: { value: '-20' } });
     fireEvent.change(temp(), { target: { value: '1' } });
-    await userEvent.selectOptions(screen.getByLabelText(/enso phase/i), 'el_nino');
+    await userEvent.selectOptions(screen.getByLabelText(/weather pattern/i), 'el_nino');
     await waitFor(() => {
       const list = screen.getByRole('list', { name: /what drives the change/i });
       const items = within(list).getAllByRole('listitem');
@@ -198,11 +198,11 @@ describe('ScenarioPanel (FE-304)', () => {
   it('resets the scenario with the reset button', async () => {
     await ready();
     fireEvent.change(rain(), { target: { value: '40' } });
-    await userEvent.selectOptions(screen.getByLabelText(/enso phase/i), 'la_nina');
+    await userEvent.selectOptions(screen.getByLabelText(/weather pattern/i), 'la_nina');
     await userEvent.click(screen.getByRole('button', { name: /reset scenario/i }));
     expect(rain()).toHaveValue('0');
     expect(temp()).toHaveValue('0');
-    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('neutral');
+    expect(screen.getByLabelText(/weather pattern/i)).toHaveValue('neutral');
   });
 
   it('shows an error with a retry button, then recovers', async () => {
@@ -265,7 +265,7 @@ describe('ScenarioPanel (FE-304)', () => {
     expect(elNinoBtn).toHaveAttribute('aria-pressed', 'true');
     expect(rain()).toHaveValue('-20');
     expect(temp()).toHaveValue('1.5');
-    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('el_nino');
+    expect(screen.getByLabelText(/weather pattern/i)).toHaveValue('el_nino');
 
     // Manual slider change clears active preset
     fireEvent.change(rain(), { target: { value: '-35' } });
@@ -277,7 +277,7 @@ describe('ScenarioPanel (FE-304)', () => {
     expect(normalBtn).toHaveAttribute('aria-pressed', 'true');
     expect(rain()).toHaveValue('0');
     expect(temp()).toHaveValue('0');
-    expect(screen.getByLabelText(/enso phase/i)).toHaveValue('neutral');
+    expect(screen.getByLabelText(/weather pattern/i)).toHaveValue('neutral');
   });
 
   it.each([
