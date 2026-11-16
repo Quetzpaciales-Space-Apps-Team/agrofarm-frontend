@@ -17,6 +17,7 @@ import {
 import { useFarm } from '../../farms/hooks/useFarm';
 import { useScenario } from '../state/scenario';
 import { ClimateRealityCheck } from './ClimateRealityCheck';
+import { CropStressTest } from './CropStressTest';
 import { SimulationResults } from './SimulationResults';
 import '../simulation.css';
 
@@ -179,6 +180,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
         </>
       )}
       <ClimateRealityCheck onApplyPreset={update} />
+      <CropStressTest farmId={farmId} />
     </section>
   );
 }
