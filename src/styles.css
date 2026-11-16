@@ -4427,3 +4427,33 @@ body {
 .landing-footer__legal a {
   color: var(--on-night-muted);
 }
+
+/* desktop side menu: never show a horizontal scrollbar (the steps used to fill it to the pixel) */
+@media (min-width: 48rem) {
+  .app-root--internal .app-nav.app-sidebar {
+    overflow-x: hidden;
+  }
+  .app-root--internal .app-sidebar ul {
+    overflow: visible;
+    padding-inline: 0.75rem;
+  }
+  .app-root--internal .app-sidebar a {
+    min-width: 0;
+    gap: 0.6rem;
+  }
+  .app-root--internal .app-sidebar .app-nav__label {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* small screens: the step bar swipes sideways, without drawing a scrollbar */
+@media (max-width: 47.99rem) {
+  .app-root--internal .app-nav.app-sidebar,
+  .app-root--internal .app-nav ul {
+    scrollbar-width: none;
+  }
+  .app-root--internal .app-nav.app-sidebar::-webkit-scrollbar,
+  .app-root--internal .app-nav ul::-webkit-scrollbar {
+    display: none;
+  }
+}
