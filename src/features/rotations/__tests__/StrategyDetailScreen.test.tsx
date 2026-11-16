@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ApiProvider } from '../../../services/ApiContext';
 import { DEMO_FARM_ID, DISCLAIMER_TEXT, recommendStub } from '../../../test/handlers';
 import { expectNoAxeViolations } from '../../../test/axe';
@@ -64,22 +64,57 @@ const openFirst = async () => {
   const user = userEvent.setup();
   const card = screen.getAllByRole('article')[0];
   const trigger = within(card).getByRole('button', { name: /details/i });
+  const name = within(card).getByRole('heading', { level: 4 }).textContent ?? '';
   await user.click(trigger);
-  return { user, trigger, card };
+  const screenEl = await screen.findByRole('article', { name });
+  return { user, trigger, card, screenEl, name };
 };
 
-describe('Strategy detail drawer (FE-404)', () => {
-  it('opens from a strategy card as a dialog named after the strategy', async () => {
+describe('Strategy detail screen', () => {
+  it('opens as a screen of its own, named after the strategy, in place of the list', async () => {
     await ready();
-    const { card } = await openFirst();
-    const name = within(card).getByRole('heading', { level: 4 }).textContent ?? '';
-    expect(screen.getByRole('dialog', { name })).toBeInTheDocument();
+    const { screenEl, name } = await openFirst();
+    expect(within(screenEl).getByRole('heading', { level: 3, name })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /compare rotation strategies/i })).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('shows a photo for each crop of the strategy in a banner, in order', async () => {
+    await ready();
+    const { screenEl } = await openFirst();
+    const strip = within(screenEl).getByRole('list', { name: /crops in order/i });
+    expect(strip.querySelectorAll('img')).toHaveLength(2);
+    expect(strip).toHaveTextContent(/season 1/i);
+    expect(strip).toHaveTextContent(/season 2/i);
+  });
+
+  it('says in plain words what happens in each season', async () => {
+    await ready();
+    const { screenEl } = await openFirst();
+    expect(
+      within(screenEl).getByRole('heading', { name: /what happens in each season/i }),
+    ).toBeInTheDocument();
+    expect(within(screenEl).getByRole('heading', { name: /season 1: maize/i })).toBeInTheDocument();
+    expect(screenEl).toHaveTextContent(/takes a lot of water/i);
+  });
+
+  it('draws the farm for each season with the crop on top', async () => {
+    await ready();
+    const { screenEl } = await openFirst();
+    expect(
+      await within(screenEl).findByRole('region', {
+        name: /seen from above in season 1: maize/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(screenEl).getByRole('region', { name: /seen from above in season 2: black beans/i }),
+    ).toBeInTheDocument();
+    expect(screenEl.querySelectorAll('polygon.farm-map__outline-fill')).toHaveLength(2);
   });
 
   it('shows the five blocks, the score by priority and the review and decision-support notes', async () => {
     await ready();
-    await openFirst();
-    const dialog = screen.getByRole('dialog');
+    const { screenEl } = await openFirst();
     for (const heading of [
       /why it was suggested/i,
       /evidence/i,
@@ -87,13 +122,13 @@ describe('Strategy detail drawer (FE-404)', () => {
       /information gaps/i,
       /risks to check locally/i,
     ]) {
-      expect(within(dialog).getByRole('heading', { name: heading })).toBeInTheDocument();
+      expect(within(screenEl).getByRole('heading', { name: heading })).toBeInTheDocument();
     }
-    expect(within(dialog).getByRole('list', { name: /scores by priority/i })).toBeInTheDocument();
-    expect(dialog).toHaveTextContent(/overall score: \d+ out of 100/i);
-    expect(dialog).toHaveTextContent(/provisional/i);
-    expect(dialog).toHaveTextContent(/local expert/i);
-    expect(within(dialog).queryByText(/\bbest\b/i)).not.toBeInTheDocument();
+    expect(within(screenEl).getByRole('list', { name: /scores by priority/i })).toBeInTheDocument();
+    expect(screenEl).toHaveTextContent(/overall score: \d+ out of 100/i);
+    expect(screenEl).toHaveTextContent(/provisional/i);
+    expect(screenEl).toHaveTextContent(/local expert/i);
+    expect(within(screenEl).queryByText(/\bbest\b/i)).not.toBeInTheDocument();
   });
 
   it('links an evidence source only when the item has a URL, and never invents one', async () => {
@@ -108,19 +143,19 @@ describe('Strategy detail drawer (FE-404)', () => {
       });
     });
     await ready();
-    await openFirst();
-    const dialog = screen.getByRole('dialog');
-    const links = within(dialog).getAllByRole('link');
+    const { screenEl } = await openFirst();
+    const links = within(screenEl)
+      .getAllByRole('link')
+      .filter((link) => link.getAttribute('href')?.startsWith('https://example.org'));
     expect(links).toHaveLength(1);
     expect(links[0]).toHaveAttribute('href', 'https://example.org/doc-a');
     expect(links[0]).toHaveAttribute('rel', expect.stringContaining('noopener'));
-    expect(dialog).toHaveTextContent('Source: crop_traits');
+    expect(screenEl).toHaveTextContent('Source: crop_traits');
   });
 
-  it('provides glossary tooltips for the five terms inside the drawer', async () => {
+  it('provides glossary tooltips for the five terms on the screen', async () => {
     await ready();
-    await openFirst();
-    const dialog = screen.getByRole('dialog');
+    const { screenEl } = await openFirst();
     for (const name of [
       /evapotranspiration/i,
       /ndvi/i,
@@ -128,7 +163,7 @@ describe('Strategy detail drawer (FE-404)', () => {
       /frost risk/i,
       /water balance/i,
     ]) {
-      const term = within(dialog).getAllByRole('button', { name })[0];
+      const term = within(screenEl).getAllByRole('button', { name })[0];
       await userEvent.hover(term);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
       await userEvent.unhover(term);
@@ -143,34 +178,29 @@ describe('Strategy detail drawer (FE-404)', () => {
       });
     });
     await ready();
-    await openFirst();
-    const why = within(screen.getByRole('dialog'))
+    const { screenEl } = await openFirst();
+    const why = within(screenEl)
       .getByText(/in the dry season/i)
       .closest('li') as HTMLElement;
     expect(within(why).getByRole('button', { name: 'NDVI' })).toBeInTheDocument();
   });
 
-  it('closes with Escape and gives focus back to the card button', async () => {
-    await ready();
-    const { user, trigger } = await openFirst();
-    await user.keyboard('{Escape}');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(trigger).toHaveFocus();
-  });
-
-  it('keeps focus inside while tabbing', async () => {
+  it('goes back to the comparison and puts focus on its title', async () => {
     await ready();
     const { user } = await openFirst();
-    const dialog = screen.getByRole('dialog');
-    for (let i = 0; i < 15; i += 1) {
-      await user.tab();
-      expect(dialog).toContainElement(document.activeElement as HTMLElement);
-    }
+    await user.click(screen.getByRole('button', { name: /back to the comparison/i }));
+    expect(
+      await screen.findByRole('heading', { name: /compare rotation strategies/i }),
+    ).toBeInTheDocument();
+    await vi.waitFor(() =>
+      expect(screen.getByRole('heading', { name: /compare rotation strategies/i })).toHaveFocus(),
+    );
   });
 
-  it('has no axe violations with the drawer open', async () => {
+  it('has no axe violations on the screen', async () => {
     await ready();
     await openFirst();
+    await screen.findByRole('region', { name: /seen from above in season 1/i });
     await expectNoAxeViolations(document.body);
   });
 });

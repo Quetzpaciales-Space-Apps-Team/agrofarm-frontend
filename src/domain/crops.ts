@@ -6,8 +6,10 @@
 export const TRAIT_KEYS = ['water', 'nitrogen', 'income', 'erosion', 'market'] as const;
 export type TraitKey = (typeof TRAIT_KEYS)[number];
 
+export type CropId = 'maize' | 'black_beans' | 'cover_crop' | 'fallow';
+
 export interface CropInfo {
-  id: 'maize' | 'black_beans' | 'cover_crop' | 'fallow';
+  id: CropId;
   image: string;
   author: string;
   license: string;
@@ -47,3 +49,12 @@ export const CROPS: readonly CropInfo[] = [
 
 export const level = (value: number): 'low' | 'medium' | 'high' =>
   value < 0.34 ? 'low' : value < 0.67 ? 'medium' : 'high';
+
+/** Finds a pilot crop from a strategy step such as "black_beans" or "Black beans". */
+export function cropFor(step: string): CropInfo | undefined {
+  const key = step
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+  return CROPS.find((crop) => crop.id === key);
+}

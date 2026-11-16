@@ -689,6 +689,38 @@
       "termsHeading": "Terms used in this comparison",
       "termsHint": "Hover, focus or tap a term to see what it means.",
       "glossaryNote": "These plain-language definitions are drafts and still need an agronomist's review."
+    },
+    "crops": {
+      "maize": {
+        "name": "Maize",
+        "happens": "Takes a lot of water and sells well. It uses up nitrogen, so the soil needs something that gives it back."
+      },
+      "black_beans": {
+        "name": "Black beans",
+        "happens": "Puts nitrogen back into the soil and needs less water than maize. It sells reasonably well."
+      },
+      "cover_crop": {
+        "name": "Cover crop",
+        "happens": "Covers the ground, so rain washes away less soil. It brings little or no income this season."
+      },
+      "fallow": {
+        "name": "Fallow",
+        "happens": "The plot rests: no water is used and there is no income. The bare soil is open to rain and washing away."
+      }
+    },
+    "detail": {
+      "back": "Back to the comparison",
+      "season": "Season {{n}}",
+      "sequenceLabel": "Crops in order",
+      "unknownCrop": "No photo for this crop",
+      "overall": "Overall score: {{score}} out of 100",
+      "happensTitle": "What happens in each season",
+      "mapTitle": "How your farm would look",
+      "mapIntro": "The same plot in each season. The pattern shows what is growing on it.",
+      "mapLabel": "Your farm seen from above in {{season}}: {{crop}}",
+      "mapLoading": "Loading the map of your farm...",
+      "noMap": "This farm has no map outline yet, so the plot cannot be drawn.",
+      "moreTitle": "All the details"
     }
   },
   "glossary": {

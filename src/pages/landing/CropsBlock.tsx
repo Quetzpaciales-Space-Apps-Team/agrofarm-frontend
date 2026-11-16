@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CROPS, TRAIT_KEYS, level } from './cropData';
+import { CROPS, TRAIT_KEYS, level } from '../../domain/crops';
 
 const reveal = (index: number) => ({
   'data-reveal': '',

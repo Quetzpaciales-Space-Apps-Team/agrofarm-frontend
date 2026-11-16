@@ -12,11 +12,19 @@ export function RotationsSection({
   scenario: ScenarioInput;
 }) {
   const [revision, setRevision] = useState(0);
+  const [detailOpen, setDetailOpen] = useState(false);
   const onSaved = useCallback(() => setRevision((n) => n + 1), []);
   return (
     <>
-      <PrioritiesForm farmId={farmId} onSaved={onSaved} />
-      <RotationComparison farmId={farmId} scenario={scenario} revision={revision} />
+      <div hidden={detailOpen}>
+        <PrioritiesForm farmId={farmId} onSaved={onSaved} />
+      </div>
+      <RotationComparison
+        farmId={farmId}
+        scenario={scenario}
+        revision={revision}
+        onDetailChange={setDetailOpen}
+      />
     </>
   );
 }

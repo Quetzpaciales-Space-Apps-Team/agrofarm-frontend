@@ -3663,3 +3663,167 @@ body {
   color: var(--color-muted);
   text-align: center;
 }
+
+/* crop photos on a strategy card and in the detail banner */
+.crop-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+.crop-strip__item {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+}
+.crop-strip__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.crop-strip__blank {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+.crop-strip__label {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: grid;
+  padding: 1.6rem 0.6rem 0.45rem;
+  color: #fff;
+  background: linear-gradient(to top, rgb(10 20 14 / 82%), transparent);
+}
+.crop-strip__label small {
+  font-size: 0.72rem;
+  opacity: 0.9;
+}
+.crop-strip__label strong {
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+.crop-strip__item:not(:last-child)::after {
+  content: '\2192';
+  position: absolute;
+  z-index: 1;
+  right: 0.4rem;
+  top: 45%;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  font-weight: 700;
+  color: #183d30;
+  background: #fffefa;
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+}
+
+/* the strategy screen */
+.strategy-hero {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1rem, 2.5vw, 1.6rem);
+  color: #f4f1e6;
+  background: #14281f;
+  border-radius: var(--radius-lg);
+}
+.strategy-hero h3 {
+  color: #f4f1e6;
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  margin: 0 0 0.5rem;
+}
+.strategy-hero .source {
+  color: #bccabf;
+}
+.strategy-hero__score {
+  margin: 0.5rem 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+.crop-strip--banner {
+  gap: 0.75rem;
+}
+.crop-strip--banner .crop-strip__item {
+  aspect-ratio: 16 / 10;
+}
+.crop-strip--banner .crop-strip__label {
+  padding: 2.4rem 1rem 0.8rem;
+}
+.crop-strip--banner .crop-strip__label strong {
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 2.6vw, 1.8rem);
+}
+.crop-strip--banner .crop-strip__label small {
+  font-size: 0.85rem;
+}
+.crop-strip--banner .crop-strip__item:not(:last-child)::after {
+  width: 2.6rem;
+  height: 2.6rem;
+  font-size: 1.3rem;
+  right: 0.6rem;
+}
+.strategy-screen .badges {
+  margin: 0;
+}
+.happens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+.happens li {
+  padding: 1rem 1.1rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+}
+.happens h5 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+.happens p {
+  margin: 0;
+  line-height: 1.55;
+}
+.season-maps {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+.season-map {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.season-map figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  align-items: baseline;
+}
+.farm-map--compact {
+  padding: 0;
+  gap: 0.5rem;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.farm-map--compact .farm-map__frame {
+  height: 15rem;
+}
+.strategy .crop-strip {
+  margin-bottom: 0.25rem;
+}

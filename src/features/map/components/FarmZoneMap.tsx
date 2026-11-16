@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { CropId } from '../../../domain/crops';
 import { formatArea } from '../../../domain/months';
 
 export interface FarmZoneMapProps {
@@ -9,6 +10,41 @@ export interface FarmZoneMapProps {
     type?: string;
     coordinates?: number[][][];
   };
+  /** Shows what is growing on the plot, as a pattern inside the outline. */
+  crop?: CropId;
+  /** A small map with no text around it. `label` then names it for screen readers. */
+  compact?: boolean;
+  label?: string;
+}
+
+/** Fill patterns that suggest each crop seen from above. */
+function CropPatterns({ id }: { id: string }) {
+  return (
+    <defs>
+      <pattern id={`${id}-maize`} width="16" height="16" patternUnits="userSpaceOnUse">
+        <rect width="16" height="16" fill="#5aa02c" fillOpacity="0.62" />
+        <path d="M4 0v16M12 0v16" stroke="#1d4935" strokeWidth="2" />
+        <circle cx="4" cy="5" r="2" fill="#e8bf58" />
+        <circle cx="12" cy="11" r="2" fill="#e8bf58" />
+      </pattern>
+      <pattern id={`${id}-black_beans`} width="14" height="14" patternUnits="userSpaceOnUse">
+        <rect width="14" height="14" fill="#3d7a45" fillOpacity="0.62" />
+        <path d="M0 3.5h14M0 10.5h14" stroke="#14281f" strokeWidth="2" />
+        <ellipse cx="4" cy="7" rx="2" ry="1.3" fill="#20382c" />
+        <ellipse cx="10" cy="14" rx="2" ry="1.3" fill="#20382c" />
+      </pattern>
+      <pattern id={`${id}-cover_crop`} width="10" height="10" patternUnits="userSpaceOnUse">
+        <rect width="10" height="10" fill="#9ccb6c" fillOpacity="0.62" />
+        <circle cx="2.5" cy="3" r="1.6" fill="#3d7a45" />
+        <circle cx="7.5" cy="7.5" r="1.6" fill="#3d7a45" />
+      </pattern>
+      <pattern id={`${id}-fallow`} width="18" height="18" patternUnits="userSpaceOnUse">
+        <rect width="18" height="18" fill="#c9a66b" fillOpacity="0.62" />
+        <circle cx="5" cy="5" r="1.2" fill="#8a6a3a" />
+        <circle cx="14" cy="12" r="1.2" fill="#8a6a3a" />
+      </pattern>
+    </defs>
+  );
 }
 
 const TILE = 256;
@@ -38,7 +74,15 @@ function fitZoom(minLon: number, maxLon: number, minLat: number, maxLat: number)
   return MIN_ZOOM;
 }
 
-export function FarmZoneMap({ farmName, areaHa, boundary }: FarmZoneMapProps) {
+export function FarmZoneMap({
+  farmName,
+  areaHa,
+  boundary,
+  crop,
+  compact = false,
+  label,
+}: FarmZoneMapProps) {
+  const patternId = useId().replace(/:/g, '');
   const { t, i18n } = useTranslation();
   const [zoomShift, setZoomShift] = useState(0);
   const [tilesFailed, setTilesFailed] = useState(false);
@@ -98,6 +142,79 @@ export function FarmZoneMap({ farmName, areaHa, boundary }: FarmZoneMapProps) {
   const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
   const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
 
+  const frameBlock = (
+    <div className="farm-map__frame">
+      <div
+        className="farm-map__stage"
+        role="img"
+        aria-label={t('farm.map.alt', { name: farmName })}
+      >
+        {tiles.map((tile) =>
+          tile.src ? (
+            <img
+              key={tile.key}
+              className="farm-map__tile"
+              src={tile.src}
+              alt=""
+              width={TILE}
+              height={TILE}
+              draggable={false}
+              style={{ left: `calc(50% + ${tile.left}px)`, top: `calc(50% + ${tile.top}px)` }}
+              onError={() => setTilesFailed(true)}
+            />
+          ) : null,
+        )}
+        <svg className="farm-map__outline" width="1" height="1" aria-hidden="true">
+          <CropPatterns id={patternId} />
+          <polygon points={points} className="farm-map__outline-halo" />
+          <polygon
+            points={points}
+            className="farm-map__outline-fill"
+            style={crop ? { fill: `url(#${patternId}-${crop})` } : undefined}
+          />
+        </svg>
+      </div>
+      <div className="farm-map__zoom">
+        <button
+          type="button"
+          className="farm-map__zoom-btn"
+          aria-label={t('farm.map.zoomIn')}
+          disabled={zoom >= MAX_ZOOM}
+          onClick={() => setZoomShift((value) => value + 1)}
+        >
+          +
+        </button>
+        <button
+          type="button"
+          className="farm-map__zoom-btn"
+          aria-label={t('farm.map.zoomOut')}
+          disabled={zoom <= MIN_ZOOM}
+          onClick={() => setZoomShift((value) => value - 1)}
+        >
+          {'\u2212'}
+        </button>
+      </div>
+      <p className="farm-map__credit">
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+          {t('farm.map.credit')}
+        </a>
+      </p>
+    </div>
+  );
+
+  if (compact) {
+    return (
+      <section aria-label={label ?? farmName} className="farm-map farm-map--compact">
+        {frameBlock}
+        {tilesFailed ? (
+          <p role="status" className="farm-map__notice">
+            {t('farm.map.tilesFailed')}
+          </p>
+        ) : null}
+      </section>
+    );
+  }
+
   return (
     <section aria-labelledby="farm-zone-map-heading" className="farm-map">
       <div className="farm-map__head">
@@ -113,62 +230,7 @@ export function FarmZoneMap({ farmName, areaHa, boundary }: FarmZoneMapProps) {
         </div>
       </div>
 
-      <div className="farm-map__frame">
-        <div
-          className="farm-map__stage"
-          role="img"
-          aria-label={t('farm.map.alt', { name: farmName })}
-        >
-          {tiles.map((tile) =>
-            tile.src ? (
-              <img
-                key={tile.key}
-                className="farm-map__tile"
-                src={tile.src}
-                alt=""
-                width={TILE}
-                height={TILE}
-                draggable={false}
-                style={{ left: `calc(50% + ${tile.left}px)`, top: `calc(50% + ${tile.top}px)` }}
-                onError={() => setTilesFailed(true)}
-              />
-            ) : null,
-          )}
-          <svg className="farm-map__outline" width="1" height="1" aria-hidden="true">
-            <polygon points={points} className="farm-map__outline-halo" />
-            <polygon points={points} className="farm-map__outline-fill" />
-          </svg>
-        </div>
-        <div className="farm-map__zoom">
-          <button
-            type="button"
-            className="farm-map__zoom-btn"
-            aria-label={t('farm.map.zoomIn')}
-            disabled={zoom >= MAX_ZOOM}
-            onClick={() => setZoomShift((value) => value + 1)}
-          >
-            +
-          </button>
-          <button
-            type="button"
-            className="farm-map__zoom-btn"
-            aria-label={t('farm.map.zoomOut')}
-            disabled={zoom <= MIN_ZOOM}
-            onClick={() => setZoomShift((value) => value - 1)}
-          >
-            {'\u2212'}
-          </button>
-        </div>
-        <p className="farm-map__credit">
-          <a
-            href="https://www.openstreetmap.org/copyright"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t('farm.map.credit')}
-          </a>
-        </p>
-      </div>
+      {frameBlock}
 
       {tilesFailed ? (
         <p role="status" className="farm-map__notice">
