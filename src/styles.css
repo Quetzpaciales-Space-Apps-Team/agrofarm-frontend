@@ -1291,6 +1291,8 @@ td:first-child {
   --landing-soil: #4a3b2a;
   --landing-pod: #8a3b2a;
   --landing-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', serif;
+  --landing-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: var(--landing-sans);
   margin-block: calc(-1 * clamp(1.25rem, 3vw, 2.5rem));
   display: block;
 }
@@ -1354,8 +1356,8 @@ td:first-child {
   gap: 1.5rem;
 }
 .landing-hero__copy h2 {
-  font-size: clamp(2.3rem, 5vw, 4.3rem);
-  line-height: 1.02;
+  font-size: clamp(2.6rem, 5.6vw, 4.8rem);
+  line-height: 1.04;
   color: var(--on-night);
 }
 .landing-intro {
@@ -1543,6 +1545,53 @@ td:first-child {
 .range-card__note {
   font-size: 0.72rem;
   color: #4e5f53;
+}
+
+/* Rendered maize in the hero */
+.hero-cob {
+  position: relative;
+}
+.hero-cob::before {
+  content: '';
+  position: absolute;
+  inset: 8% 4% 4%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(232 191 88 / 38%), transparent 72%);
+  filter: blur(8px);
+}
+.hero-cob img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 28px 36px rgb(0 0 0 / 45%));
+  animation: cob-float 7s ease-in-out infinite;
+}
+.journey__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  background: linear-gradient(160deg, #1d3a2c, #14281f);
+  transition: opacity 600ms ease;
+  pointer-events: none;
+}
+.journey__photo[data-on='true'] {
+  opacity: 1;
+}
+.journey__range {
+  z-index: 1;
+}
+@keyframes cob-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-0.8deg);
+  }
 }
 
 /* Block index: every block of the page, one tap away */

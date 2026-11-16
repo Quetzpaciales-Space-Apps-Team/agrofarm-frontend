@@ -28,9 +28,9 @@
     "dark": "Switch to dark mode"
   },
   "landing": {
-    "title": "See how weather and El Nino could change your crops",
-    "intro": "AgroFarm compares crop rotations under different rainfall, temperature and El Nino conditions. It gives ranges, not promises.",
-    "demoNote": "The demo uses example data for a pilot farm near Guatemala City. You do not need an account.",
+    "title": "Plan the season before the rain does",
+    "intro": "See how rain, heat and El Nino could change your maize, and which rotation holds up best.",
+    "demoNote": "Example farm near Guatemala City. No account needed.",
     "tryDemo": "Try the demo",
     "starting": "Starting the demo...",
     "accountNote": "Have your own farm data?",
@@ -54,7 +54,7 @@
     "badge": "Agroforestry & Crops",
     "what": {
       "eyebrow": "What is AgroFarm?",
-      "title": "A simulator that lets a farm try a season before living it",
+      "title": "Try a season before you live it",
       "body1": "Guatemalan smallholders plan each season with rain that arrives early, late or not at all. AgroFarm takes a farm's own data, adds public weather, soil and satellite records, and estimates how a crop could grow under different conditions, including El Nino and La Nina years.",
       "body2": "It then compares several crop rotations side by side, such as maize followed by beans or by a fallow year. Every result is a range with its reasons, its evidence and its gaps, so a farmer and a local agronomist can discuss it and decide."
     },
@@ -98,7 +98,7 @@
       "rangeNote": "Example range from the demo",
       "low": "-12 %",
       "high": "+11 %",
-      "scene": "Maize growing in rows under rain, with cacao pods on a branch"
+      "scene": "A rendered ear of maize with its husk peeled back and golden kernels in tidy rows"
     },
     "principles": {
       "title": "What we promise, and what we do not"
@@ -138,7 +138,7 @@
           "body": "Last it compares rotations and shows its reasons, risks and gaps. Then you and your agronomist decide."
         }
       },
-      "scene": "A maize plant that the view moves closer to, from the whole field to a single cob"
+      "scene": "A maize plant that the view moves closer to, ending on a rendered ear of maize"
     },
     "decisions": {
       "title": "Decisions this helps you make",

@@ -3,14 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { useSession } from '../features/auth/state/session';
 
-const STALKS = [
-  { x: 70, height: 120, delay: 0.1 },
-  { x: 140, height: 150, delay: 0.5 },
-  { x: 210, height: 135, delay: 0.9 },
-  { x: 280, height: 160, delay: 0.3 },
-  { x: 350, height: 128, delay: 0.7 },
-] as const;
-const DROPS = [60, 120, 190, 250, 320, 380] as const;
 const STEPS = ['field', 'plant', 'cob', 'decision'] as const;
 const FLIPS = ['data', 'scenario', 'compare', 'decide'] as const;
 const DECISIONS = ['rotate', 'dry', 'fallow', 'doubt'] as const;
@@ -39,65 +31,6 @@ function camera(p: number) {
     farOpacity: 1 - toPlant,
     step: p < 0.22 ? 0 : p < 0.5 ? 1 : p < 0.8 ? 2 : 3,
   };
-}
-
-/** One maize plant growing from the soil line; the CSS animation lives on `.stalk`. */
-function MaizeStalk({ x, height, delay }: { x: number; height: number; delay: number }) {
-  const top = 300 - height;
-  return (
-    <g transform={`translate(${x} 0)`}>
-      <g className="stalk" style={{ animationDelay: `${delay}s` }}>
-        <path d={`M0 300 L0 ${top}`} className="stalk__stem" />
-        <path d={`M0 ${top + 28} Q-34 ${top + 4} -44 ${top + 30}`} className="stalk__leaf" />
-        <path d={`M0 ${top + 52} Q34 ${top + 28} 46 ${top + 56}`} className="stalk__leaf" />
-        <path d={`M0 ${top + 80} Q-38 ${top + 58} -48 ${top + 88}`} className="stalk__leaf" />
-        <ellipse cx="9" cy={top + 62} rx="6" ry="16" className="stalk__cob" />
-      </g>
-    </g>
-  );
-}
-
-function CropScene({ label }: { label: string }) {
-  return (
-    <svg className="crop-scene" viewBox="0 0 440 340" role="img" aria-label={label}>
-      <circle cx="372" cy="62" r="54" className="crop-scene__halo" />
-      <circle cx="372" cy="62" r="30" className="crop-scene__sun" />
-      {DROPS.map((x, index) => (
-        <line
-          key={x}
-          x1={x}
-          y1="20"
-          x2={x - 6}
-          y2="44"
-          className="crop-scene__drop"
-          style={{ animationDelay: `${index * 0.35}s` }}
-        />
-      ))}
-      <path d="M0 292 Q110 262 220 280 T440 270 L440 340 L0 340 Z" className="crop-scene__hill" />
-      <rect y="298" width="440" height="42" className="crop-scene__soil" />
-      {[0, 1, 2, 3].map((row) => (
-        <line
-          key={row}
-          x1="0"
-          y1={312 + row * 9}
-          x2="440"
-          y2={312 + row * 9}
-          className="crop-scene__furrow"
-        />
-      ))}
-      {STALKS.map((stalk) => (
-        <MaizeStalk key={stalk.x} {...stalk} />
-      ))}
-      <g transform="translate(400 150)">
-        <path d="M30 -30 Q0 -20 -30 8" className="cacao__branch" />
-        <g className="cacao__pod" transform="translate(-6 -10)">
-          <path d="M0 0 L0 8" className="cacao__stem" />
-          <ellipse cx="0" cy="28" rx="11" ry="22" className="cacao__fruit" />
-          <path d="M0 8 L0 48" className="cacao__rib" />
-        </g>
-      </g>
-    </svg>
-  );
 }
 
 function RangeCard({ className = '' }: { className?: string }) {
@@ -241,6 +174,15 @@ function Journey() {
         </div>
         <div className="journey__visual">
           <JourneyPlant label={t('landing.journey.scene')} farRef={farRef} cameraRef={cameraRef} />
+          <img
+            className="journey__photo"
+            data-on={step >= 2}
+            src="/landing/cob-close.webp"
+            alt=""
+            width="1000"
+            height="1000"
+            loading="lazy"
+          />
           <RangeCard className={`journey__range${step === 3 ? ' journey__range--on' : ''}`} />
         </div>
       </div>
@@ -331,7 +273,15 @@ export function LandingPage() {
             </p>
           </div>
           <div className="landing-hero__visual">
-            <CropScene label={t('landing.hero.scene')} />
+            <div className="hero-cob">
+              <img
+                src="/landing/cob-full.webp"
+                alt={t('landing.hero.scene')}
+                width="1400"
+                height="1120"
+                fetchPriority="high"
+              />
+            </div>
             <RangeCard />
           </div>
         </div>

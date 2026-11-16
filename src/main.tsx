@@ -7,6 +7,7 @@ import { createTokenStore } from './infrastructure/api/auth';
 import { createApiClient } from './infrastructure/api/client';
 import { loadRuntimeConfig } from './infrastructure/api/config';
 import '@fontsource-variable/fraunces';
+import '@fontsource-variable/inter';
 import './styles.css';
 
 const rootElement = document.getElementById('root');
