@@ -27,6 +27,66 @@ export const DEFAULT_PRIORITIES: Priorities = {
   constraints: { water_availability: 'medium', equipment: [] },
 };
 
+export type PriorityPresetId = 'save_water' | 'more_income' | 'build_soil' | 'balanced';
+
+export interface PriorityPreset {
+  id: PriorityPresetId;
+  weights: Record<PriorityKey, number>;
+}
+
+/** One-click priority presets (weights in 0..1 matching core-api). */
+export const PRIORITY_PRESETS: readonly PriorityPreset[] = [
+  {
+    id: 'save_water',
+    weights: {
+      water_use: 0.95,
+      income: 0.5,
+      soil_structure: 0.7,
+      forage_value: 0.3,
+      nitrogen_fixing: 0.5,
+      erosion_reduction: 0.85,
+      market_suitability: 0.4,
+    },
+  },
+  {
+    id: 'more_income',
+    weights: {
+      water_use: 0.4,
+      income: 0.95,
+      soil_structure: 0.45,
+      forage_value: 0.4,
+      nitrogen_fixing: 0.4,
+      erosion_reduction: 0.4,
+      market_suitability: 0.9,
+    },
+  },
+  {
+    id: 'build_soil',
+    weights: {
+      water_use: 0.65,
+      income: 0.45,
+      soil_structure: 0.95,
+      forage_value: 0.4,
+      nitrogen_fixing: 0.95,
+      erosion_reduction: 0.9,
+      market_suitability: 0.4,
+    },
+  },
+  {
+    id: 'balanced',
+    weights: { ...DEFAULT_PRIORITIES.weights },
+  },
+];
+
+export function matchingPriorityPresetId(
+  weights: Record<PriorityKey, number>,
+): PriorityPresetId | null {
+  const match = PRIORITY_PRESETS.find((preset) =>
+    PRIORITY_KEYS.every((key) => Math.abs(preset.weights[key] - weights[key]) < 0.005),
+  );
+  return match?.id ?? null;
+}
+
 /** The form shows weights as 0..100. The API stores 0..1. */
 export const toSliderValue = (weight: number): number => Math.round(weight * 100);
 export const fromSliderValue = (value: number): number => Math.round(value) / 100;

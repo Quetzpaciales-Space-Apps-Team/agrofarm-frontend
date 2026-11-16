@@ -434,6 +434,7 @@
     "empty": "No climate data is available for this location yet.",
     "from": "From",
     "to": "To",
+    "showEnso": "Show ENSO phases",
     "noData": "No data",
     "noDataShort": "no data",
     "chart": {
@@ -453,7 +454,19 @@
       "mean": "Mean temperature (°C), solid line",
       "min": "Minimum temperature (°C), dashed line",
       "max": "Maximum temperature (°C), dotted line",
-      "noData": "No data, hatched band"
+      "noData": "No data, hatched band",
+      "elNino": "El Nino (EN), shaded warm band",
+      "laNina": "La Nina (LN), shaded cool band",
+      "neutral": "Neutral (NE), neutral band"
+    },
+    "summary": {
+      "title": "Period summary",
+      "wettest": "Wettest month",
+      "driest": "Driest month",
+      "totalRain": "Total rainfall",
+      "meanTemp": "Mean temperature",
+      "monthValue": "{{month}} ({{value}})",
+      "ensoCoincidence": "Across {{months}} months, this period coincides with {{elNino}} El Nino month(s) and {{laNina}} La Nina month(s)."
     },
     "missing": {
       "title": "Months with no data",
@@ -508,13 +521,41 @@
     "crop": "Crop",
     "reset": "Reset scenario",
     "noCrops": "No crops recorded for this farm yet, so a crop simulation is not possible.",
-    "range": "From {{min}} to {{max}}"
+    "range": "From {{min}} to {{max}}",
+    "presets": {
+      "label": "Quick scenarios",
+      "el_nino_drier": {
+        "title": "El Nino: drier year",
+        "meta": "-20 % rain, +1.5 °C"
+      },
+      "la_nina_wetter": {
+        "title": "La Nina: wetter year",
+        "meta": "+25 % rain, -0.5 °C"
+      },
+      "heatwave": {
+        "title": "Heatwave",
+        "meta": "-10 % rain, +3.5 °C"
+      },
+      "normal": {
+        "title": "Normal year (reset)",
+        "meta": "0 % rain, 0 °C"
+      }
+    }
   },
   "simulation": {
     "loading": "Running the simulation...",
     "updating": "Updating the result...",
     "baseline": "Baseline",
     "scenario": "Scenario",
+    "summary": {
+      "directional": "Under this scenario, the middle estimate for {{crop}} yield is {{mid}} compared with a normal year, within a likely range of {{low}} to {{high}}.",
+      "mixed": "Under this scenario, {{crop}} yield could be higher or lower than a normal year, within a likely range of {{low}} to {{high}} (middle estimate {{mid}}).",
+      "neutral": "Under this scenario, the middle estimate for {{crop}} yield matches a normal year ({{mid}})."
+    },
+    "provenanceBar": {
+      "model": "Model: {{name}} ({{version}})",
+      "stubNote": "Illustrative rule-based model, not a forecast."
+    },
     "outOfRange": "Some inputs are outside the range the model was trained on, so read this result with extra care:",
     "input": {
       "rainfall_change_pct": "Rainfall change",
@@ -604,6 +645,7 @@
     "riskReview": "(needs local review)",
     "viewDetails": "View details",
     "viewDetailsFor": "View details: {{name}}",
+    "backToPriorities": "Back to priorities",
     "drawer": {
       "closeLabel": "Close details",
       "intro": "Everything below comes from a rule-based comparison that uses a provisional table of crop traits. The traits have not been reviewed by an agronomist yet. Use this as support for your decision, and check it with a local expert before you change what you plant.",
@@ -642,6 +684,14 @@
   },
   "priorities": {
     "title": "Your priorities for this farm",
+    "jumpToComparison": "Jump to comparison",
+    "presets": {
+      "label": "Quick priority profiles",
+      "save_water": "Save water",
+      "more_income": "More income",
+      "build_soil": "Build soil",
+      "balanced": "Balanced (reset)"
+    },
     "intro": "Tell us what matters most. These values change the scores in the comparison below. They are saved for this farm only.",
     "starting": "All priorities start at 50 out of 100. Use Reset to defaults to go back to the starting values.",
     "decision": "The scores support your decision. They do not replace your own knowledge or a local expert.",
@@ -723,6 +773,16 @@
       "reading": "Reading {{name}}...",
       "cannotSend": "This file cannot be sent. {{count}} problem(s) stop the whole file.",
       "back": "Back to the template"
+    },
+    "samples": {
+      "label": "Try with a sample file",
+      "validCsv": "Valid CSV (3 parcels)",
+      "validGeojson": "Valid GeoJSON (polygon)",
+      "invalidCsv": "Invalid CSV (validation demo)",
+      "error": "Could not load the sample file. Try choosing one from your device."
+    },
+    "dropzone": {
+      "prompt": "Drop a CSV or GeoJSON file here, or browse"
     },
     "fileProblem": {
       "type": "Only .csv and .geojson files can be uploaded (.json is read as GeoJSON).",
@@ -810,7 +870,8 @@
       "problems": "Problems reported",
       "kept": "The server keeps a record of this upload and a copy of the original file.",
       "notUsed": "Uploaded data is not used yet. Recommendations, scenarios and model results do not change because of this upload.",
-      "another": "Upload another file"
+      "another": "Upload another file",
+      "downloadErrors": "Download error report"
     }
   },
   "leaf": {
@@ -818,6 +879,9 @@
     "intro": "Upload a clear photo to look for a possible match among supported maize leaf conditions.",
     "review": "Photo screening supports inspection. It is not a confirmed diagnosis and has not been field validated in Guatemala.",
     "choose": "Choose a maize leaf photo",
+    "dropzone": {
+      "prompt": "Drop a maize leaf photo here, or browse"
+    },
     "privacy": "JPEG or PNG, up to 5 MiB. Your photo is processed for this request and is not saved or used for training.",
     "preview": "Selected maize leaf photo",
     "submit": "Assess photo",

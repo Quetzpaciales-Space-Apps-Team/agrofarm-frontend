@@ -1,13 +1,21 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/AsyncState';
-import type { ClimateRow } from '../../../domain/chart';
-import { defaultRange, formatMonth, monthsInRange, type MonthRange } from '../../../domain/months';
+import { summarizeClimatePeriod, type ClimateRow } from '../../../domain/chart';
+import { ensoCells } from '../../../domain/enso';
+import {
+  defaultRange,
+  formatMonth,
+  formatValue,
+  monthsInRange,
+  type MonthRange,
+} from '../../../domain/months';
 import { useClimate } from '../hooks/useClimate';
 import { ClimateChart } from './ClimateChart';
 import { ClimateLegend } from './ClimateLegend';
 import { ClimateTable } from './ClimateTable';
 import { EnsoStrip } from './EnsoStrip';
+import '../climate.css';
 
 const DEFAULT_MONTHS = 24;
 
@@ -16,7 +24,9 @@ export function ClimatePanel() {
   const { resource, reload } = useClimate();
   const [chosen, setChosen] = useState<MonthRange | null>(null);
   const [tableOpen, setTableOpen] = useState(false);
+  const [showEnso, setShowEnso] = useState(true);
   const tableId = useId();
+  const summaryId = useId();
 
   if (resource.status === 'loading') return <LoadingState label={t('climate.loading')} />;
   if (resource.status === 'error') return <ErrorState error={resource.error} onRetry={reload} />;
@@ -38,6 +48,9 @@ export function ClimatePanel() {
   const rows: ClimateRow[] = nasa.items.filter((item) => visible.has(item.month));
   const months = rows.map((row) => row.month);
   const sortedMonths = [...allMonths].sort();
+  const chartEnso = ensoCells(months, enso.items);
+  const periodSummary = summarizeClimatePeriod(rows, enso.items);
+  const locale = i18n.language;
 
   const missing = rows
     .map((row) => ({
@@ -88,14 +101,72 @@ export function ClimatePanel() {
         <div className="controls">
           {monthSelect(t('climate.from'), 'start')}
           {monthSelect(t('climate.to'), 'end')}
+          <label className="climate-toggle">
+            <input
+              type="checkbox"
+              checked={showEnso}
+              onChange={(event) => setShowEnso(event.target.checked)}
+            />
+            {t('climate.showEnso')}
+          </label>
         </div>
       </div>
 
       <div>
         <div className="chart-box">
-          <ClimateChart rows={rows} />
+          <ClimateChart rows={rows} enso={chartEnso} showEnso={showEnso} />
         </div>
-        <ClimateLegend />
+        <ClimateLegend showEnso={showEnso} />
+        <section aria-labelledby={summaryId} className="climate-summary-card">
+          <h4 id={summaryId}>{t('climate.summary.title')}</h4>
+          <dl className="climate-summary-grid">
+            <div>
+              <dt>{t('climate.summary.wettest')}</dt>
+              <dd>
+                {periodSummary.wettest
+                  ? t('climate.summary.monthValue', {
+                      month: formatMonth(periodSummary.wettest.month, locale),
+                      value: formatValue(periodSummary.wettest.rainfall_mm, 'mm', locale, 0),
+                    })
+                  : t('climate.noData')}
+              </dd>
+            </div>
+            <div>
+              <dt>{t('climate.summary.driest')}</dt>
+              <dd>
+                {periodSummary.driest
+                  ? t('climate.summary.monthValue', {
+                      month: formatMonth(periodSummary.driest.month, locale),
+                      value: formatValue(periodSummary.driest.rainfall_mm, 'mm', locale, 0),
+                    })
+                  : t('climate.noData')}
+              </dd>
+            </div>
+            <div>
+              <dt>{t('climate.summary.totalRain')}</dt>
+              <dd>
+                {periodSummary.totalRainMm !== null
+                  ? formatValue(periodSummary.totalRainMm, 'mm', locale, 0)
+                  : t('climate.noData')}
+              </dd>
+            </div>
+            <div>
+              <dt>{t('climate.summary.meanTemp')}</dt>
+              <dd>
+                {periodSummary.meanTempC !== null
+                  ? formatValue(periodSummary.meanTempC, '°C', locale, 1)
+                  : t('climate.noData')}
+              </dd>
+            </div>
+          </dl>
+          <p className="source">
+            {t('climate.summary.ensoCoincidence', {
+              months: periodSummary.months,
+              elNino: periodSummary.elNinoMonths,
+              laNina: periodSummary.laNinaMonths,
+            })}
+          </p>
+        </section>
         <h4>{t('climate.missing.title')}</h4>
         {missing.length === 0 ? (
           <p>{t('climate.missing.none')}</p>
