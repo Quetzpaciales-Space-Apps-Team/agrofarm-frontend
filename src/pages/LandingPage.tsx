@@ -187,9 +187,23 @@ function Journey() {
           <h3 id="journey-title">{t('landing.journey.title')}</h3>
           <ol className="journey__steps">
             {STEPS.map((key, index) => (
-              <li key={key} className="journey__step" data-active={index === step}>
-                <h4>{t(`landing.journey.steps.${key}.title`)}</h4>
-                <p>{t(`landing.journey.steps.${key}.body`)}</p>
+              <li
+                key={key}
+                className="journey__step"
+                data-reached={index <= step}
+                data-active={index === step}
+              >
+                <span className="journey__node" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <div className="journey__card">
+                  <h4>{t(`landing.journey.steps.${key}.title`)}</h4>
+                  <div className="journey__body">
+                    <div>
+                      <p>{t(`landing.journey.steps.${key}.body`)}</p>
+                    </div>
+                  </div>
+                </div>
               </li>
             ))}
           </ol>
@@ -320,7 +334,6 @@ export function LandingPage() {
                 fetchPriority="high"
               />
             </div>
-            <RangeCard />
           </div>
         </div>
         <nav aria-label={t('landing.nav.label')} className="band__inner block-nav">
