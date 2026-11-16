@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatArea } from '../../../domain/months';
 
@@ -24,19 +24,6 @@ function lat2pixel(lat: number, zoom: number) {
   return (0.5 - Math.log((1 + clamped) / (1 - clamped)) / (4 * Math.PI)) * Math.pow(2, zoom) * 256;
 }
 
-function lon2tile(lon: number, zoom: number) {
-  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
-}
-
-function lat2tile(lat: number, zoom: number) {
-  return Math.floor(
-    ((1 -
-      Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) /
-      2) *
-      Math.pow(2, zoom),
-  );
-}
-
 export function FarmZoneMap({
   farmName,
   areaHa,
@@ -49,6 +36,27 @@ export function FarmZoneMap({
   const [zoom, setZoom] = useState(15);
   const [isEditing, setIsEditing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 380 });
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const updateSize = () => {
+      if (el.clientWidth > 0) {
+        setDimensions({
+          width: el.clientWidth,
+          height: el.clientHeight || 380,
+        });
+      }
+    };
+    updateSize();
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(updateSize);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }
+  }, [activeTab]);
 
   const initialRing = boundary?.coordinates?.[0] || [];
   const [editRing, setEditRing] = useState<number[][]>(initialRing);
@@ -74,23 +82,24 @@ export function FarmZoneMap({
   const maxLat = Math.max(...lats);
 
   // Map viewport dimensions
-  const viewWidth = 560;
-  const viewHeight = 320;
+  const viewWidth = dimensions.width;
+  const viewHeight = dimensions.height;
+  const halfW = viewWidth / 2;
+  const halfH = viewHeight / 2;
   const centerPixelX = lon2pixel(centroidLon, zoom);
   const centerPixelY = lat2pixel(centroidLat, zoom);
 
-  // Calculate 3x3 tile grid
-  const centerTileX = lon2tile(centroidLon, zoom);
-  const centerTileY = lat2tile(centroidLat, zoom);
-  const tileOffsets = [-1, 0, 1];
-  const tiles: { key: string; url: string; left: number; top: number }[] = [];
+  // Dynamically calculate tile bounds to cover the entire container width and height
+  const minTileX = Math.floor((centerPixelX - halfW) / 256) - 1;
+  const maxTileX = Math.floor((centerPixelX + halfW) / 256) + 1;
+  const minTileY = Math.floor((centerPixelY - halfH) / 256) - 1;
+  const maxTileY = Math.floor((centerPixelY + halfH) / 256) + 1;
 
-  for (const dy of tileOffsets) {
-    for (const dx of tileOffsets) {
-      const tx = centerTileX + dx;
-      const ty = centerTileY + dy;
-      const tileLeft = tx * 256 - (centerPixelX - viewWidth / 2);
-      const tileTop = ty * 256 - (centerPixelY - viewHeight / 2);
+  const tiles: { key: string; url: string; left: number; top: number }[] = [];
+  for (let ty = minTileY; ty <= maxTileY; ty++) {
+    for (let tx = minTileX; tx <= maxTileX; tx++) {
+      const tileLeft = tx * 256 - (centerPixelX - halfW);
+      const tileTop = ty * 256 - (centerPixelY - halfH);
       tiles.push({
         key: `${zoom}-${tx}-${ty}`,
         url: `https://tile.openstreetmap.org/${zoom}/${tx}/${ty}.png`,
@@ -103,8 +112,8 @@ export function FarmZoneMap({
   // Projected polygon points on the map tile canvas
   const projectedPolygonPoints = ring
     .map(([lon, lat]) => {
-      const x = viewWidth / 2 + (lon2pixel(lon, zoom) - centerPixelX);
-      const y = viewHeight / 2 + (lat2pixel(lat, zoom) - centerPixelY);
+      const x = halfW + (lon2pixel(lon, zoom) - centerPixelX);
+      const y = halfH + (lat2pixel(lat, zoom) - centerPixelY);
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(' ');
@@ -297,10 +306,10 @@ export function FarmZoneMap({
 
       <div className="farm-zone-map__content">
         {activeTab === 'tiles' && (
-          <div className="farm-zone-map__tiles-container">
+          <div ref={containerRef} className="farm-zone-map__tiles-container">
             <div
               className="farm-zone-map__tiles-viewport"
-              style={{ width: '100%', height: '320px' }}
+              style={{ width: '100%', height: '100%' }}
             >
               {tiles.map((tile) => (
                 <img
@@ -327,8 +336,8 @@ export function FarmZoneMap({
                   strokeLinejoin="round"
                 />
                 {ring.map(([lon, lat], i) => {
-                  const cx = viewWidth / 2 + (lon2pixel(lon, zoom) - centerPixelX);
-                  const cy = viewHeight / 2 + (lat2pixel(lat, zoom) - centerPixelY);
+                  const cx = halfW + (lon2pixel(lon, zoom) - centerPixelX);
+                  const cy = halfH + (lat2pixel(lat, zoom) - centerPixelY);
                   return (
                     <circle
                       key={i}
@@ -342,8 +351,8 @@ export function FarmZoneMap({
                   );
                 })}
                 <circle
-                  cx={viewWidth / 2}
-                  cy={viewHeight / 2}
+                  cx={halfW}
+                  cy={halfH}
                   r="6"
                   fill="#e74c3c"
                   stroke="#ffffff"

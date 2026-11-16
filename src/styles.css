@@ -241,7 +241,7 @@ p {
   background: #183d30;
 }
 .app-sidebar ul {
-  padding-inline: var(--space);
+  padding: 2rem 1rem;
 }
 .app-sidebar a {
   color: #fffefa;
@@ -2426,8 +2426,8 @@ button.demo-badge:hover,
 .app-sidebar ul {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1.25rem 0.85rem;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
   margin: 0;
   list-style: none;
 }
@@ -2436,7 +2436,7 @@ button.demo-badge:hover,
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
+  padding: 0.75rem 1rem;
   border-radius: var(--radius);
   color: #e4ebe4;
   font-weight: 600;
@@ -2558,8 +2558,8 @@ button.demo-badge:hover,
 .app-root--internal .app-sidebar ul {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1.25rem 0.75rem;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
   margin: 0;
   list-style: none;
 }
@@ -3266,7 +3266,7 @@ button.demo-badge:hover,
 .farm-zone-map__tiles-container {
   position: relative;
   width: 100%;
-  height: 320px;
+  height: 380px;
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--color-border-soft);
@@ -3274,7 +3274,8 @@ button.demo-badge:hover,
 }
 
 .farm-zone-map__tiles-viewport {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
