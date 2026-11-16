@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ErrorState, LoadingState } from '../../../components/AsyncState';
+import { PanelErrorState, PanelLoadingState } from '../../../components/PanelState';
 import {
   DEFAULT_PRIORITIES,
   EQUIPMENT_TYPES,
@@ -238,8 +238,10 @@ export function PrioritiesForm({ farmId, onSaved }: { farmId: string; onSaved?: 
   const { resource, reload } = usePriorities(farmId);
 
   let body;
-  if (resource.status === 'error') body = <ErrorState error={resource.error} onRetry={reload} />;
-  else if (resource.status === 'loading') body = <LoadingState label={t('priorities.loading')} />;
+  if (resource.status === 'error')
+    body = <PanelErrorState error={resource.error} onRetry={reload} />;
+  else if (resource.status === 'loading')
+    body = <PanelLoadingState label={t('priorities.loading')} />;
   else body = <Fields farmId={farmId} initial={resource.data} onSaved={onSaved} />;
 
   const jumpToComparison = () => {

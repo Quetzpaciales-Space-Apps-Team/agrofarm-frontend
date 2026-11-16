@@ -1,6 +1,11 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState, ErrorState, LoadingState } from '../../../components/AsyncState';
+import { GlossaryTerm } from '../../../components/GlossaryTerm';
+import {
+  PanelEmptyState,
+  PanelErrorState,
+  PanelLoadingState,
+} from '../../../components/PanelState';
 import { summarizeClimatePeriod, type ClimateRow } from '../../../domain/chart';
 import { ensoCells } from '../../../domain/enso';
 import {
@@ -28,8 +33,9 @@ export function ClimatePanel() {
   const tableId = useId();
   const summaryId = useId();
 
-  if (resource.status === 'loading') return <LoadingState label={t('climate.loading')} />;
-  if (resource.status === 'error') return <ErrorState error={resource.error} onRetry={reload} />;
+  if (resource.status === 'loading') return <PanelLoadingState label={t('climate.loading')} />;
+  if (resource.status === 'error')
+    return <PanelErrorState error={resource.error} onRetry={reload} />;
 
   const { nasa, enso } = resource.data;
   const allMonths = nasa.items.map((item) => item.month);
@@ -38,7 +44,7 @@ export function ClimatePanel() {
     return (
       <section aria-labelledby="climate-title" className="card">
         <h3 id="climate-title">{t('climate.title')}</h3>
-        <EmptyState>{t('climate.empty')}</EmptyState>
+        <PanelEmptyState>{t('climate.empty')}</PanelEmptyState>
       </section>
     );
   }
@@ -208,7 +214,10 @@ export function ClimatePanel() {
           <dt>{t('climate.source.attribution')}</dt>
           <dd>{nasa.attribution}</dd>
           <dt>{t('climate.source.resolution')}</dt>
-          <dd>{nasa.resolution_note}</dd>
+          <dd>
+            {nasa.resolution_note}{' '}
+            <GlossaryTerm term="reanalysis" label={t('glossary.terms.reanalysis.label')} />
+          </dd>
           <dt>{t('climate.source.disclaimer')}</dt>
           <dd>{nasa.disclaimer}</dd>
         </dl>

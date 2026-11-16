@@ -1,4 +1,6 @@
-import { isApiError } from '../infrastructure/api/errorNormalizer';
+import { ApiError, isApiError } from '../infrastructure/api/errorNormalizer';
+
+export { ApiError };
 
 /** i18n key that explains an error to the user. Components never see raw HTTP errors. */
 export function errorKey(error: unknown): string {
@@ -17,6 +19,31 @@ export function errorKey(error: unknown): string {
     default:
       return 'errors.generic';
   }
+}
+
+/** Demo-friendly error key used by `PanelErrorState` in polished feature panels. */
+export function panelErrorKey(error: unknown): string {
+  if (!isApiError(error)) return 'errors.generic';
+  if (error.code === 'network_error') return 'errors.network';
+  if (error.code === 'timeout') return 'errors.timeout';
+  switch (error.status) {
+    case 401:
+      return 'errors.unauthorized';
+    case 404:
+      return 'errors.notFound';
+    case 422:
+      return 'panelState.validation';
+    case 429:
+      return 'panelState.rateLimited';
+    case 503:
+      return 'panelState.unavailable';
+    default:
+      return 'errors.generic';
+  }
+}
+
+export function isUnauthorizedError(error: unknown): boolean {
+  return isApiError(error) && error.status === 401;
 }
 
 /** Specific messages for `POST /v1/auth/demo`. */
