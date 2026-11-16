@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { useSession } from '../features/auth/state/session';
+import { CreateFarmForm } from '../features/farms/components/CreateFarmForm';
 
 /** Shown to a signed-in user who has no farm yet. */
 export function AccountPage() {
@@ -16,6 +17,7 @@ export function AccountPage() {
       </div>
       {user ? <p>{t('auth.account.signedInAs', { name: user.name })}</p> : null}
       <p>{t('auth.account.noFarm')}</p>
+      <CreateFarmForm />
     </section>
   );
 }

@@ -46,6 +46,10 @@ interface SessionValue extends SessionState {
   logout: () => Promise<void>;
   /** Same as `logout`, for callers that do not wait for the API. */
   leave: () => void;
+  /** Selects which farm is active in the session. */
+  selectFarm: (farmId: string) => void;
+  /** Reloads user profile and farm list from the API. */
+  reloadAccount: () => Promise<void>;
 }
 
 const ANONYMOUS: SessionState = {
@@ -180,9 +184,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     void logout();
   }, [logout]);
 
+  const selectFarm = useCallback((farmId: string) => {
+    setState((current) => ({ ...current, farmId }));
+  }, []);
+
+  const reloadAccount = useCallback(async () => {
+    try {
+      const { user, farmId } = await loadAccount();
+      setState((current) => ({
+        ...current,
+        user,
+        farmId: current.farmId ?? farmId,
+      }));
+    } catch {
+      // Retain current session state on transient network error
+    }
+  }, [loadAccount]);
+
   const value = useMemo(
-    () => ({ ...state, startDemo, login, register, logout, leave }),
-    [state, startDemo, login, register, logout, leave],
+    () => ({ ...state, startDemo, login, register, logout, leave, selectFarm, reloadAccount }),
+    [state, startDemo, login, register, logout, leave, selectFarm, reloadAccount],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

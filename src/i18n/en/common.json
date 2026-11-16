@@ -18,7 +18,14 @@
   },
   "common": {
     "retry": "Try again",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "theme": {
+    "toggle": "Toggle color theme",
+    "light": "Switch to light mode",
+    "dark": "Switch to dark mode"
   },
   "landing": {
     "title": "See how weather and El Nino could change your crops",
@@ -98,7 +105,7 @@
     "account": {
       "title": "Your account",
       "signedInAs": "You are signed in as {{name}}.",
-      "noFarm": "You do not have a farm yet. Adding a farm is not available in this version."
+      "noFarm": "You do not have a farm registered yet. Create your farm below to get started with satellite insights and climate risk simulations."
     }
   },
   "errors": {
@@ -163,7 +170,35 @@
     "loading": "Loading farm...",
     "area": "Area",
     "rotation": "Current rotation",
-    "noRotation": "No rotation recorded for this farm yet."
+    "noRotation": "No rotation recorded for this farm yet.",
+    "selectFarm": "Select farm",
+    "create": {
+      "title": "Create your farm",
+      "description": "Register your parcel boundary and initial crop rotation to connect satellite climate records and yield models.",
+      "newFarmButton": "New parcel",
+      "nameLabel": "Farm name",
+      "namePlaceholder": "e.g. Finca La Esperanza",
+      "regionLabel": "Region / Preset location",
+      "cropsLabel": "Initial crops (comma-separated)",
+      "cropsPlaceholder": "maize, beans",
+      "cropsHint": "List of current crops or rotation stages in your parcel.",
+      "customCoordinatesLabel": "GeoJSON Coordinates (Coordinates array)",
+      "customCoordinatesHint": "Array of [longitude, latitude] coordinates closing the polygon (at least 4 points).",
+      "submit": "Create farm",
+      "submitting": "Creating farm...",
+      "presets": {
+        "guatemalaCentral": "Guatemala Central (Pilot)",
+        "corredorSeco": "Corredor Seco (Chiquimula / Zacapa)",
+        "altiplano": "Altiplano Occidental (Quetzaltenango)",
+        "peten": "Petén (Flores / Tierras Bajas)",
+        "custom": "Custom coordinates"
+      },
+      "errors": {
+        "nameRequired": "Please enter a farm name.",
+        "invalidCoordinates": "Invalid coordinates. The coordinates must be a valid GeoJSON polygon ring with at least 4 coordinate positions.",
+        "generic": "Failed to create farm. Please verify inputs and try again."
+      }
+    }
   },
   "climate": {
     "title": "Climate history",

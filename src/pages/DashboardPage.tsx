@@ -1,14 +1,21 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
+import { Drawer } from '../components/Drawer';
 import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
+import { CreateFarmForm } from '../features/farms/components/CreateFarmForm';
 import { UploadWizard } from '../features/uploads/components/UploadWizard';
 import { LeafAssessmentPanel } from '../features/leaves/components/LeafAssessmentPanel';
 import { RotationsSection } from '../features/rotations/components/RotationsSection';
 import { VegetationPanel } from '../features/vegetation/components/VegetationPanel';
 import { ScenarioPanel } from '../features/simulation/components/ScenarioPanel';
 import { ScenarioProvider, useScenario } from '../features/simulation/state/scenario';
+import { useApi } from '../services/ApiContext';
+import { useSession } from '../features/auth/state/session';
+import { fetchFarms } from '../services/api';
 import { useRoute } from '../services/navigation';
+import type { Farm } from '../services/types';
 
 function Sections({ farmId, path }: { farmId: string; path: string }) {
   const { debounced } = useScenario();
@@ -68,9 +75,27 @@ interface DashboardPageProps {
 
 export function DashboardPage({ farmId, isDemoGuest = true }: DashboardPageProps) {
   const { t } = useTranslation();
+  const { client } = useApi();
+  const { selectFarm } = useSession();
   const headingRef = useFocusOnMount<HTMLHeadingElement>();
   const { path } = useRoute();
   const sectionKey = path.replace(/^\//, '') || 'farm';
+
+  const [farms, setFarms] = useState<Farm[]>([]);
+  const [showCreateDrawer, setShowCreateDrawer] = useState(false);
+
+  useEffect(() => {
+    if (isDemoGuest) return;
+    let active = true;
+    void fetchFarms(client)
+      .then((items) => {
+        if (active) setFarms(items);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [client, isDemoGuest, farmId]);
 
   return (
     <div className="stack dashboard-page">
@@ -78,8 +103,37 @@ export function DashboardPage({ farmId, isDemoGuest = true }: DashboardPageProps
         <h2 ref={headingRef} tabIndex={-1}>
           {t(`dashboard.sections.${sectionKey}`)}
         </h2>
-        <div className="dashboard-context">
-          <span>{t(isDemoGuest ? 'dashboard.title' : 'dashboard.titleAccount')}</span>
+        <div className="dashboard-context toolbar">
+          {farms.length > 1 ? (
+            <div className="farm-selector-wrapper">
+              <label htmlFor="farm-selector" className="sr-only">
+                {t('farm.selectFarm')}
+              </label>
+              <select
+                id="farm-selector"
+                className="farm-selector"
+                value={farmId}
+                onChange={(e) => selectFarm(e.target.value)}
+              >
+                {farms.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <span>{t(isDemoGuest ? 'dashboard.title' : 'dashboard.titleAccount')}</span>
+          )}
+          {!isDemoGuest ? (
+            <button
+              type="button"
+              className="button button--secondary button--sm"
+              onClick={() => setShowCreateDrawer(true)}
+            >
+              + {t('farm.create.newFarmButton')}
+            </button>
+          ) : null}
         </div>
       </header>
       <ScenarioProvider>
@@ -137,6 +191,21 @@ export function DashboardPage({ farmId, isDemoGuest = true }: DashboardPageProps
           </nav>
         ) : null}
       </ScenarioProvider>
+      {showCreateDrawer ? (
+        <Drawer
+          title={t('farm.create.title')}
+          closeLabel={t('common.close')}
+          onClose={() => setShowCreateDrawer(false)}
+        >
+          <CreateFarmForm
+            onCreated={(newFarm) => {
+              setFarms((prev) => [...prev, newFarm]);
+              setShowCreateDrawer(false);
+            }}
+            onCancel={() => setShowCreateDrawer(false)}
+          />
+        </Drawer>
+      ) : null}
     </div>
   );
 }

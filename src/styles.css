@@ -58,6 +58,88 @@
   --font-control: var(--font);
 }
 
+:root[data-theme='dark'],
+.dark {
+  /* Identity */
+  --color-primary: #4db380;
+  --color-primary-hover: #63c794;
+  --color-accent: #f5cb6c;
+  --color-accent-soft: #23362a;
+
+  /* Surfaces and backgrounds */
+  --color-bg: #121814;
+  --color-surface: #1a231d;
+  --color-surface-alt: #222e26;
+
+  /* Text */
+  --color-text: #eef3ef;
+  --color-muted: #a3b3a7;
+
+  /* Borders */
+  --color-border: #4d6353;
+  --color-border-soft: #2b3930;
+
+  /* Semantic status */
+  --color-error-bg: #2d1815;
+  --color-error-text: #ff8e82;
+  --color-error-border: #a83a30;
+  --color-warn-bg: #2c230e;
+  --color-warn-text: #fed968;
+  --color-warn-border: #916c14;
+
+  /* Focus */
+  --color-focus: #5ca1fe;
+
+  /* Charts and data viz */
+  --color-rain: #68abf0;
+  --color-temp-mean: #f87b64;
+  --color-temp-min: #a389e8;
+  --color-temp-max: #f7b552;
+  --color-gap: #6c7870;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-primary: #4db380;
+    --color-primary-hover: #63c794;
+    --color-accent: #f5cb6c;
+    --color-accent-soft: #23362a;
+
+    --color-bg: #121814;
+    --color-surface: #1a231d;
+    --color-surface-alt: #222e26;
+
+    --color-text: #eef3ef;
+    --color-muted: #a3b3a7;
+
+    --color-border: #4d6353;
+    --color-border-soft: #2b3930;
+
+    --color-error-bg: #2d1815;
+    --color-error-text: #ff8e82;
+    --color-error-border: #a83a30;
+    --color-warn-bg: #2c230e;
+    --color-warn-text: #fed968;
+    --color-warn-border: #916c14;
+
+    --color-focus: #5ca1fe;
+
+    --color-rain: #68abf0;
+    --color-temp-mean: #f87b64;
+    --color-temp-min: #a389e8;
+    --color-temp-max: #f7b552;
+    --color-gap: #6c7870;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.7);
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -1743,4 +1825,95 @@ td:first-child {
 .app-root--internal .app-footer {
   flex-shrink: 0;
   z-index: 20;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.theme-toggle:hover {
+  background: var(--color-surface-alt);
+}
+.theme-toggle:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.theme-toggle svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Farm creation form and selector */
+.create-farm-card {
+  max-width: 42rem;
+  margin: var(--space) 0;
+}
+.code-textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  width: 100%;
+}
+.farm-selector-wrapper {
+  display: flex;
+  align-items: center;
+}
+.farm-selector {
+  min-height: 2.25rem;
+  padding: 0.2rem 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.button--sm {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.9rem;
+}
+
+/* Dark mode specific component overrides */
+:root[data-theme='dark'] .hero {
+  background: var(--color-surface);
+  border-color: var(--color-border-soft);
+}
+:root[data-theme='dark'] .app-sidebar {
+  background: #141c17;
+  border-right: 1px solid var(--color-border-soft);
+}
+:root[data-theme='dark'] .app-header {
+  background: #151e18;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+:root[data-theme='dark'] .farm-summary {
+  border-color: var(--color-border);
+}
+:root[data-theme='dark'] .enso-cell {
+  background: var(--color-surface-alt);
+}
+:root[data-theme='dark'] .enso-cell--neutral {
+  background: var(--color-surface-alt);
+}
+:root[data-theme='dark'] .enso-cell--none {
+  background: var(--color-surface);
 }

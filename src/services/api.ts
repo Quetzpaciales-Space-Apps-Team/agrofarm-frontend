@@ -8,6 +8,7 @@ import type {
   User,
   EnsoSeries,
   Farm,
+  FarmCreate,
   NasaPowerSeries,
   Priorities,
   RecommendationSet,
@@ -31,6 +32,12 @@ export const fetchMe = (client: ApiClient, signal?: AbortSignal) =>
 
 export const fetchFarmIds = async (client: ApiClient, signal?: AbortSignal) =>
   (await client.get<{ items: Farm[] }>('/v1/farms', { signal })).items.map((farm) => farm.id);
+
+export const fetchFarms = async (client: ApiClient, signal?: AbortSignal) =>
+  (await client.get<{ items: Farm[] }>('/v1/farms', { signal })).items;
+
+export const createFarm = (client: ApiClient, body: FarmCreate, signal?: AbortSignal) =>
+  client.post<Farm>('/v1/farms', { body, signal });
 
 export const fetchFarm = (client: ApiClient, farmId: string, signal?: AbortSignal) =>
   client.get<Farm>(`/v1/farms/${encodeURIComponent(farmId)}`, { signal });

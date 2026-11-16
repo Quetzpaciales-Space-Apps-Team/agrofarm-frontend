@@ -72,7 +72,7 @@ describe('Landing and guest demo entry (FE-090)', () => {
   it('keeps dashboard sections available through the navigation', async () => {
     renderApp();
     await userEvent.click(screen.getByRole('button', { name: /try the demo/i }));
-    await userEvent.click(screen.getByRole('link', { name: /explore scenarios/i }));
+    await userEvent.click(screen.getAllByRole('link', { name: /explore scenarios/i })[0]);
     expect(
       await screen.findByRole('heading', { name: /what if the weather changes/i }),
     ).toBeInTheDocument();

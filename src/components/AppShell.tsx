@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '../features/auth/state/session';
 import { Navigation } from '../app/Navigation';
+import { ThemeToggle } from './ThemeToggle';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
@@ -20,14 +21,17 @@ export function AppShell({ children }: { children: ReactNode }) {
           </a>
           <p className="app-header__tagline">{t('app.shell.tagline')}</p>
         </div>
-        {isAuthenticated ? (
-          <div className="app-header__actions">
-            {isDemoGuest ? <span className="demo-badge">{t('app.shell.demo')}</span> : null}
-            <button type="button" className="header-action" onClick={leave}>
-              {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
-            </button>
-          </div>
-        ) : null}
+        <div className="app-header__actions">
+          <ThemeToggle />
+          {isAuthenticated ? (
+            <>
+              {isDemoGuest ? <span className="demo-badge">{t('app.shell.demo')}</span> : null}
+              <button type="button" className="header-action" onClick={leave}>
+                {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
+              </button>
+            </>
+          ) : null}
+        </div>
       </header>
       <div className="app-body">
         {isAuthenticated ? <Navigation /> : null}

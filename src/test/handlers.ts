@@ -144,11 +144,14 @@ export function setRefreshCookie(cookie: boolean, kind: StubSessionKind = 'user'
   stubSession = { cookie, kind };
 }
 
+let farmsState: Schemas['Farm'][] = [STUB_FARM];
+
 /** Restores in-memory state changed by PUT handlers. Call it in `beforeEach`. */
 export function resetStubState() {
   priorities = structuredClone(DEFAULT_PRIORITIES);
   requestCounter = 0;
   stubSession = { cookie: false, kind: 'demo' };
+  farmsState = [STUB_FARM];
 }
 
 const utf8Length = (value: string) => new TextEncoder().encode(value).length;
@@ -651,12 +654,34 @@ export const handlers = [
 
   http.get('*/v1/farms', ({ request }) => {
     if (!isAuthorized(request)) return unauthorized();
-    return ok({ items: [STUB_FARM], next_cursor: null } satisfies Schemas['FarmList']);
+    return ok({ items: farmsState, next_cursor: null } satisfies Schemas['FarmList']);
   }),
 
   http.get('*/v1/farms/:farmId', ({ request, params }) => {
     if (!isAuthorized(request)) return unauthorized();
-    return params.farmId === DEMO_FARM_ID ? ok(STUB_FARM) : farmNotFound();
+    const farm = farmsState.find((f) => f.id === params.farmId);
+    return farm ? ok(farm) : farmNotFound();
+  }),
+
+  http.post('*/v1/farms', async ({ request }) => {
+    if (!isAuthorized(request)) return unauthorized();
+    const body = (await request.json().catch(() => null)) as Schemas['FarmCreate'] | null;
+    if (!body || !body.name || !body.boundary) {
+      return problemResponse(422, 'validation_error', 'Invalid farm payload');
+    }
+    const newFarm: Schemas['Farm'] = {
+      id: `farm-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      name: body.name,
+      boundary: body.boundary,
+      area_ha: 110.0,
+      current_rotation:
+        body.current_rotation && body.current_rotation.length > 0
+          ? body.current_rotation
+          : ['maize'],
+      created_at: new Date().toISOString(),
+    };
+    farmsState.push(newFarm);
+    return HttpResponse.json(newFarm, { status: 201 });
   }),
 
   http.get('*/v1/farms/:farmId/priorities', ({ request, params }) => {
