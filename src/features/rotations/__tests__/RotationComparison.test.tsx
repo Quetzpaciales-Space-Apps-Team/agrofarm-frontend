@@ -217,4 +217,11 @@ describe('RotationComparison (FE-403)', () => {
     const { container } = await ready();
     await expectNoAxeViolations(container);
   });
+
+  it('renders collapsible detail sections for why, evidence, benefits, gaps, and risks', async () => {
+    await ready();
+    const firstCard = cards()[0];
+    const details = firstCard.querySelectorAll('details');
+    expect(details).toHaveLength(5);
+  });
 });

@@ -8,10 +8,12 @@ import { StrategyDetail } from './StrategyDetail';
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
-      <h5>{title}</h5>
+    <details open className="strategy-block">
+      <summary className="strategy-block-summary">
+        <h5 className="strategy-block-title">{title}</h5>
+      </summary>
       {children}
-    </div>
+    </details>
   );
 }
 

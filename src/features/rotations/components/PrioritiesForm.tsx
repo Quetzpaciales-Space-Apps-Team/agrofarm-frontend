@@ -4,18 +4,22 @@ import { PanelErrorState, PanelLoadingState } from '../../../components/PanelSta
 import {
   DEFAULT_PRIORITIES,
   EQUIPMENT_TYPES,
+  PRIORITY_PRESETS,
   WATER_AVAILABILITY,
   fromSliderValue,
+  matchingPriorityPresetId,
   toSliderValue,
   validatePriorities,
   type EquipmentType,
   type Priorities,
+  type PriorityPreset,
   type WaterAvailability,
 } from '../../../domain/priorities';
 import { PRIORITY_KEYS, type PriorityKey } from '../../../domain/strategies';
 import { savePriorities } from '../../../services/api';
 import { useApi } from '../../../services/ApiContext';
 import { usePriorities } from '../hooks/usePriorities';
+import '../rotations.css';
 
 type Status = 'idle' | 'saving' | 'saved' | 'error' | 'reset';
 
@@ -83,15 +87,14 @@ function Fields({
     edit({ ...draft, constraints: { ...draft.constraints, equipment } });
   };
 
-  const onSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (validatePriorities(draft).length > 0) {
+  const persist = async (next: Priorities) => {
+    if (validatePriorities(next).length > 0) {
       setStatus('error');
       return;
     }
     setStatus('saving');
     try {
-      await savePriorities(client, farmId, draft);
+      await savePriorities(client, farmId, next);
       setStatus('saved');
       onSaved?.();
     } catch {
@@ -99,8 +102,41 @@ function Fields({
     }
   };
 
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    await persist(draft);
+  };
+
+  const applyPreset = async (preset: PriorityPreset) => {
+    const next: Priorities = {
+      ...draft,
+      weights: { ...preset.weights },
+    };
+    setDraft(next);
+    await persist(next);
+  };
+
+  const activePreset = matchingPriorityPresetId(draft.weights);
+
   return (
     <form className="stack" onSubmit={onSubmit} aria-busy={status === 'saving'}>
+      <div className="priority-presets" role="group" aria-label={t('priorities.presets.label')}>
+        <p className="priority-presets-label">{t('priorities.presets.label')}</p>
+        <div className="priority-presets-row">
+          {PRIORITY_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              className={`priority-preset-btn ${activePreset === preset.id ? 'priority-preset-btn--active' : ''}`}
+              aria-pressed={activePreset === preset.id}
+              disabled={status === 'saving'}
+              onClick={() => void applyPreset(preset)}
+            >
+              {t(`priorities.presets.${preset.id}`)}
+            </button>
+          ))}
+        </div>
+      </div>
       <fieldset className="stack">
         <legend>{t('priorities.weightsLegend')}</legend>
         <div className="controls controls--sliders">
@@ -208,10 +244,25 @@ export function PrioritiesForm({ farmId, onSaved }: { farmId: string; onSaved?: 
     body = <PanelLoadingState label={t('priorities.loading')} />;
   else body = <Fields farmId={farmId} initial={resource.data} onSaved={onSaved} />;
 
+  const jumpToComparison = () => {
+    const target = document.getElementById('rotations-title');
+    if (target) {
+      target.focus();
+      target.scrollIntoView?.({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section aria-labelledby="priorities-title" className="card stack">
       <div>
-        <h3 id="priorities-title">{t('priorities.title')}</h3>
+        <div className="rotations-header-row">
+          <h3 id="priorities-title" tabIndex={-1}>
+            {t('priorities.title')}
+          </h3>
+          <button type="button" className="button button--secondary" onClick={jumpToComparison}>
+            {t('priorities.jumpToComparison')}
+          </button>
+        </div>
         <p>{t('priorities.intro')}</p>
         <p className="source">{t('priorities.starting')}</p>
         <p className="source">{t('priorities.decision')}</p>

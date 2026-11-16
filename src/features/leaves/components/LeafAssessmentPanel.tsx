@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FileDropzone } from '../../../components/FileDropzone';
+import { formatFileSize } from '../../uploads/domain/format';
 import { useApi } from '../../../services/ApiContext';
 import { errorKey } from '../../../services/errors';
 import { assessLeaf, isHttps, LEAF_CLASSES, type LeafAssessment } from '../../../services/leaves';
@@ -89,22 +91,25 @@ export function LeafAssessmentPanel({ farmId }: { farmId: string }) {
           void submit();
         }}
       >
-        <div className="field">
-          <label htmlFor={`${id}-file`}>{t('leaf.choose')}</label>
-          <input
-            ref={input}
-            id={`${id}-file`}
-            type="file"
-            accept="image/jpeg,image/png"
-            aria-describedby={`${id}-privacy`}
-            onChange={(event) => select(event.target.files?.[0] ?? null)}
-          />
-          <span id={`${id}-privacy`}>{t('leaf.privacy')}</span>
-        </div>
+        <FileDropzone
+          inputId={`${id}-file`}
+          inputLabel={t('leaf.choose')}
+          prompt={t('leaf.dropzone.prompt')}
+          hint={t('leaf.privacy')}
+          hintId={`${id}-privacy`}
+          accept="image/jpeg,image/png"
+          inputRef={input}
+          selectedLabel={
+            file ? `${file.name} (${formatFileSize(file.size, i18n.language)})` : undefined
+          }
+          onSelect={select}
+        />
         {preview && (
           <figure className="leaf-preview">
             <img src={preview} alt={t('leaf.preview')} />
-            <figcaption>{file?.name}</figcaption>
+            <figcaption>
+              {file?.name} ({file ? formatFileSize(file.size, i18n.language) : ''})
+            </figcaption>
           </figure>
         )}
         <div className="toolbar">

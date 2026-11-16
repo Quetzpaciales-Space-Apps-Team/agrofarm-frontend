@@ -7,10 +7,17 @@ import {
   PanelLoadingState,
 } from '../../../components/PanelState';
 import { humanizeId } from '../../../domain/months';
-import { ENSO_PHASES, SCENARIO_LIMITS, formatSigned } from '../../../domain/scenario';
+import {
+  ENSO_PHASES,
+  SCENARIO_LIMITS,
+  SCENARIO_PRESETS,
+  formatSigned,
+  matchingPresetId,
+} from '../../../domain/scenario';
 import { useFarm } from '../../farms/hooks/useFarm';
 import { useScenario } from '../state/scenario';
 import { SimulationResults } from './SimulationResults';
+import '../simulation.css';
 
 interface SliderProps {
   label: string;
@@ -67,6 +74,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
   const debouncedCrop =
     debounced.crop && crops.includes(debounced.crop) ? debounced.crop : (crops[0] ?? null);
   const { rainfall, temperature } = SCENARIO_LIMITS;
+  const activePreset = matchingPresetId(scenario);
   const range = (min: number, max: number, unit: string) =>
     t('scenario.range', {
       min: formatSigned(min, unit, locale),
@@ -83,6 +91,23 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
         <PanelEmptyState>{t('scenario.noCrops')}</PanelEmptyState>
       ) : (
         <>
+          <div className="scenario-presets" role="group" aria-label={t('scenario.presets.label')}>
+            <p className="scenario-presets-label">{t('scenario.presets.label')}</p>
+            <div className="scenario-presets-row">
+              {SCENARIO_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={`preset-btn ${activePreset === preset.id ? 'preset-btn--active' : ''}`}
+                  aria-pressed={activePreset === preset.id}
+                  onClick={() => update(preset.values)}
+                >
+                  <span>{t(`scenario.presets.${preset.id}.title`)}</span>
+                  <span className="preset-btn-meta">{t(`scenario.presets.${preset.id}.meta`)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="controls controls--sliders">
             <Slider
               label={t('scenario.rainfall')}

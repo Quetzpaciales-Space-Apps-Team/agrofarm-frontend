@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -117,6 +117,15 @@ describe('maize leaf screening', () => {
     );
     expect(screen.getByRole('alert')).toHaveTextContent(/5 MiB/i);
     expect(screen.getByRole('button', { name: /assess photo/i })).toBeDisabled();
+  });
+
+  it('accepts a dropped leaf photo in the accessible dropzone', async () => {
+    setup();
+    const dropzone = screen.getByRole('button', { name: /drop.*photo.*or browse/i });
+    const file = new File(['image-bytes'], 'dropped-leaf.png', { type: 'image/png' });
+    fireEvent.drop(dropzone, { dataTransfer: { files: [file] } });
+    expect(await screen.findByRole('img', { name: /selected maize leaf/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/dropped-leaf\.png/i)).toHaveLength(2);
   });
 
   it('clears the selected photo and has no axe violations', async () => {

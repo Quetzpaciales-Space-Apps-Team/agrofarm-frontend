@@ -174,6 +174,36 @@ describe('PrioritiesForm (FE-402)', () => {
     const { container } = await loaded();
     await expectNoAxeViolations(container);
   });
+
+  it('applies one-click priority presets, sets all seven sliders, and saves to refresh recommendations', async () => {
+    let savedBody: unknown;
+    server.use(
+      http.put('*/v1/farms/:id/priorities', async ({ request }) => {
+        savedBody = await request.json();
+        return HttpResponse.json(savedBody as object);
+      }),
+    );
+    const user = userEvent.setup();
+    let onSavedCount = 0;
+    renderForm(() => (onSavedCount += 1));
+    await screen.findByRole('slider', { name: /water use/i });
+
+    const saveWaterBtn = screen.getByRole('button', { name: /save water/i });
+    await user.click(saveWaterBtn);
+
+    expect(slider(/water use/i)).toHaveValue('95');
+    expect(slider(/erosion reduction/i)).toHaveValue('85');
+    expect(slider(/income/i)).toHaveValue('50');
+    expect(slider(/forage value/i)).toHaveValue('30');
+    expect(slider(/soil structure/i)).toHaveValue('70');
+    expect(slider(/nitrogen fixing/i)).toHaveValue('50');
+    expect(slider(/market suitability/i)).toHaveValue('40');
+
+    await waitFor(() => expect(onSavedCount).toBe(1));
+    expect(savedBody).toMatchObject({
+      weights: { water_use: 0.95, erosion_reduction: 0.85 },
+    });
+  });
 });
 
 describe('RotationsSection (FE-402)', () => {
@@ -194,5 +224,22 @@ describe('RotationsSection (FE-402)', () => {
     expect(
       within(screen.getAllByRole('article')[0]).getAllByText(/out of 100/i)[0],
     ).toBeInTheDocument();
+  });
+
+  it('jumps focus to the comparison heading and back to priorities', async () => {
+    const user = userEvent.setup();
+    renderWith((farmId) => <RotationsSection farmId={farmId} scenario={SCENARIO} />);
+    await screen.findAllByRole('article');
+    await screen.findByRole('slider', { name: /water use/i });
+
+    await user.click(screen.getByRole('button', { name: /jump to comparison/i }));
+    const comparisonHeading = screen.getByRole('heading', { name: /compare rotation strategies/i });
+    expect(comparisonHeading).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: /back to priorities/i }));
+    const prioritiesHeading = screen.getByRole('heading', {
+      name: /your priorities for this farm/i,
+    });
+    expect(prioritiesHeading).toHaveFocus();
   });
 });
