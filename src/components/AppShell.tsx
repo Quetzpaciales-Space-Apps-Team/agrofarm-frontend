@@ -36,8 +36,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <span className="demo-badge__dot" aria-hidden="true" />
                   <span>{t('app.shell.demo')}</span>
                 </button>
-              ) : null}
-              <TourButton />
+              ) : (
+                <TourButton />
+              )}
             </>
           ) : null}
           <ThemeToggle />

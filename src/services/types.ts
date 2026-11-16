@@ -5,6 +5,7 @@ type Schemas = components['schemas'];
 
 export type Farm = Schemas['Farm'];
 export type FarmCreate = Schemas['FarmCreate'];
+export type FarmUpdate = Schemas['FarmUpdate'];
 export type NasaPowerSeries = Schemas['NasaPowerSeries'];
 export type NasaPowerItem = NasaPowerSeries['items'][number];
 export type EnsoSeries = Schemas['EnsoSeries'];
