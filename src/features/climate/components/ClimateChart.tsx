@@ -7,6 +7,7 @@ import {
   type ClimateRow,
 } from '../../../domain/chart';
 import { formatMonth, formatValue } from '../../../domain/months';
+import { ensoCode, type EnsoCell } from '../../../domain/enso';
 
 const DIMS: ChartDims = {
   width: 720,
@@ -14,7 +15,15 @@ const DIMS: ChartDims = {
   margin: { top: 16, right: 60, bottom: 48, left: 60 },
 };
 
-export function ClimateChart({ rows }: { rows: ClimateRow[] }) {
+export function ClimateChart({
+  rows,
+  enso = [],
+  showEnso = false,
+}: {
+  rows: ClimateRow[];
+  enso?: readonly EnsoCell[];
+  showEnso?: boolean;
+}) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const id = useId();
@@ -98,6 +107,34 @@ export function ClimateChart({ rows }: { rows: ClimateRow[] }) {
         y2={bottom}
       />
       <line className="axis-line" x1={plot.left} x2={plot.left} y1={plot.top} y2={bottom} />
+
+      {showEnso && enso.length > 0 && rows.length > 0
+        ? enso.map((cell, index) => {
+            const bandWidth = plot.width / rows.length;
+            const x = plot.left + bandWidth * index;
+            return (
+              <g key={`enso-${cell.month}`}>
+                <rect
+                  className={`enso-band enso-band--${cell.phase ?? 'none'}`}
+                  x={x}
+                  y={plot.top}
+                  width={bandWidth}
+                  height={plot.height}
+                />
+                {bandWidth >= 18 ? (
+                  <text
+                    className="enso-band-label"
+                    x={x + bandWidth / 2}
+                    y={plot.top + 11}
+                    textAnchor="middle"
+                  >
+                    {ensoCode(cell.phase)}
+                  </text>
+                ) : null}
+              </g>
+            );
+          })
+        : null}
 
       {chart.gapBands.map((gap) => (
         <rect

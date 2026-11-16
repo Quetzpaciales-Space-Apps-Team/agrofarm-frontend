@@ -199,4 +199,27 @@ describe('ClimatePanel (FE-091)', () => {
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
     await expectNoAxeViolations(container);
   });
+
+  it('overlays shaded ENSO phase bands on the chart with a Show ENSO phases toggle', async () => {
+    const { container } = await loaded();
+    const toggle = screen.getByRole('checkbox', { name: /show enso phases/i });
+    expect(toggle).toBeChecked();
+    expect(container.querySelectorAll('svg.chart rect.enso-band')).toHaveLength(24);
+    expect(screen.getByRole('list', { name: /chart legend/i })).toHaveTextContent(/EN/);
+
+    await userEvent.click(toggle);
+    expect(toggle).not.toBeChecked();
+    expect(container.querySelectorAll('svg.chart rect.enso-band')).toHaveLength(0);
+  });
+
+  it('renders a client-calculated period summary card with non-causal ENSO wording', async () => {
+    await loaded();
+    const summary = screen.getByRole('region', { name: /period summary/i });
+    expect(summary).toHaveTextContent(/wettest month/i);
+    expect(summary).toHaveTextContent(/driest month/i);
+    expect(summary).toHaveTextContent(/total rainfall/i);
+    expect(summary).toHaveTextContent(/mean temperature/i);
+    expect(summary).toHaveTextContent(/coincides with/i);
+    expect(summary).not.toHaveTextContent(/\bcaused\b/i);
+  });
 });

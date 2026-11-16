@@ -207,6 +207,7 @@
     "empty": "No climate data is available for this location yet.",
     "from": "From",
     "to": "To",
+    "showEnso": "Show ENSO phases",
     "noData": "No data",
     "noDataShort": "no data",
     "chart": {
@@ -226,7 +227,19 @@
       "mean": "Mean temperature (°C), solid line",
       "min": "Minimum temperature (°C), dashed line",
       "max": "Maximum temperature (°C), dotted line",
-      "noData": "No data, hatched band"
+      "noData": "No data, hatched band",
+      "elNino": "El Nino (EN), shaded warm band",
+      "laNina": "La Nina (LN), shaded cool band",
+      "neutral": "Neutral (NE), neutral band"
+    },
+    "summary": {
+      "title": "Period summary",
+      "wettest": "Wettest month",
+      "driest": "Driest month",
+      "totalRain": "Total rainfall",
+      "meanTemp": "Mean temperature",
+      "monthValue": "{{month}} ({{value}})",
+      "ensoCoincidence": "Across {{months}} months, this period coincides with {{elNino}} El Nino month(s) and {{laNina}} La Nina month(s)."
     },
     "missing": {
       "title": "Months with no data",
