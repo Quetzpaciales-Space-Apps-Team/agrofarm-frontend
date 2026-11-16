@@ -669,5 +669,29 @@
     "explanation": "These SHAP differences explain the raw median model, not causes. Rainfall changes apply uniformly across the season. ENSO phases assume RONI +1, 0 or −1 in seasonal and preseason inputs. Quantile sorting can move the raw median.",
     "delta": "Explained raw median change: {{delta}} percentage points.",
     "limits": "Model limits and assumptions"
+  },
+  "stressTest": {
+    "title": "Crop stress test matrix",
+    "intro": "Compare how each supported crop responds across all four scenario presets.",
+    "caveat": "These are per-crop results from an illustrative rule-based model, not a full rotation evaluation and not a forecast.",
+    "caveatWithModel": "These are per-crop results from {{model}} ({{version}}), an illustrative rule-based model — not a full rotation evaluation and not a forecast.",
+    "run": "Run stress test",
+    "progress": "Running {{completed}} of {{total}}...",
+    "cancelled": "Stress test cancelled ({{completed}} of {{total}} completed).",
+    "tableCaption": "Crop stress test matrix (median and 10th to 90th percentile yield anomaly)",
+    "cropCol": "Crop",
+    "pendingCell": "—",
+    "rangeCell": "{{low}} to {{high}}",
+    "worstForCrop": "Worst for crop",
+    "mostResilient": "Most resilient",
+    "summaryWorst": "Lowest median estimate: {{crop}} under {{scenario}} ({{median}}).",
+    "summaryEqual": "All tested crops return identical estimates under the current rule-based model.",
+    "summaryDiffers": "Each scenario highlights the most resilient crop and each crop marks its worst scenario.",
+    "presets": {
+      "el_nino_drier": "El Nino: drier",
+      "la_nina_wetter": "La Nina: wetter",
+      "heatwave": "Heatwave",
+      "normal": "Normal year"
+    }
   }
 }

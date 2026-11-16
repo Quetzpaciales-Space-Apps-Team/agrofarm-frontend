@@ -5,6 +5,7 @@ import { humanizeId } from '../../../domain/months';
 import { ENSO_PHASES, SCENARIO_LIMITS, formatSigned } from '../../../domain/scenario';
 import { useFarm } from '../../farms/hooks/useFarm';
 import { useScenario } from '../state/scenario';
+import { CropStressTest } from './CropStressTest';
 import { SimulationResults } from './SimulationResults';
 
 interface SliderProps {
@@ -143,6 +144,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
           ) : null}
         </>
       )}
+      <CropStressTest farmId={farmId} />
     </section>
   );
 }
