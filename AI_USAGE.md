@@ -8,14 +8,15 @@ AI coding assistants were used as tools to write and review code, tests, CI work
 
 ## Tools
 
-| Tool          | Model               | Used by            | Used for                                                                                                                |
-| ------------- | ------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| Claude Code   | `claude-fable-5-2`  | `eldmark`          | Repository rules, CI, scaffolds, connectors, tests, documentation, data analysis                                        |
-| Claude Code   | `claude-sonnet-5-5` | `eldmark`          | Auth screens, session restore, API client middlewares and their tests (FE-101, FE-103, FE-104, FE-105)                  |
-| Claude Code   | `claude-sonnet-5-5` | `eldmark`          | Upload wizard (FE-401): code and tests                                                                                  |
-| Google Gemini | `Gemini`            | `MagicBag-tab`     | Visual UI/UX edits, dashboard shell styling and responsive layout refinements                                           |
-| OpenAI Codex  | `GPT-5.6-luna`      | `MagicBag-tab`     | Issue tracking, architecture review, merge-conflict resolution, test updates, lint/typecheck verification and UI review |
-| Antigravity   | `Gemini 4 Hydrogen` | `MarceloDetlefsen` | UI polish, unit/component tests, sample fixtures, and documentation (reviewed by human)                                 |
+| Tool          | Model               | Used by                     | Used for                                                                                                                        |
+| ------------- | ------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Code   | `claude-fable-5-2`  | `eldmark`                   | Repository rules, CI, scaffolds, connectors, tests, documentation, data analysis                                                |
+| Claude Code   | `claude-sonnet-5-5` | `eldmark`                   | Auth screens, session restore, API client middlewares and their tests (FE-101, FE-103, FE-104, FE-105)                          |
+| Claude Code   | `claude-sonnet-5-5` | `eldmark`                   | Upload wizard (FE-401): code and tests                                                                                          |
+| Google Gemini | `Gemini`            | `MagicBag-tab`              | Visual UI/UX edits, dashboard shell styling and responsive layout refinements                                                   |
+| OpenAI Codex  | `GPT-5.6-luna`      | `MagicBag-tab`              | Issue tracking, architecture review, merge-conflict resolution, test updates, lint/typecheck verification and UI review         |
+| Antigravity   | `Gemini 3.8`        | `Angel Chavez (angcoder-c)` | Farm creation flow, interactive demo tutorial (Driver.js), farm zone map, dark mode implementation, and layout/sidebar UI fixes |
+| Antigravity   | `Gemini 4 Hydrogen` | `MarceloDetlefsen`          | UI polish, unit/component tests, sample fixtures, and documentation (reviewed by human)                                         |
 
 Team members who used another tool add a row here in their next pull request (rule G11.3).
 
