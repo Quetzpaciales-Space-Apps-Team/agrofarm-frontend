@@ -223,6 +223,22 @@
     },
     "cta": {
       "arrow": "Go"
+    },
+    "footer": {
+      "title": "The team behind AgroFarm",
+      "about": "AgroFarm was built by the Quetzpaciales team for the NASA International Space Apps Challenge, to help farmers and local agronomists in Guatemala plan with the weather in mind.",
+      "teamTitle": "The team",
+      "reposTitle": "The code",
+      "repos": {
+        "frontend": "The web app you are using",
+        "api": "The service that answers the app",
+        "analytic": "Models, data and experiments",
+        "docs": "The plan, decisions and documents"
+      },
+      "copyright": "© {{year}} Quetzpaciales Space Apps Team. All rights reserved.",
+      "nasa": "Made for the NASA International Space Apps Challenge. AgroFarm is not affiliated with or endorsed by NASA. It uses public data, including NASA POWER.",
+      "photoCredits": "Photo credits",
+      "newTab": "(opens in a new tab)"
     }
   },
   "auth": {
