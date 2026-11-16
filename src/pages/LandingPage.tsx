@@ -1,4 +1,12 @@
-import { useEffect, useRef, useState, type MouseEvent, type RefObject } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type PointerEvent,
+  type RefObject,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { useSession } from '../features/auth/state/session';
@@ -14,23 +22,60 @@ const prefersReducedMotion = () =>
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const smooth = (from: number, to: number, x: number) => {
-  const t = Math.min(1, Math.max(0, (x - from) / (to - from)));
-  return t * t * (3 - 2 * t);
-};
+const reveal = (index: number): { 'data-reveal': string; style: CSSProperties } => ({
+  'data-reveal': '',
+  style: { '--i': index } as CSSProperties,
+});
 
-/** Camera for the journey: p is the scroll progress, 0 (whole field) to 1 (decision). */
-function camera(p: number) {
-  const toPlant = smooth(0.08, 0.4, p);
-  const toCob = smooth(0.42, 0.78, p);
-  const scale = 1 + 1.1 * toPlant + 3.3 * toCob;
-  const fx = 300 + 46 * toCob;
-  const fy = 300 + 12 * toCob;
-  return {
-    transform: `translate(300 300) scale(${scale.toFixed(3)}) translate(${-fx.toFixed(2)} ${-fy.toFixed(2)})`,
-    farOpacity: 1 - toPlant,
-    step: p < 0.22 ? 0 : p < 0.5 ? 1 : p < 0.8 ? 2 : 3,
-  };
+function Arrow() {
+  return (
+    <svg className="btn-arrow" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 12h14m-6-6 6 6-6 6" />
+    </svg>
+  );
+}
+
+/** Page-level microinteractions: scroll progress bar and reveal-on-scroll for marked items. */
+function useLandingEffects(rootRef: RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return undefined;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const rect = root.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+      root.style.setProperty('--page', p.toFixed(4));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+    let observer: IntersectionObserver | null = null;
+    if (!prefersReducedMotion() && typeof IntersectionObserver === 'function') {
+      root.classList.add('js-reveal');
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              (entry.target as HTMLElement).dataset.in = 'true';
+              observer?.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.15, rootMargin: '0px 0px -8% 0px' },
+      );
+      root.querySelectorAll('[data-reveal]').forEach((node) => observer?.observe(node));
+    }
+    return () => {
+      window.removeEventListener('scroll', onScroll, { capture: true });
+      if (frame) cancelAnimationFrame(frame);
+      observer?.disconnect();
+      root.classList.remove('js-reveal');
+    };
+  }, [rootRef]);
 }
 
 function RangeCard({ className = '' }: { className?: string }) {
@@ -51,95 +96,74 @@ function RangeCard({ className = '' }: { className?: string }) {
   );
 }
 
-interface JourneyRefs {
-  farRef: RefObject<SVGGElement | null>;
-  cameraRef: RefObject<SVGGElement | null>;
-}
+const FRAME_COUNT = 48;
+const frameUrl = (index: number) => `/landing/seq/f${String(index).padStart(3, '0')}.webp`;
+const stepAt = (p: number) => (p < 0.22 ? 0 : p < 0.5 ? 1 : p < 0.8 ? 2 : 3);
 
-/** The close-up maize plant the scroll journey moves toward. */
-function JourneyPlant({ label, farRef, cameraRef }: JourneyRefs & { label: string }) {
-  const far = [20, 60, 100, 140, 180, 220, 260, 300, 340, 380, 420, 460, 500, 540, 580];
-  const leaves = [
-    'M300 430 Q215 370 140 420',
-    'M300 380 Q390 320 470 372',
-    'M300 330 Q220 270 150 318',
-    'M300 280 Q385 222 455 262',
-    'M300 230 Q240 180 190 210',
-  ];
-  const rows = Array.from({ length: 11 }, (_, index) => 276 + index * 9);
-  return (
-    <svg className="journey-svg" viewBox="0 0 600 600" role="img" aria-label={label}>
-      <rect width="600" height="600" className="journey-svg__sky" />
-      <circle cx="500" cy="90" r="34" className="crop-scene__sun" />
-      <g ref={cameraRef}>
-        <rect y="540" width="600" height="400" className="crop-scene__soil" />
-        <g ref={farRef}>
-          {far.map((x, index) => (
-            <g
-              key={x}
-              transform={`translate(${x + (index % 2) * 10} ${532 - (index % 2) * 14}) scale(0.3)`}
-            >
-              <path
-                d="M0 0 L0 -120 M0 -40 Q-30 -70 -45 -50 M0 -70 Q30 -100 45 -80"
-                className="stalk__leaf"
-              />
-            </g>
-          ))}
-        </g>
-        <path d="M300 545 L300 150" className="stalk__stem journey-svg__stem" />
-        {leaves.map((d) => (
-          <path key={d} d={d} className="stalk__leaf journey-svg__leaf" />
-        ))}
-        <path
-          d="M300 150 Q290 110 300 80 M300 150 Q312 112 322 90 M300 150 Q282 120 276 96"
-          className="journey-svg__tassel"
-        />
-        <ellipse cx="346" cy="322" rx="19" ry="54" className="stalk__cob" />
-        {rows.map((y, rowIndex) =>
-          [-9, 0, 9].map((dx) => (
-            <circle
-              key={`${y}-${dx}`}
-              cx={346 + dx + (rowIndex % 2 ? 4 : -1)}
-              cy={y + 12}
-              r="3.4"
-              className="journey-svg__kernel"
-            />
-          )),
-        )}
-        <path d="M328 380 Q308 322 338 262" className="journey-svg__husk" />
-        <path d="M364 380 Q384 322 354 262" className="journey-svg__husk" />
-      </g>
-    </svg>
-  );
-}
-
-/** Pinned storytelling block: scrolling moves the camera from the field to a single cob. */
+/**
+ * Pinned storytelling block. The ear of maize was rendered in Blender as a short image
+ * sequence (the camera moves closer and turns while kernels pop out); scrolling scrubs it.
+ */
 function Journey() {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
-  const cameraRef = useRef<SVGGElement>(null);
-  const farRef = useRef<SVGGElement>(null);
-  const [step, setStep] = useState(0);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [step, setStep] = useState(() => (prefersReducedMotion() ? 3 : 0));
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return undefined;
-    const apply = (p: number) => {
-      const view = camera(p);
-      cameraRef.current?.setAttribute('transform', view.transform);
-      farRef.current?.setAttribute('opacity', view.farOpacity.toFixed(3));
-      setStep(view.step);
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext('2d');
+    if (!section || !canvas || !context) return undefined;
+    const reduce = prefersReducedMotion();
+    const images: (HTMLImageElement | undefined)[] = [];
+    let current = reduce ? 30 : 0;
+    let started = false;
+    const draw = () => {
+      for (let i = current; i >= 0; i -= 1) {
+        const image = images[i];
+        if (image?.complete && image.naturalWidth > 0) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          return;
+        }
+      }
     };
-    if (prefersReducedMotion()) {
-      apply(0.6);
-      return undefined;
+    const load = () => {
+      if (started) return;
+      started = true;
+      for (let i = 0; i < FRAME_COUNT; i += 1) {
+        const image = new Image();
+        image.onload = () => {
+          if (i <= current) draw();
+        };
+        image.src = frameUrl(i);
+        images[i] = image;
+      }
+    };
+    const observer =
+      typeof IntersectionObserver === 'function'
+        ? new IntersectionObserver(
+            (entries) => {
+              if (entries.some((entry) => entry.isIntersecting)) load();
+            },
+            { rootMargin: '1200px 0px' },
+          )
+        : null;
+    if (observer) observer.observe(section);
+    else load();
+    if (reduce) {
+      return () => observer?.disconnect();
     }
     let frame = 0;
     const update = () => {
       frame = 0;
       const rect = section.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
-      apply(total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0);
+      const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+      current = Math.round(p * (FRAME_COUNT - 1));
+      draw();
+      setStep(stepAt(p));
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -149,6 +173,7 @@ function Journey() {
     window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     window.addEventListener('resize', onScroll);
     return () => {
+      observer?.disconnect();
       window.removeEventListener('scroll', onScroll, { capture: true });
       window.removeEventListener('resize', onScroll);
       if (frame) cancelAnimationFrame(frame);
@@ -173,15 +198,13 @@ function Journey() {
           </p>
         </div>
         <div className="journey__visual">
-          <JourneyPlant label={t('landing.journey.scene')} farRef={farRef} cameraRef={cameraRef} />
-          <img
-            className="journey__photo"
-            data-on={step >= 2}
-            src="/landing/cob-close.webp"
-            alt=""
-            width="1000"
-            height="1000"
-            loading="lazy"
+          <canvas
+            ref={canvasRef}
+            className="journey__canvas"
+            width={760}
+            height={760}
+            role="img"
+            aria-label={t('landing.journey.scene')}
           />
           <RangeCard className={`journey__range${step === 3 ? ' journey__range--on' : ''}`} />
         </div>
@@ -197,11 +220,11 @@ const ICON_PATHS: Record<(typeof FLIPS)[number], string> = {
   decide: 'M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3zm-3 9 2 2 4-4',
 };
 
-function FlipCard({ name }: { name: (typeof FLIPS)[number] }) {
+function FlipCard({ name, index }: { name: (typeof FLIPS)[number]; index: number }) {
   const { t } = useTranslation();
   const [flipped, setFlipped] = useState(false);
   return (
-    <li>
+    <li {...reveal(index)}>
       <button
         type="button"
         className="flip"
@@ -232,6 +255,20 @@ export function LandingPage() {
   const { status, errorKey, startDemo } = useSession();
   const headingRef = useFocusOnMount<HTMLHeadingElement>();
   const starting = status === 'starting';
+  const rootRef = useRef<HTMLDivElement>(null);
+  useLandingEffects(rootRef);
+
+  const onHeroMove = (event: PointerEvent<HTMLElement>) => {
+    if (event.pointerType !== 'mouse' || prefersReducedMotion()) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width;
+    const y = (event.clientY - box.top) / box.height;
+    const style = event.currentTarget.style;
+    style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
+    style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+    style.setProperty('--tx', ((x - 0.5) * 2).toFixed(3));
+    style.setProperty('--ty', ((y - 0.5) * 2).toFixed(3));
+  };
 
   const goTo = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     event.preventDefault();
@@ -241,8 +278,13 @@ export function LandingPage() {
   };
 
   return (
-    <div className="landing">
-      <section aria-labelledby="landing-title" className="band band--night landing-hero">
+    <div className="landing" ref={rootRef}>
+      <div className="scroll-progress" aria-hidden="true" />
+      <section
+        aria-labelledby="landing-title"
+        className="band band--night landing-hero"
+        onPointerMove={onHeroMove}
+      >
         <div className="band__inner landing-hero__grid">
           <div className="landing-hero__copy">
             <h2 id="landing-title" ref={headingRef} tabIndex={-1}>
@@ -258,6 +300,7 @@ export function LandingPage() {
                 onClick={() => void startDemo()}
               >
                 {starting ? t('landing.starting') : t('landing.tryDemo')}
+                <Arrow />
               </button>
               <p className="landing-demo-note">{t('landing.demoNote')}</p>
             </div>
@@ -266,11 +309,6 @@ export function LandingPage() {
                 {t(errorKey)}
               </p>
             ) : null}
-            <p className="auth-links landing-auth-links">
-              <span>{t('landing.accountNote')}</span>
-              <a href="#/login">{t('landing.login')}</a>
-              <a href="#/register">{t('landing.register')}</a>
-            </p>
           </div>
           <div className="landing-hero__visual">
             <div className="hero-cob">
@@ -310,8 +348,8 @@ export function LandingPage() {
         <div className="band__inner landing-how">
           <h3 id="how-title">{t('landing.how.title')}</h3>
           <ul className="flip-grid">
-            {FLIPS.map((name) => (
-              <FlipCard key={name} name={name} />
+            {FLIPS.map((name, index) => (
+              <FlipCard key={name} name={name} index={index} />
             ))}
           </ul>
         </div>
@@ -331,8 +369,8 @@ export function LandingPage() {
                 </span>
               ))}
             </div>
-            {DECISIONS.map((key) => (
-              <div key={key} className="decision-row" role="row">
+            {DECISIONS.map((key, index) => (
+              <div key={key} className="decision-row" role="row" {...reveal(index)}>
                 <strong role="cell" data-label={t('landing.decisions.columns.question')}>
                   {t(`landing.decisions.rows.${key}.question`)}
                 </strong>
@@ -356,14 +394,14 @@ export function LandingPage() {
         <div className="band__inner landing-crops">
           <h3 id="crops-title">{t('landing.crops.title')}</h3>
           <div className="crop-photos">
-            <figure className="crop-photo">
+            <figure className="crop-photo" {...reveal(0)}>
               <img src="/landing/maize.jpg" alt="" loading="lazy" width="1400" height="1050" />
               <figcaption>
                 <strong>{t('landing.crops.maize.name')}</strong>
                 <span>{t('landing.crops.maize.description')}</span>
               </figcaption>
             </figure>
-            <figure className="crop-photo">
+            <figure className="crop-photo" {...reveal(1)}>
               <img src="/landing/cacao.jpg" alt="" loading="lazy" width="1100" height="512" />
               <figcaption>
                 <strong>{t('landing.crops.cacao.name')}</strong>
@@ -379,8 +417,8 @@ export function LandingPage() {
         <div className="band__inner landing-limits">
           <h3 id="principles-title">{t('landing.principles.title')}</h3>
           <ul className="landing-principles">
-            {PRINCIPLES.map((key) => (
-              <li key={key}>
+            {PRINCIPLES.map((key, index) => (
+              <li key={key} {...reveal(index)}>
                 <h4>{t(`landing.benefits.${key}.title`)}</h4>
                 <p>{t(`landing.benefits.${key}.description`)}</p>
               </li>
@@ -396,6 +434,7 @@ export function LandingPage() {
               onClick={() => void startDemo()}
             >
               {t('landing.finalCta.button')}
+              <Arrow />
             </button>
           </div>
         </div>

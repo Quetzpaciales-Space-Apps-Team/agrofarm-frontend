@@ -122,7 +122,7 @@
       "scrollHint": "Scroll to move closer",
       "steps": {
         "field": {
-          "title": "The field",
+          "title": "The weather",
           "body": "AgroFarm starts wide: the rain, the heat and the El Nino or La Nina phase expected for your area."
         },
         "plant": {
@@ -138,7 +138,7 @@
           "body": "Last it compares rotations and shows its reasons, risks and gaps. Then you and your agronomist decide."
         }
       },
-      "scene": "A maize plant that the view moves closer to, ending on a rendered ear of maize"
+      "scene": "A maize ear that turns and moves closer as you scroll, then its kernels pop out"
     },
     "decisions": {
       "title": "Decisions this helps you make",
@@ -170,6 +170,9 @@
           "limit": "It never replaces a visit from someone who knows your land."
         }
       }
+    },
+    "cta": {
+      "arrow": "Go"
     }
   },
   "auth": {

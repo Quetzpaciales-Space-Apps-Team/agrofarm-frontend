@@ -30,7 +30,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
               </button>
             </>
-          ) : null}
+          ) : (
+            <>
+              <a className="header-action" href="#/login">
+                {t('landing.login')}
+              </a>
+              <a className="header-action header-action--primary" href="#/register">
+                {t('landing.register')}
+              </a>
+            </>
+          )}
         </div>
       </header>
       <div className="app-body">
