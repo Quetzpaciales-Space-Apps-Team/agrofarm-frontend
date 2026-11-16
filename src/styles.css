@@ -4013,3 +4013,72 @@ body {
   border-color: #3a4e3f;
   color: #e5ede7;
 }
+
+/* the top bar runs the full width: logo in the left corner, buttons in the right corner */
+.app-root .app-header,
+.app-root--internal .app-header {
+  padding-inline: 1.5rem;
+}
+
+/* weather page: one wide column, plain summary first */
+.climate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+}
+.climate-summary-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, var(--color-border-soft));
+  border-radius: var(--radius-lg);
+}
+.climate-summary-card h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.climate-summary-grid {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+.climate-summary-grid > div {
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+.climate-summary-grid dt {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.climate-summary-grid dd {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 650;
+}
+.climate-typical {
+  margin: 0;
+  font-size: 1.08rem;
+}
+.chart-help {
+  margin: 0 0 0.5rem;
+  color: var(--color-muted);
+}
+.climate-source {
+  margin-top: 1rem;
+  padding: 0.25rem 1rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+}
+.climate-source summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+}

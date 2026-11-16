@@ -1,7 +1,13 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export function ClimateLegend({ showEnso = false }: { showEnso?: boolean }) {
+export function ClimateLegend({
+  showEnso = false,
+  showRange = true,
+}: {
+  showEnso?: boolean;
+  showRange?: boolean;
+}) {
   const { t } = useTranslation();
   const id = useId();
   const line = (cls: string, dash?: string, cap?: 'round') => (
@@ -26,14 +32,18 @@ export function ClimateLegend({ showEnso = false }: { showEnso?: boolean }) {
         {line('mean')}
         {t('climate.legend.mean')}
       </li>
-      <li>
-        {line('min', '6 4')}
-        {t('climate.legend.min')}
-      </li>
-      <li>
-        {line('max', '1 4', 'round')}
-        {t('climate.legend.max')}
-      </li>
+      {showRange ? (
+        <>
+          <li>
+            {line('min', '6 4')}
+            {t('climate.legend.min')}
+          </li>
+          <li>
+            {line('max', '1 4', 'round')}
+            {t('climate.legend.max')}
+          </li>
+        </>
+      ) : null}
       <li>
         <svg aria-hidden="true" viewBox="0 0 36 12">
           <defs>

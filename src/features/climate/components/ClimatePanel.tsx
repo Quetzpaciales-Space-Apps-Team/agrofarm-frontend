@@ -30,6 +30,7 @@ export function ClimatePanel() {
   const [chosen, setChosen] = useState<MonthRange | null>(null);
   const [tableOpen, setTableOpen] = useState(false);
   const [showEnso, setShowEnso] = useState(true);
+  const [showRange, setShowRange] = useState(false);
   const tableId = useId();
   const summaryId = useId();
 
@@ -57,6 +58,35 @@ export function ClimatePanel() {
   const chartEnso = ensoCells(months, enso.items);
   const periodSummary = summarizeClimatePeriod(rows, enso.items);
   const locale = i18n.language;
+
+  // Which calendar months are usually the rainiest and driest in the chosen period.
+  const byCalendarMonth = new Map<number, number[]>();
+  for (const row of rows) {
+    if (row.rainfall_mm === null) continue;
+    const key = Number(row.month.slice(5, 7));
+    byCalendarMonth.set(key, [...(byCalendarMonth.get(key) ?? []), row.rainfall_mm]);
+  }
+  const averages = [...byCalendarMonth.entries()]
+    .map(([month, values]) => ({
+      month,
+      mean: values.reduce((sum, value) => sum + value, 0) / values.length,
+    }))
+    .sort((a, b) => b.mean - a.mean);
+  const monthName = (month: number) =>
+    new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(2000, month - 1, 1));
+  const listFormat = new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' });
+  const typical =
+    averages.length >= 6
+      ? t('climate.summary.typical', {
+          wet: listFormat.format(averages.slice(0, 3).map((a) => monthName(a.month))),
+          dry: listFormat.format(
+            averages
+              .slice(-3)
+              .reverse()
+              .map((a) => monthName(a.month)),
+          ),
+        })
+      : null;
 
   const missing = rows
     .map((row) => ({
@@ -115,14 +145,18 @@ export function ClimatePanel() {
             />
             {t('climate.showEnso')}
           </label>
+          <label className="climate-toggle">
+            <input
+              type="checkbox"
+              checked={showRange}
+              onChange={(event) => setShowRange(event.target.checked)}
+            />
+            {t('climate.showRange')}
+          </label>
         </div>
       </div>
 
       <div>
-        <div className="chart-box">
-          <ClimateChart rows={rows} enso={chartEnso} showEnso={showEnso} />
-        </div>
-        <ClimateLegend showEnso={showEnso} />
         <section aria-labelledby={summaryId} className="climate-summary-card">
           <h4 id={summaryId}>{t('climate.summary.title')}</h4>
           <dl className="climate-summary-grid">
@@ -165,6 +199,7 @@ export function ClimatePanel() {
               </dd>
             </div>
           </dl>
+          {typical ? <p className="climate-typical">{typical}</p> : null}
           <p className="source">
             {t('climate.summary.ensoCoincidence', {
               months: periodSummary.months,
@@ -173,6 +208,11 @@ export function ClimatePanel() {
             })}
           </p>
         </section>
+        <p className="chart-help">{t('climate.chart.howToRead')}</p>
+        <div className="chart-box">
+          <ClimateChart rows={rows} enso={chartEnso} showEnso={showEnso} showRange={showRange} />
+        </div>
+        <ClimateLegend showEnso={showEnso} showRange={showRange} />
         <h4>{t('climate.missing.title')}</h4>
         {missing.length === 0 ? (
           <p>{t('climate.missing.none')}</p>
@@ -198,30 +238,32 @@ export function ClimatePanel() {
           {tableOpen ? t('climate.table.hide') : t('climate.table.show')}
         </button>
         {tableOpen ? <ClimateTable rows={rows} id={tableId} /> : null}
+        <details className="climate-source">
+          <summary>{t('climate.source.title')}</summary>
+          <section aria-labelledby="source-title" className="source">
+            <h4 id="source-title">{t('climate.source.title')}</h4>
+            <dl>
+              <dt>{t('climate.source.dataset')}</dt>
+              <dd>
+                {nasa.source} (
+                <a href={nasa.source_url} rel="noopener noreferrer">
+                  {t('climate.source.link')}
+                </a>
+                )
+              </dd>
+              <dt>{t('climate.source.attribution')}</dt>
+              <dd>{nasa.attribution}</dd>
+              <dt>{t('climate.source.resolution')}</dt>
+              <dd>
+                {nasa.resolution_note}{' '}
+                <GlossaryTerm term="reanalysis" label={t('glossary.terms.reanalysis.label')} />
+              </dd>
+              <dt>{t('climate.source.disclaimer')}</dt>
+              <dd>{nasa.disclaimer}</dd>
+            </dl>
+          </section>
+        </details>
       </div>
-
-      <section aria-labelledby="source-title" className="source">
-        <h4 id="source-title">{t('climate.source.title')}</h4>
-        <dl>
-          <dt>{t('climate.source.dataset')}</dt>
-          <dd>
-            {nasa.source} (
-            <a href={nasa.source_url} rel="noopener noreferrer">
-              {t('climate.source.link')}
-            </a>
-            )
-          </dd>
-          <dt>{t('climate.source.attribution')}</dt>
-          <dd>{nasa.attribution}</dd>
-          <dt>{t('climate.source.resolution')}</dt>
-          <dd>
-            {nasa.resolution_note}{' '}
-            <GlossaryTerm term="reanalysis" label={t('glossary.terms.reanalysis.label')} />
-          </dd>
-          <dt>{t('climate.source.disclaimer')}</dt>
-          <dd>{nasa.disclaimer}</dd>
-        </dl>
-      </section>
 
       <div className="span-all">
         <EnsoStrip

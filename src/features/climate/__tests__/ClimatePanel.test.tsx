@@ -48,11 +48,33 @@ describe('ClimatePanel (FE-091)', () => {
       within(chart as unknown as HTMLElement).getByText(/temperature \(°C\)/i),
     ).toBeInTheDocument();
     const legend = screen.getByRole('list', { name: /chart legend/i });
-    expect(legend).toHaveTextContent(/rainfall.*mm per month/i);
-    expect(legend).toHaveTextContent(/mean temperature.*°C/i);
-    expect(legend).toHaveTextContent(/minimum temperature/i);
-    expect(legend).toHaveTextContent(/maximum temperature/i);
+    expect(legend).toHaveTextContent(/blue bars.*rain.*\(mm\)/i);
+    expect(legend).toHaveTextContent(/red line.*average temperature.*°C/i);
     expect(legend).toHaveTextContent(/no data/i);
+  });
+
+  it('starts simple: the coolest and warmest lines are hidden until you ask for them', async () => {
+    const { container } = await loaded();
+    const legend = screen.getByRole('list', { name: /chart legend/i });
+    expect(legend).not.toHaveTextContent(/coolest/i);
+    expect(container.querySelectorAll('svg.chart path.line--min')).toHaveLength(0);
+    expect(container.querySelectorAll('svg.chart path.line--mean').length).toBeGreaterThan(0);
+
+    await userEvent.click(
+      screen.getByRole('checkbox', { name: /coolest and warmest temperatures/i }),
+    );
+    expect(legend).toHaveTextContent(/dashed line.*coolest/i);
+    expect(legend).toHaveTextContent(/dotted line.*warmest/i);
+    expect(container.querySelectorAll('svg.chart path.line--min').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('svg.chart path.line--max').length).toBeGreaterThan(0);
+  });
+
+  it('says in plain words how to read the chart and which months are usually rainiest', async () => {
+    await loaded();
+    expect(screen.getByText(/a taller bar means a rainier month/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/usually the rainiest months are .+ and the driest are/i),
+    ).toBeInTheDocument();
   });
 
   it('defaults to the last 24 months of the series', async () => {
@@ -97,9 +119,11 @@ describe('ClimatePanel (FE-091)', () => {
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
-  it('shows source, attribution, resolution note and the response disclaimer next to the chart', async () => {
+  it('keeps source, attribution, resolution note and the disclaimer in a drawer under the chart', async () => {
     await loaded();
-    const source = screen.getByRole('region', { name: /data source/i });
+    const drawer = screen.getByText(/where this data comes from/i, { selector: 'summary' });
+    expect(drawer.closest('details')).not.toHaveAttribute('open');
+    const source = screen.getByRole('region', { name: /where this data comes from/i });
     expect(source).toHaveTextContent(/NASA POWER Daily API/);
     expect(source).toHaveTextContent(/Langley Research Center/);
     expect(source).toHaveTextContent(/reanalysis, not a station measurement/i);
@@ -202,10 +226,12 @@ describe('ClimatePanel (FE-091)', () => {
 
   it('overlays shaded ENSO phase bands on the chart with a Show ENSO phases toggle', async () => {
     const { container } = await loaded();
-    const toggle = screen.getByRole('checkbox', { name: /show enso phases/i });
+    const toggle = screen.getByRole('checkbox', { name: /show el nino and la nina periods/i });
     expect(toggle).toBeChecked();
     expect(container.querySelectorAll('svg.chart rect.enso-band')).toHaveLength(24);
-    expect(screen.getByRole('list', { name: /chart legend/i })).toHaveTextContent(/EN/);
+    expect(screen.getByRole('list', { name: /chart legend/i })).toHaveTextContent(
+      /El Nino period \(EN\)/i,
+    );
 
     await userEvent.click(toggle);
     expect(toggle).not.toBeChecked();
@@ -214,11 +240,11 @@ describe('ClimatePanel (FE-091)', () => {
 
   it('renders a client-calculated period summary card with non-causal ENSO wording', async () => {
     await loaded();
-    const summary = screen.getByRole('region', { name: /period summary/i });
-    expect(summary).toHaveTextContent(/wettest month/i);
+    const summary = screen.getByRole('region', { name: /this period in plain words/i });
+    expect(summary).toHaveTextContent(/rainiest month/i);
     expect(summary).toHaveTextContent(/driest month/i);
-    expect(summary).toHaveTextContent(/total rainfall/i);
-    expect(summary).toHaveTextContent(/mean temperature/i);
+    expect(summary).toHaveTextContent(/total rain/i);
+    expect(summary).toHaveTextContent(/average temperature/i);
     expect(summary).toHaveTextContent(/coincides with/i);
     expect(summary).not.toHaveTextContent(/\bcaused\b/i);
   });

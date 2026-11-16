@@ -486,13 +486,13 @@
     }
   },
   "climate": {
-    "title": "Climate history",
-    "intro": "Monthly rainfall and temperature near the farm. Pick the months you want to look at.",
+    "title": "Rain and temperature near your farm",
+    "intro": "Each blue bar is one month of rain. The red line is the average temperature. Coloured stripes behind show El Nino and La Nina periods.",
     "loading": "Loading climate data...",
     "empty": "No climate data is available for this location yet.",
     "from": "From",
     "to": "To",
-    "showEnso": "Show ENSO phases",
+    "showEnso": "Show El Nino and La Nina periods",
     "noData": "No data",
     "noDataShort": "no data",
     "chart": {
@@ -500,7 +500,8 @@
       "description": "Bars show rainfall in mm per month, from {{rainMin}} to {{rainMax}}. Lines show mean, minimum and maximum temperature in °C, from {{tempMin}} to {{tempMax}}.",
       "gaps_zero": "Every month has data.",
       "gaps_one": "{{count}} month has no data and is left blank.",
-      "gaps_other": "{{count}} months have no data and are left blank."
+      "gaps_other": "{{count}} months have no data and are left blank.",
+      "howToRead": "How to read it: a taller bar means a rainier month. The red line going up means a warmer month."
     },
     "axis": {
       "rain": "Rainfall (mm per month)",
@@ -508,22 +509,23 @@
     },
     "legend": {
       "title": "Chart legend",
-      "rain": "Rainfall (mm per month), bars",
-      "mean": "Mean temperature (°C), solid line",
-      "min": "Minimum temperature (°C), dashed line",
-      "max": "Maximum temperature (°C), dotted line",
-      "noData": "No data, hatched band",
-      "elNino": "El Nino (EN), shaded warm band",
-      "laNina": "La Nina (LN), shaded cool band",
-      "neutral": "Neutral (NE), neutral band"
+      "rain": "Blue bars: how much rain fell each month (mm)",
+      "mean": "Red line: average temperature (°C)",
+      "min": "Dashed line: coolest temperature (°C)",
+      "max": "Dotted line: warmest temperature (°C)",
+      "noData": "Grey stripes: no data for that month",
+      "elNino": "Orange background: El Nino period (EN)",
+      "laNina": "Blue background: La Nina period (LN)",
+      "neutral": "No colour: a normal period (NE)"
     },
     "summary": {
-      "title": "Period summary",
-      "wettest": "Wettest month",
+      "title": "This period in plain words",
+      "wettest": "Rainiest month",
       "driest": "Driest month",
-      "totalRain": "Total rainfall",
-      "meanTemp": "Mean temperature",
+      "totalRain": "Total rain",
+      "meanTemp": "Average temperature",
       "monthValue": "{{month}} ({{value}})",
+      "typical": "Usually the rainiest months are {{wet}}, and the driest are {{dry}}.",
       "ensoCoincidence": "Across {{months}} months, this period coincides with {{elNino}} El Nino month(s) and {{laNina}} La Nina month(s)."
     },
     "missing": {
@@ -548,13 +550,14 @@
       "max": "Maximum temperature (°C)"
     },
     "source": {
-      "title": "Data source",
+      "title": "Where this data comes from",
       "dataset": "Source",
       "link": "NASA POWER website",
       "attribution": "Attribution",
       "resolution": "Resolution",
       "disclaimer": "Disclaimer"
-    }
+    },
+    "showRange": "Also show the coolest and warmest temperatures"
   },
   "enso": {
     "title": "El Nino and La Nina phases",

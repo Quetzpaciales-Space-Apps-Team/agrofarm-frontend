@@ -5,17 +5,6 @@ import { toPercent, type RotationStrategy } from '../../../domain/strategies';
 import { PriorityScores } from './PriorityScores';
 import { CropStrip } from './CropStrip';
 
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <details open className="strategy-block">
-      <summary className="strategy-block-summary">
-        <h5 className="strategy-block-title">{title}</h5>
-      </summary>
-      {children}
-    </details>
-  );
-}
-
 export function StrategyCard({
   strategy,
   isTopScore,
@@ -59,49 +48,6 @@ export function StrategyCard({
         <PriorityScores scores={strategy.scores} />
       </div>
 
-      <Block title={t('rotations.blocks.why')}>
-        <ul>
-          {strategy.why.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </Block>
-      <Block title={t('rotations.blocks.evidence')}>
-        <ul>
-          {strategy.evidence.map((item) => (
-            <li key={item.statement}>
-              {item.statement}{' '}
-              <span className="source">{t('rotations.source', { source: item.source })}</span>
-            </li>
-          ))}
-        </ul>
-      </Block>
-      <Block title={t('rotations.blocks.benefits')}>
-        <ul>
-          {strategy.benefits.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </Block>
-      <Block title={t('rotations.blocks.gaps')}>
-        <ul>
-          {strategy.gaps.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </Block>
-      <Block title={t('rotations.blocks.risks')}>
-        <ul>
-          {strategy.risks.map((item) => (
-            <li key={item.description}>
-              {item.description}{' '}
-              {item.needs_local_review ? (
-                <strong className="review-note">{t('rotations.riskReview')}</strong>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      </Block>
       <div>
         <button
           type="button"

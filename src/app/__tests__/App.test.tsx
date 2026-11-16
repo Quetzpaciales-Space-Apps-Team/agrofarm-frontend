@@ -81,7 +81,9 @@ describe('Landing and guest demo entry (FE-090)', () => {
       await screen.findByRole('heading', { name: /compare rotation strategies/i }),
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('link', { name: /^weather$/i }));
-    expect(await screen.findByRole('heading', { name: /climate history/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /rain and temperature near your farm/i }),
+    ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('link', { name: /^add your data$/i }));
     expect(
       await screen.findByRole('heading', { name: /upload your farm data/i }),
