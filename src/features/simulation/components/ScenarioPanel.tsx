@@ -1,6 +1,11 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState, ErrorState, LoadingState } from '../../../components/AsyncState';
+import { GlossaryTerm } from '../../../components/GlossaryTerm';
+import {
+  PanelEmptyState,
+  PanelErrorState,
+  PanelLoadingState,
+} from '../../../components/PanelState';
 import { humanizeId } from '../../../domain/months';
 import { ENSO_PHASES, SCENARIO_LIMITS, formatSigned } from '../../../domain/scenario';
 import { useFarm } from '../../farms/hooks/useFarm';
@@ -53,8 +58,9 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
   const selectId = useId();
   const locale = i18n.language;
 
-  if (resource.status === 'loading') return <LoadingState label={t('scenario.loading')} />;
-  if (resource.status === 'error') return <ErrorState error={resource.error} onRetry={reload} />;
+  if (resource.status === 'loading') return <PanelLoadingState label={t('scenario.loading')} />;
+  if (resource.status === 'error')
+    return <PanelErrorState error={resource.error} onRetry={reload} />;
 
   const crops = resource.data.current_rotation.filter((crop) => crop !== 'fallow');
   const crop = scenario.crop && crops.includes(scenario.crop) ? scenario.crop : (crops[0] ?? null);
@@ -74,7 +80,7 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
         <p>{t('scenario.intro')}</p>
       </div>
       {crop === null ? (
-        <EmptyState>{t('scenario.noCrops')}</EmptyState>
+        <PanelEmptyState>{t('scenario.noCrops')}</PanelEmptyState>
       ) : (
         <>
           <div className="controls controls--sliders">
@@ -111,6 +117,9 @@ export function ScenarioPanel({ farmId }: { farmId: string }) {
                   </option>
                 ))}
               </select>
+              <span className="slider-hint">
+                <GlossaryTerm term="enso" label={t('glossary.terms.enso.label')} />
+              </span>
             </div>
             <div className="field">
               <label htmlFor={`${selectId}-crop`}>{t('scenario.crop')}</label>

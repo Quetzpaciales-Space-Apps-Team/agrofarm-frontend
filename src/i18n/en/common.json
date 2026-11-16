@@ -410,8 +410,27 @@
       "water_balance": {
         "label": "Water balance",
         "definition": "Rain and irrigation that come in, minus the water the crops and soil use up or lose. When more leaves than comes in, plants can run short."
+      },
+      "percentile": {
+        "label": "Percentile",
+        "definition": "A way to show a range of outcomes: the 10th percentile is a low outcome, the 50th is the middle estimate, and the 90th is a high outcome."
+      },
+      "enso": {
+        "label": "ENSO",
+        "definition": "El Nino-Southern Oscillation: a Pacific Ocean temperature cycle (El Nino, La Nina, or Neutral) that shifts seasonal rainfall in Central America."
+      },
+      "reanalysis": {
+        "label": "Reanalysis",
+        "definition": "A gridded weather dataset built by combining past observations with a weather model. It represents a ~50 km area, not a single farm rain gauge."
       }
     }
+  },
+  "panelState": {
+    "wakingUp": "Waking up the server…",
+    "startNewDemo": "Start a new demo",
+    "validation": "The server could not process those inputs. Check the values and try again.",
+    "rateLimited": "The demo is busy, try again in a minute.",
+    "unavailable": "The demo has reached its capacity or is busy right now. Try again in a moment."
   },
   "priorities": {
     "title": "Your priorities for this farm",

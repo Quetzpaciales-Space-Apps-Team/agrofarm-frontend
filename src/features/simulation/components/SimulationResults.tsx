@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { ErrorState, LoadingState } from '../../../components/AsyncState';
+import { GlossaryTerm } from '../../../components/GlossaryTerm';
+import { PanelErrorState, PanelLoadingState } from '../../../components/PanelState';
 import { ProvenanceBlock } from '../../../components/ProvenanceBlock';
 import { formatSigned, sortAttributions } from '../../../domain/scenario';
 import { formatValue, humanizeId } from '../../../domain/months';
@@ -44,7 +45,10 @@ function Result({ result, busy }: { result: SimulationResult; busy: boolean }) {
       <div className="chart-box">
         <RangeChart baseline={result.baseline} scenario={result.scenario} unit={result.unit} />
       </div>
-      <p className="source">{t('simulation.chart.help')}</p>
+      <p className="source">
+        {t('simulation.chart.help')}{' '}
+        <GlossaryTerm term="percentile" label={t('glossary.terms.percentile.label')} />
+      </p>
 
       <div className="data-table-wrap">
         <table>
@@ -111,8 +115,9 @@ export function SimulationResults({
   const { t } = useTranslation();
   const { resource, reload, stale } = useSimulation(farmId, crop, scenario);
 
-  if (resource.status === 'error') return <ErrorState error={resource.error} onRetry={reload} />;
+  if (resource.status === 'error')
+    return <PanelErrorState error={resource.error} onRetry={reload} />;
   if (resource.status === 'success') return <Result result={resource.data} busy={false} />;
   if (stale) return <Result result={stale} busy />;
-  return <LoadingState label={t('simulation.loading')} />;
+  return <PanelLoadingState label={t('simulation.loading')} />;
 }
