@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { useSession } from '../features/auth/state/session';
 import { CropsBlock } from './landing/CropsBlock';
+import { LandingFooter } from './landing/LandingFooter';
 
 const STEPS = ['field', 'plant', 'cob', 'decision'] as const;
 const FLIPS = ['data', 'scenario', 'compare', 'decide'] as const;
@@ -443,6 +444,8 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+
+      <LandingFooter />
     </div>
   );
 }

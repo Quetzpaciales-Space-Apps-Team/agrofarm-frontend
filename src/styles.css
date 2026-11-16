@@ -4349,3 +4349,81 @@ body {
 .insight--negative .insight__band {
   background: var(--insight-low);
 }
+
+/* landing footer: team, code and copyright */
+.landing-footer {
+  background: #0e1d16;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+}
+.landing-footer__grid {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 52rem) {
+  .landing-footer__grid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+}
+.landing-footer h3 {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  color: var(--on-night);
+  margin-bottom: 0.75rem;
+}
+.landing-footer h4 {
+  font-size: 1rem;
+  color: var(--color-accent);
+  margin-bottom: 0.75rem;
+}
+.landing-footer__about p {
+  color: var(--on-night-muted);
+  line-height: 1.6;
+  max-width: 28rem;
+}
+.landing-footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.landing-footer__list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  font-weight: 600;
+  color: var(--on-night);
+  text-underline-offset: 3px;
+}
+.landing-footer__list a:hover {
+  color: var(--color-accent);
+}
+.landing-footer__list a:focus-visible,
+.landing-footer__legal a:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.landing-footer__list--repos li {
+  display: grid;
+}
+.landing-footer__list--repos span {
+  margin-top: -0.4rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.88rem;
+  color: var(--on-night-muted);
+}
+.landing-footer__legal {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(244 241 230 / 18%);
+  font-size: 0.88rem;
+  color: var(--on-night-muted);
+}
+.landing-footer__legal p {
+  max-width: 46rem;
+}
+.landing-footer__legal a {
+  color: var(--on-night-muted);
+}
