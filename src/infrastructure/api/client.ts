@@ -22,6 +22,7 @@ export interface ApiClient {
   get: <T>(path: string, options?: RequestOptions) => Promise<T>;
   post: <T>(path: string, options?: RequestOptions) => Promise<T>;
   put: <T>(path: string, options?: RequestOptions) => Promise<T>;
+  patch: <T>(path: string, options?: RequestOptions) => Promise<T>;
   /**
    * Asks `POST /v1/auth/refresh` for a new access token using the httpOnly refresh cookie.
    * Resolves `null` when there is no valid cookie. It does not touch the token store: the caller
@@ -130,6 +131,7 @@ export function createApiClient({
     get: (path, options) => request('GET', path, options),
     post: (path, options) => request('POST', path, options),
     put: (path, options) => request('PUT', path, options),
+    patch: (path, options) => request('PATCH', path, options),
     refresh: refreshOnce,
     onSessionExpired: (handler) => {
       expiredHandlers.add(handler);

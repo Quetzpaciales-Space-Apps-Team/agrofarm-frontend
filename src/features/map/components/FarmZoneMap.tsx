@@ -1,275 +1,603 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CropId } from '../../../domain/crops';
 import { formatArea } from '../../../domain/months';
 
 export interface FarmZoneMapProps {
+  farmId?: string;
   farmName: string;
   areaHa: number;
   boundary?: {
     type?: string;
     coordinates?: number[][][];
   };
-  /** Shows what is growing on the plot, as a pattern inside the outline. */
-  crop?: CropId;
-  /** A small map with no text around it. `label` then names it for screen readers. */
-  compact?: boolean;
-  label?: string;
+  onSaveBoundary?: (newBoundary: { type: 'Polygon'; coordinates: number[][][] }) => Promise<void>;
+  isSaving?: boolean;
 }
 
-/** Fill patterns that suggest each crop seen from above. */
-function CropPatterns({ id }: { id: string }) {
-  return (
-    <defs>
-      <pattern id={`${id}-maize`} width="16" height="16" patternUnits="userSpaceOnUse">
-        <rect width="16" height="16" fill="#5aa02c" fillOpacity="0.62" />
-        <path d="M4 0v16M12 0v16" stroke="#1d4935" strokeWidth="2" />
-        <circle cx="4" cy="5" r="2" fill="#e8bf58" />
-        <circle cx="12" cy="11" r="2" fill="#e8bf58" />
-      </pattern>
-      <pattern id={`${id}-black_beans`} width="14" height="14" patternUnits="userSpaceOnUse">
-        <rect width="14" height="14" fill="#3d7a45" fillOpacity="0.62" />
-        <path d="M0 3.5h14M0 10.5h14" stroke="#14281f" strokeWidth="2" />
-        <ellipse cx="4" cy="7" rx="2" ry="1.3" fill="#20382c" />
-        <ellipse cx="10" cy="14" rx="2" ry="1.3" fill="#20382c" />
-      </pattern>
-      <pattern id={`${id}-cover_crop`} width="10" height="10" patternUnits="userSpaceOnUse">
-        <rect width="10" height="10" fill="#9ccb6c" fillOpacity="0.62" />
-        <circle cx="2.5" cy="3" r="1.6" fill="#3d7a45" />
-        <circle cx="7.5" cy="7.5" r="1.6" fill="#3d7a45" />
-      </pattern>
-      <pattern id={`${id}-fallow`} width="18" height="18" patternUnits="userSpaceOnUse">
-        <rect width="18" height="18" fill="#c9a66b" fillOpacity="0.62" />
-        <circle cx="5" cy="5" r="1.2" fill="#8a6a3a" />
-        <circle cx="14" cy="12" r="1.2" fill="#8a6a3a" />
-      </pattern>
-    </defs>
-  );
+function lon2pixel(lon: number, zoom: number) {
+  return ((lon + 180) / 360) * Math.pow(2, zoom) * 256;
 }
 
-const TILE = 256;
-const COLUMNS = [-3, -2, -1, 0, 1, 2, 3] as const;
-const ROWS = [-1, 0, 1] as const;
-const MIN_ZOOM = 5;
-const MAX_ZOOM = 19;
-const FOOTBALL_FIELD_HA = 0.714;
-
-/** Web Mercator: longitude and latitude to pixels of the whole world at a zoom level. */
-function project(lon: number, lat: number, zoom: number) {
-  const world = TILE * 2 ** zoom;
+function lat2pixel(lat: number, zoom: number) {
   const sin = Math.sin((lat * Math.PI) / 180);
-  return {
-    x: ((lon + 180) / 360) * world,
-    y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * world,
-  };
+  const clamped = Math.max(-0.9999, Math.min(0.9999, sin));
+  return (0.5 - Math.log((1 + clamped) / (1 - clamped)) / (4 * Math.PI)) * Math.pow(2, zoom) * 256;
 }
 
-/** The highest zoom at which the whole farm outline still fits comfortably in the frame. */
-function fitZoom(minLon: number, maxLon: number, minLat: number, maxLat: number) {
-  for (let zoom = 18; zoom > MIN_ZOOM; zoom -= 1) {
-    const a = project(minLon, maxLat, zoom);
-    const b = project(maxLon, minLat, zoom);
-    if (b.x - a.x <= 380 && b.y - a.y <= 150) return zoom;
-  }
-  return MIN_ZOOM;
+function lon2tile(lon: number, zoom: number) {
+  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+}
+
+function lat2tile(lat: number, zoom: number) {
+  return Math.floor(
+    ((1 -
+      Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) /
+      2) *
+      Math.pow(2, zoom),
+  );
 }
 
 export function FarmZoneMap({
   farmName,
   areaHa,
   boundary,
-  crop,
-  compact = false,
-  label,
+  onSaveBoundary,
+  isSaving = false,
 }: FarmZoneMapProps) {
-  const patternId = useId().replace(/:/g, '');
   const { t, i18n } = useTranslation();
-  const [zoomShift, setZoomShift] = useState(0);
-  const [tilesFailed, setTilesFailed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'tiles' | 'vector' | 'embed'>('tiles');
+  const [zoom, setZoom] = useState(15);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const ring = boundary?.coordinates?.[0] || [];
-  if (ring.length <= 2) {
+  const initialRing = boundary?.coordinates?.[0] || [];
+  const [editRing, setEditRing] = useState<number[][]>(initialRing);
+
+  const ring = isEditing && editRing.length > 0 ? editRing : initialRing;
+  const hasCoordinates = ring.length > 2;
+
+  if (!hasCoordinates) {
     return (
-      <section aria-labelledby="farm-zone-map-heading" className="farm-map farm-map--empty">
-        <h4 id="farm-zone-map-heading">{t('farm.map.title')}</h4>
-        <p className="farm-map__notice">{t('farm.map.noCoordinates')}</p>
-      </section>
+      <div className="farm-zone-map farm-zone-map--empty">
+        <p className="farm-zone-map__notice">{t('farm.map.noCoordinates')}</p>
+      </div>
     );
   }
 
   const lons = ring.map((p) => p[0]);
   const lats = ring.map((p) => p[1]);
+  const centroidLon = lons.reduce((sum, v) => sum + v, 0) / lons.length;
+  const centroidLat = lats.reduce((sum, v) => sum + v, 0) / lats.length;
   const minLon = Math.min(...lons);
   const maxLon = Math.max(...lons);
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);
-  const centerLon = (minLon + maxLon) / 2;
-  const centerLat = (minLat + maxLat) / 2;
 
-  const baseZoom = fitZoom(minLon, maxLon, minLat, maxLat);
-  const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, baseZoom + zoomShift));
-  const center = project(centerLon, centerLat, zoom);
-  const worldTiles = 2 ** zoom;
-  const centerTileX = Math.floor(center.x / TILE);
-  const centerTileY = Math.floor(center.y / TILE);
+  // Map viewport dimensions
+  const viewWidth = 560;
+  const viewHeight = 320;
+  const centerPixelX = lon2pixel(centroidLon, zoom);
+  const centerPixelY = lat2pixel(centroidLat, zoom);
 
-  const tiles = ROWS.flatMap((dy) =>
-    COLUMNS.map((dx) => {
-      const tileX = centerTileX + dx;
-      const tileY = centerTileY + dy;
-      return {
-        key: `${zoom}-${tileX}-${tileY}`,
-        src:
-          tileY < 0 || tileY >= worldTiles
-            ? null
-            : `https://tile.openstreetmap.org/${zoom}/${((tileX % worldTiles) + worldTiles) % worldTiles}/${tileY}.png`,
-        left: tileX * TILE - center.x,
-        top: tileY * TILE - center.y,
-      };
-    }),
-  );
+  // Calculate 3x3 tile grid
+  const centerTileX = lon2tile(centroidLon, zoom);
+  const centerTileY = lat2tile(centroidLat, zoom);
+  const tileOffsets = [-1, 0, 1];
+  const tiles: { key: string; url: string; left: number; top: number }[] = [];
 
-  const points = ring
+  for (const dy of tileOffsets) {
+    for (const dx of tileOffsets) {
+      const tx = centerTileX + dx;
+      const ty = centerTileY + dy;
+      const tileLeft = tx * 256 - (centerPixelX - viewWidth / 2);
+      const tileTop = ty * 256 - (centerPixelY - viewHeight / 2);
+      tiles.push({
+        key: `${zoom}-${tx}-${ty}`,
+        url: `https://tile.openstreetmap.org/${zoom}/${tx}/${ty}.png`,
+        left: Math.round(tileLeft),
+        top: Math.round(tileTop),
+      });
+    }
+  }
+
+  // Projected polygon points on the map tile canvas
+  const projectedPolygonPoints = ring
     .map(([lon, lat]) => {
-      const p = project(lon, lat, zoom);
-      return `${(p.x - center.x).toFixed(1)},${(p.y - center.y).toFixed(1)}`;
+      const x = viewWidth / 2 + (lon2pixel(lon, zoom) - centerPixelX);
+      const y = viewHeight / 2 + (lat2pixel(lat, zoom) - centerPixelY);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(' ');
 
-  const fields = Math.max(1, Math.round(areaHa / FOOTBALL_FIELD_HA));
-  const lat = centerLat.toFixed(5);
-  const lon = centerLon.toFixed(5);
-  const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
-  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+  // SVG Normalized Vector calculation
+  const svgWidth = 320;
+  const svgHeight = 200;
+  const pad = 24;
+  const lonSpan = maxLon - minLon || 0.001;
+  const latSpan = maxLat - minLat || 0.001;
 
-  const frameBlock = (
-    <div className="farm-map__frame">
-      <div
-        className="farm-map__stage"
-        role="img"
-        aria-label={t('farm.map.alt', { name: farmName })}
-      >
-        {tiles.map((tile) =>
-          tile.src ? (
-            <img
-              key={tile.key}
-              className="farm-map__tile"
-              src={tile.src}
-              alt=""
-              width={TILE}
-              height={TILE}
-              draggable={false}
-              style={{ left: `calc(50% + ${tile.left}px)`, top: `calc(50% + ${tile.top}px)` }}
-              onError={() => setTilesFailed(true)}
-            />
-          ) : null,
-        )}
-        <svg className="farm-map__outline" width="1" height="1" aria-hidden="true">
-          <CropPatterns id={patternId} />
-          <polygon points={points} className="farm-map__outline-halo" />
-          <polygon
-            points={points}
-            className="farm-map__outline-fill"
-            style={crop ? { fill: `url(#${patternId}-${crop})` } : undefined}
-          />
-        </svg>
-      </div>
-      <div className="farm-map__zoom">
-        <button
-          type="button"
-          className="farm-map__zoom-btn"
-          aria-label={t('farm.map.zoomIn')}
-          disabled={zoom >= MAX_ZOOM}
-          onClick={() => setZoomShift((value) => value + 1)}
-        >
-          +
-        </button>
-        <button
-          type="button"
-          className="farm-map__zoom-btn"
-          aria-label={t('farm.map.zoomOut')}
-          disabled={zoom <= MIN_ZOOM}
-          onClick={() => setZoomShift((value) => value - 1)}
-        >
-          {'\u2212'}
-        </button>
-      </div>
-      <p className="farm-map__credit">
-        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
-          {t('farm.map.credit')}
-        </a>
-      </p>
-    </div>
-  );
+  const normalizedVectorPoints = ring
+    .map(([lon, lat]) => {
+      const x = pad + ((lon - minLon) / lonSpan) * (svgWidth - 2 * pad);
+      const y = svgHeight - pad - ((lat - minLat) / latSpan) * (svgHeight - 2 * pad);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(' ');
 
-  if (compact) {
-    return (
-      <section aria-label={label ?? farmName} className="farm-map farm-map--compact">
-        {frameBlock}
-        {tilesFailed ? (
-          <p role="status" className="farm-map__notice">
-            {t('farm.map.tilesFailed')}
-          </p>
-        ) : null}
-      </section>
-    );
-  }
+  // Embed iframe parameters
+  const padLon = Math.max((maxLon - minLon) * 0.45, 0.008);
+  const padLat = Math.max((maxLat - minLat) * 0.45, 0.008);
+  const embedBbox = `${(minLon - padLon).toFixed(5)}%2C${(minLat - padLat).toFixed(5)}%2C${(maxLon + padLon).toFixed(5)}%2C${(maxLat + padLat).toFixed(5)}`;
+  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${embedBbox}&layer=mapnik&marker=${centroidLat.toFixed(5)}%2C${centroidLon.toFixed(5)}`;
+  const osmUrl = `https://www.openstreetmap.org/?mlat=${centroidLat.toFixed(5)}&mlon=${centroidLon.toFixed(5)}#map=15/${centroidLat.toFixed(5)}/${centroidLon.toFixed(5)}`;
+  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${centroidLat.toFixed(5)},${centroidLon.toFixed(5)}`;
+
+  const formattedArea = formatArea(areaHa, i18n.language);
+  const subtitle = `${farmName} • ${formattedArea}`;
+  const bboxText = `[${minLon.toFixed(3)}, ${minLat.toFixed(3)}] → [${maxLon.toFixed(3)}, ${maxLat.toFixed(3)}]`;
+  const latText = `${centroidLat.toFixed(4)}°`;
+  const lonText = `${centroidLon.toFixed(4)}°`;
+
+  // Edit actions: Shifting center location
+  const handleShiftLocation = (newLat: number, newLon: number) => {
+    const dLat = newLat - centroidLat;
+    const dLon = newLon - centroidLon;
+    const shifted = ring.map(([lon, lat]) => [
+      Number((lon + dLon).toFixed(5)),
+      Number((lat + dLat).toFixed(5)),
+    ]);
+    setEditRing(shifted);
+  };
+
+  // Preset location handler
+  const handleSelectPresetRegion = (region: string) => {
+    switch (region) {
+      case 'guatemala':
+        handleShiftLocation(14.635, -90.513);
+        break;
+      case 'corredorSeco':
+        handleShiftLocation(14.798, -89.544);
+        break;
+      case 'altiplano':
+        handleShiftLocation(14.835, -91.518);
+        break;
+      case 'peten':
+        handleShiftLocation(16.924, -89.897);
+        break;
+    }
+  };
+
+  // Preset geometry shape
+  const handleApplyShapePreset = (shape: 'square' | 'irregular' | 'pilot') => {
+    let newCoords: number[][];
+    if (shape === 'square') {
+      const d = 0.003;
+      newCoords = [
+        [centroidLon - d, centroidLat - d],
+        [centroidLon + d, centroidLat - d],
+        [centroidLon + d, centroidLat + d],
+        [centroidLon - d, centroidLat + d],
+        [centroidLon - d, centroidLat - d],
+      ];
+    } else if (shape === 'irregular') {
+      newCoords = [
+        [centroidLon - 0.004, centroidLat - 0.003],
+        [centroidLon + 0.003, centroidLat - 0.004],
+        [centroidLon + 0.005, centroidLat + 0.001],
+        [centroidLon + 0.001, centroidLat + 0.004],
+        [centroidLon - 0.004, centroidLat + 0.002],
+        [centroidLon - 0.004, centroidLat - 0.003],
+      ];
+    } else {
+      newCoords = [
+        [-90.515, 14.633],
+        [-90.511, 14.633],
+        [-90.511, 14.637],
+        [-90.515, 14.637],
+        [-90.515, 14.633],
+      ];
+    }
+    setEditRing(newCoords);
+  };
+
+  // Vertex update
+  const handleVertexChange = (index: number, coordIndex: 0 | 1, val: number) => {
+    const updated = editRing.map((p, i) => {
+      if (i === index) {
+        const copy = [...p];
+        copy[coordIndex] = val;
+        return copy;
+      }
+      return p;
+    });
+    // If updating first point, update last point to keep closed ring
+    if (index === 0 && updated.length > 0) {
+      updated[updated.length - 1] = [...updated[0]];
+    }
+    setEditRing(updated);
+  };
+
+  // Save changes
+  const handleSave = async () => {
+    if (!onSaveBoundary) return;
+    try {
+      await onSaveBoundary({
+        type: 'Polygon',
+        coordinates: [editRing],
+      });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Failed to save boundary:', err);
+    }
+  };
 
   return (
-    <section aria-labelledby="farm-zone-map-heading" className="farm-map">
-      <div className="farm-map__head">
+    <section aria-labelledby="farm-zone-map-heading" className="farm-zone-map">
+      <div className="farm-zone-map__header">
         <div>
-          <h4 id="farm-zone-map-heading">{t('farm.map.title')}</h4>
-          <p className="farm-map__lead">
-            {t('farm.map.lead', {
-              name: farmName,
-              area: formatArea(areaHa, i18n.language),
-              fields,
-            })}
-          </p>
+          <h4 id="farm-zone-map-heading" className="farm-zone-map__title">
+            {t('farm.map.title')}
+          </h4>
+          <p className="farm-zone-map__subtitle">{subtitle}</p>
+        </div>
+        <div className="farm-zone-map__actions">
+          <div className="farm-zone-map__tabs" role="tablist" aria-label={t('farm.map.title')}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'tiles'}
+              className={`button button--sm ${activeTab === 'tiles' ? 'button--primary' : 'button--ghost'}`}
+              onClick={() => setActiveTab('tiles')}
+            >
+              {t('farm.map.mapView')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'vector'}
+              className={`button button--sm ${activeTab === 'vector' ? 'button--primary' : 'button--ghost'}`}
+              onClick={() => setActiveTab('vector')}
+            >
+              {t('farm.map.boundaryVector')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'embed'}
+              className={`button button--sm ${activeTab === 'embed' ? 'button--primary' : 'button--ghost'}`}
+              onClick={() => setActiveTab('embed')}
+            >
+              {t('farm.map.interactiveOsm')}
+            </button>
+          </div>
+          {onSaveBoundary ? (
+            <button
+              type="button"
+              className={`button button--sm ${isEditing ? 'button--secondary' : 'button--primary'}`}
+              onClick={() => {
+                if (!isEditing) {
+                  setEditRing([...ring]);
+                }
+                setIsEditing(!isEditing);
+              }}
+            >
+              {isEditing ? t('farm.map.cancel') : t('farm.map.editButton')}
+            </button>
+          ) : null}
         </div>
       </div>
 
-      {frameBlock}
-
-      {tilesFailed ? (
-        <p role="status" className="farm-map__notice">
-          {t('farm.map.tilesFailed')}
-        </p>
+      {saveSuccess ? (
+        <div className="state state--success" role="status">
+          {t('farm.map.saved')}
+        </div>
       ) : null}
 
-      <div className="farm-map__foot">
-        <p className="farm-map__legend">
-          <span className="farm-map__swatch" aria-hidden="true" />
-          {t('farm.map.legend')}
-        </p>
-        <div className="farm-map__links">
-          <a href={osmUrl} target="_blank" rel="noopener noreferrer">
-            {t('farm.map.openOsm')}
-          </a>
-          <a href={gmapsUrl} target="_blank" rel="noopener noreferrer">
-            {t('farm.map.openGmaps')}
-          </a>
+      <div className="farm-zone-map__content">
+        {activeTab === 'tiles' && (
+          <div className="farm-zone-map__tiles-container">
+            <div
+              className="farm-zone-map__tiles-viewport"
+              style={{ width: '100%', height: '320px' }}
+            >
+              {tiles.map((tile) => (
+                <img
+                  key={tile.key}
+                  src={tile.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="farm-zone-map__tile-img"
+                  style={{ left: `${tile.left}px`, top: `${tile.top}px` }}
+                  loading="eager"
+                />
+              ))}
+              <svg
+                viewBox={`0 0 ${viewWidth} ${viewHeight}`}
+                className="farm-zone-map__overlay-svg"
+                role="img"
+                aria-label={`Overlay terrain boundary map for ${farmName}`}
+              >
+                <polygon
+                  points={projectedPolygonPoints}
+                  fill="rgba(77, 179, 128, 0.35)"
+                  stroke="#4db380"
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                />
+                {ring.map(([lon, lat], i) => {
+                  const cx = viewWidth / 2 + (lon2pixel(lon, zoom) - centerPixelX);
+                  const cy = viewHeight / 2 + (lat2pixel(lat, zoom) - centerPixelY);
+                  return (
+                    <circle
+                      key={i}
+                      cx={cx}
+                      cy={cy}
+                      r="5"
+                      fill="#f0c968"
+                      stroke="#141c17"
+                      strokeWidth="2"
+                    />
+                  );
+                })}
+                <circle
+                  cx={viewWidth / 2}
+                  cy={viewHeight / 2}
+                  r="6"
+                  fill="#e74c3c"
+                  stroke="#ffffff"
+                  strokeWidth="2"
+                />
+              </svg>
+            </div>
+            <div className="farm-zone-map__zoom-controls">
+              <button
+                type="button"
+                className="button button--sm button--ghost"
+                onClick={() => setZoom((z) => Math.min(z + 1, 18))}
+                aria-label={t('farm.map.zoomIn')}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                className="button button--sm button--ghost"
+                onClick={() => setZoom((z) => Math.max(z - 1, 13))}
+                aria-label={t('farm.map.zoomOut')}
+              >
+                -
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'vector' && (
+          <div className="farm-zone-map__svg-wrapper">
+            <svg
+              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+              className="farm-zone-map__svg"
+              role="img"
+              aria-label={`Boundary polygon for ${farmName}`}
+            >
+              <polygon
+                points={normalizedVectorPoints}
+                fill="rgba(77, 179, 128, 0.25)"
+                stroke="var(--color-primary, #4db380)"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+              {ring.map(([lon, lat], i) => {
+                const cx = pad + ((lon - minLon) / lonSpan) * (svgWidth - 2 * pad);
+                const cy = svgHeight - pad - ((lat - minLat) / latSpan) * (svgHeight - 2 * pad);
+                return (
+                  <circle
+                    key={i}
+                    cx={cx}
+                    cy={cy}
+                    r="4"
+                    fill="var(--color-accent, #f0c968)"
+                    stroke="#141c17"
+                    strokeWidth="1.5"
+                  />
+                );
+              })}
+            </svg>
+          </div>
+        )}
+
+        {activeTab === 'embed' && (
+          <div className="farm-zone-map__frame-wrapper">
+            <iframe
+              title={`Interactive map of ${farmName}`}
+              className="farm-zone-map__iframe"
+              src={osmEmbedUrl}
+              loading="lazy"
+            />
+          </div>
+        )}
+
+        {isEditing && (
+          <div className="farm-zone-map__editor card">
+            <h5 className="farm-zone-map__editor-title">{t('farm.map.editTitle')}</h5>
+            <p className="farm-zone-map__editor-desc">{t('farm.map.editDescription')}</p>
+
+            <div className="farm-zone-map__editor-section">
+              <h6>{t('farm.map.presets')}</h6>
+              <div className="farm-zone-map__preset-buttons">
+                <button
+                  type="button"
+                  className="button button--sm button--secondary"
+                  onClick={() => handleSelectPresetRegion('guatemala')}
+                >
+                  {t('farm.create.presets.guatemalaCentral')}
+                </button>
+                <button
+                  type="button"
+                  className="button button--sm button--secondary"
+                  onClick={() => handleSelectPresetRegion('corredorSeco')}
+                >
+                  {t('farm.create.presets.corredorSeco')}
+                </button>
+                <button
+                  type="button"
+                  className="button button--sm button--secondary"
+                  onClick={() => handleSelectPresetRegion('altiplano')}
+                >
+                  {t('farm.create.presets.altiplano')}
+                </button>
+                <button
+                  type="button"
+                  className="button button--sm button--secondary"
+                  onClick={() => handleSelectPresetRegion('peten')}
+                >
+                  {t('farm.create.presets.peten')}
+                </button>
+              </div>
+            </div>
+
+            <div className="farm-zone-map__editor-section">
+              <h6>{t('farm.map.shiftLocation')}</h6>
+              <div className="farm-zone-map__coord-inputs">
+                <label>
+                  <span>{t('farm.map.latitude')}</span>
+                  <input
+                    type="number"
+                    step="0.001"
+                    value={centroidLat.toFixed(4)}
+                    onChange={(e) =>
+                      handleShiftLocation(parseFloat(e.target.value) || centroidLat, centroidLon)
+                    }
+                  />
+                </label>
+                <label>
+                  <span>{t('farm.map.longitude')}</span>
+                  <input
+                    type="number"
+                    step="0.001"
+                    value={centroidLon.toFixed(4)}
+                    onChange={(e) =>
+                      handleShiftLocation(centroidLat, parseFloat(e.target.value) || centroidLon)
+                    }
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="farm-zone-map__editor-section">
+              <h6>{t('farm.map.quickPresets')}</h6>
+              <div className="farm-zone-map__preset-buttons">
+                <button
+                  type="button"
+                  className="button button--sm button--ghost"
+                  onClick={() => handleApplyShapePreset('square')}
+                >
+                  {t('farm.map.presetSquare')}
+                </button>
+                <button
+                  type="button"
+                  className="button button--sm button--ghost"
+                  onClick={() => handleApplyShapePreset('irregular')}
+                >
+                  {t('farm.map.presetIrregular')}
+                </button>
+                <button
+                  type="button"
+                  className="button button--sm button--ghost"
+                  onClick={() => handleApplyShapePreset('pilot')}
+                >
+                  {t('farm.map.presetPilot')}
+                </button>
+              </div>
+            </div>
+
+            <div className="farm-zone-map__editor-section">
+              <h6>{t('farm.map.vertices')}</h6>
+              <div className="farm-zone-map__vertices-list">
+                {editRing.slice(0, editRing.length - 1).map((pt, i) => (
+                  <div key={i} className="farm-zone-map__vertex-row">
+                    <span className="farm-zone-map__vertex-label">{`P${i + 1}`}</span>
+                    <input
+                      type="number"
+                      step="0.0005"
+                      value={pt[0]}
+                      aria-label={`${t('farm.map.longitude')} P${i + 1}`}
+                      onChange={(e) =>
+                        handleVertexChange(i, 0, parseFloat(e.target.value) || pt[0])
+                      }
+                    />
+                    <input
+                      type="number"
+                      step="0.0005"
+                      value={pt[1]}
+                      aria-label={`${t('farm.map.latitude')} P${i + 1}`}
+                      onChange={(e) =>
+                        handleVertexChange(i, 1, parseFloat(e.target.value) || pt[1])
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="farm-zone-map__editor-actions">
+              <button
+                type="button"
+                className="button button--primary"
+                disabled={isSaving}
+                onClick={handleSave}
+              >
+                {isSaving ? t('farm.map.saving') : t('farm.map.saveButton')}
+              </button>
+              <button
+                type="button"
+                className="button button--ghost"
+                onClick={() => {
+                  setEditRing([...initialRing]);
+                  setIsEditing(false);
+                }}
+              >
+                {t('farm.map.cancel')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="farm-zone-map__meta">
+          <div className="farm-zone-map__coords">
+            <span className="farm-zone-map__coord-item">
+              <strong>{t('farm.map.latitude')}: </strong>
+              {latText}
+            </span>
+            <span className="farm-zone-map__coord-item">
+              <strong>{t('farm.map.longitude')}: </strong>
+              {lonText}
+            </span>
+            <span className="farm-zone-map__coord-item">
+              <strong>{t('farm.map.bbox')}: </strong>
+              {bboxText}
+            </span>
+          </div>
+          <div className="farm-zone-map__links">
+            <a
+              href={osmUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="farm-zone-map__link"
+            >
+              {t('farm.map.openOsm')}
+            </a>
+            <a
+              href={gmapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="farm-zone-map__link"
+            >
+              {t('farm.map.openGmaps')}
+            </a>
+          </div>
         </div>
       </div>
-
-      <details className="farm-map__details">
-        <summary>{t('farm.map.technical')}</summary>
-        <dl>
-          <div>
-            <dt>{t('farm.map.latitude')}</dt>
-            <dd>{`${centerLat.toFixed(4)}°`}</dd>
-          </div>
-          <div>
-            <dt>{t('farm.map.longitude')}</dt>
-            <dd>{`${centerLon.toFixed(4)}°`}</dd>
-          </div>
-          <div>
-            <dt>{t('farm.map.corners')}</dt>
-            <dd>{`${minLat.toFixed(3)}°, ${minLon.toFixed(3)}° → ${maxLat.toFixed(3)}°, ${maxLon.toFixed(3)}°`}</dd>
-          </div>
-        </dl>
-      </details>
     </section>
   );
 }

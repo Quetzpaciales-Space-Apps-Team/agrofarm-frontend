@@ -9,6 +9,7 @@ import type {
   EnsoSeries,
   Farm,
   FarmCreate,
+  FarmUpdate,
   NasaPowerSeries,
   Priorities,
   RecommendationSet,
@@ -41,6 +42,13 @@ export const createFarm = (client: ApiClient, body: FarmCreate, signal?: AbortSi
 
 export const fetchFarm = (client: ApiClient, farmId: string, signal?: AbortSignal) =>
   client.get<Farm>(`/v1/farms/${encodeURIComponent(farmId)}`, { signal });
+
+export const updateFarm = (
+  client: ApiClient,
+  farmId: string,
+  body: FarmUpdate,
+  signal?: AbortSignal,
+) => client.patch<Farm>(`/v1/farms/${encodeURIComponent(farmId)}`, { body, signal });
 
 export const fetchNasaPower = (
   client: ApiClient,

@@ -6,7 +6,7 @@ import { cropFor } from '../../../domain/crops';
 import { humanizeId } from '../../../domain/months';
 import { toPercent, type RotationStrategy } from '../../../domain/strategies';
 import { useFarm } from '../../farms/hooks/useFarm';
-import { FarmZoneMap } from '../../map/components/FarmZoneMap';
+import { FarmCropMap } from '../../map/components/FarmCropMap';
 import { CropStrip } from './CropStrip';
 import { StrategyDetail } from './StrategyDetail';
 
@@ -95,11 +95,9 @@ export function StrategyDetailScreen({
               const cropName = crop ? t(`rotations.crops.${crop.id}.name`) : humanizeId(step);
               return (
                 <figure key={`${step}-${index}`} className="season-map">
-                  <FarmZoneMap
-                    compact
+                  <FarmCropMap
                     crop={crop?.id}
                     farmName={resource.data.name}
-                    areaHa={resource.data.area_ha}
                     boundary={boundary}
                     label={t('rotations.detail.mapLabel', { season, crop: cropName })}
                   />

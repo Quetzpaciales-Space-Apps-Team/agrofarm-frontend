@@ -663,6 +663,23 @@ export const handlers = [
     return farm ? ok(farm) : farmNotFound();
   }),
 
+  http.patch('*/v1/farms/:farmId', async ({ request, params }) => {
+    if (!isAuthorized(request)) return unauthorized();
+    const farmIndex = farmsState.findIndex((f) => f.id === params.farmId);
+    if (farmIndex < 0) return farmNotFound();
+    const body = (await request.json().catch(() => null)) as Schemas['FarmUpdate'] | null;
+    if (!body) return problemResponse(422, 'validation_error', 'Invalid farm update payload');
+    const existing = farmsState[farmIndex];
+    const updated: Schemas['Farm'] = {
+      ...existing,
+      ...(body.name ? { name: body.name } : {}),
+      ...(body.boundary ? { boundary: body.boundary } : {}),
+      ...(body.current_rotation ? { current_rotation: body.current_rotation } : {}),
+    };
+    farmsState[farmIndex] = updated;
+    return ok(updated);
+  }),
+
   http.post('*/v1/farms', async ({ request }) => {
     if (!isAuthorized(request)) return unauthorized();
     const body = (await request.json().catch(() => null)) as Schemas['FarmCreate'] | null;

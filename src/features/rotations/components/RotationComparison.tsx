@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState, ErrorState, LoadingState } from '../../../components/AsyncState';
+import {
+  PanelEmptyState,
+  PanelErrorState,
+  PanelLoadingState,
+} from '../../../components/PanelState';
 import { ProvenanceBlock } from '../../../components/ProvenanceBlock';
 import { hasRequiredBlocks, orderStrategies } from '../../../domain/strategies';
 import type { RotationStrategy } from '../../../domain/strategies';
@@ -24,7 +28,7 @@ function Comparison({
   const shown = orderStrategies(set.strategies.filter(hasRequiredBlocks));
   const omitted = set.strategies.length - shown.length;
 
-  if (set.strategies.length === 0) return <EmptyState>{t('rotations.empty')}</EmptyState>;
+  if (set.strategies.length === 0) return <PanelEmptyState>{t('rotations.empty')}</PanelEmptyState>;
 
   return (
     <div className="stack" aria-busy={busy}>
@@ -80,11 +84,12 @@ export function RotationComparison({
   const { resource, reload, stale } = useRecommendations(farmId, scenario, revision);
 
   let body;
-  if (resource.status === 'error') body = <ErrorState error={resource.error} onRetry={reload} />;
+  if (resource.status === 'error')
+    body = <PanelErrorState error={resource.error} onRetry={reload} />;
   else if (resource.status === 'success')
     body = <Comparison set={resource.data} busy={false} onOpen={setSelected} />;
   else if (stale) body = <Comparison set={stale} busy onOpen={setSelected} />;
-  else body = <LoadingState label={t('rotations.loading')} />;
+  else body = <PanelLoadingState label={t('rotations.loading')} />;
 
   const backToPriorities = () => {
     const target = document.getElementById('priorities-title');

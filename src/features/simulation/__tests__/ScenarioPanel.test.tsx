@@ -314,6 +314,6 @@ describe('ScenarioPanel (FE-304)', () => {
   it('shows discrete provenance model name/version and stub notice near the results', async () => {
     await ready();
     expect(screen.getByText(/Model: agrofarm-stub \(stub-0\.1\.0\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/illustrative rule-based model/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/illustrative rule-based model/i).length).toBeGreaterThanOrEqual(1);
   });
 });
