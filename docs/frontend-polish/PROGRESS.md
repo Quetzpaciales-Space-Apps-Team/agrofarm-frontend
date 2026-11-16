@@ -26,7 +26,21 @@ Base `develop` commit at start: `291eb1b`
    - **Merge note:** When merging PR #70 after PR #69, `src/features/climate/components/ClimatePanel.tsx` has a minor 1-block import conflict between `summarizeClimatePeriod` (PR #69) and `PanelState` (PR #70) that resolves by keeping both imports.
    - **How to test:** `npm test`
 
-6. **PR #71 (this branch)** — `docs/fe-polish-summary` (`docs: record frontend polish progress, assumptions, screenshots, and AI usage`)
+6. **PR #72** — `feat/fe-reality-check` (`feat(scenarios): add Climate Reality Check panel against NASA POWER and ENSO`) — **CI green (`ci/ci-gate` passed)**
+   - **What it changes:** Adds pure seasonal aggregation (`src/domain/climateReality.ts`) for 1995–2025 May–October rainfall grouped by dominant ENSO phase, `src/domain/scenarioPresets.ts`, and `ClimateRealityCheck` inside Explore scenarios (group cards with `n`, mean, `%` vs overall average, range, and "Apply this to the scenario"; chronological year strip with `EN`/`LN`/`NE` badges and `aria-live` readout; neutral preset comparison; collapsible data table; 50 km reanalysis caveats and attributions).
+   - **Live verification against `core-api-staging` (`useMocks: false`):**
+     - `31` years (`1995–2025`), `0` excluded. Overall May–Oct average: `1,204 mm`.
+     - **El Nino (`n=5`):** mean `1,051 mm`, **`-12.8 %`** vs average, range `482 mm` to `1,570 mm` (years: `1997, 2002, 2004, 2015, 2023`). Preset `"El Nino: drier year"` (`-20 %`) goes in the same direction and is fairly close, though dispersion across years is wide.
+     - **La Nina (`n=8`):** mean `1,298 mm`, **`+7.8 %`** vs average, range `764 mm` to `1,904 mm` (years: `1998, 1999, 2007, 2010, 2016, 2020, 2021, 2022`). Preset `"La Nina: wetter year"` (`+25 %`) goes in the same direction, but the data only partly supports its magnitude.
+     - **Neutral (`n=18`):** mean `1,206 mm`, **`+0.1 %`** vs average, range `815 mm` to `1,966 mm`.
+     - Console errors: `0`, Page errors: `0`.
+   - **How to test:** `npx vitest run src/domain/__tests__/climateReality.test.ts src/features/simulation/__tests__/ClimateRealityCheck.test.tsx src/features/simulation/__tests__/ScenarioPanel.test.tsx`
+
+7. **PR #73** — `feat/fe-stress-test` (`feat(scenarios): add Crop Stress Test matrix with concurrency cap and cache`)
+   - **What it changes:** Adds pure matrix aggregation (`src/domain/stressTest.ts`), `useStressTest` hook (runs only on click, max concurrency `2`, `AbortController` cancel, in-memory cache), and `CropStressTest` inside Explore scenarios (`3 crops x 4 presets = 12` cells) with permanent per-crop rule-based model caveats, symbol + color cells, worst-for-crop / most-resilient highlights, and `401`/`429`/`503` handling.
+   - **How to test:** `npx vitest run src/domain/__tests__/stressTest.test.ts src/features/simulation/__tests__/CropStressTest.test.tsx src/features/simulation/__tests__/ScenarioPanel.test.tsx`
+
+8. **PR #71 (this branch)** — `docs/fe-polish-summary` (`docs: record frontend polish progress, assumptions, screenshots, and AI usage`)
    - **What it changes:** Adds `docs/frontend-polish/PROGRESS.md`, `docs/frontend-polish/ASSUMPTIONS.md`, 5 verification screenshots under `docs/frontend-polish/screenshots/`, and adds `@MarceloDetlefsen` to `AI_USAGE.md`.
 
 ## T6 Integration & E2E Verification (Local Frontend vs `core-api-staging`)
