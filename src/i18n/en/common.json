@@ -377,6 +377,7 @@
     "riskReview": "(needs local review)",
     "viewDetails": "View details",
     "viewDetailsFor": "View details: {{name}}",
+    "backToPriorities": "Back to priorities",
     "drawer": {
       "closeLabel": "Close details",
       "intro": "Everything below comes from a rule-based comparison that uses a provisional table of crop traits. The traits have not been reviewed by an agronomist yet. Use this as support for your decision, and check it with a local expert before you change what you plant.",
@@ -415,6 +416,14 @@
   },
   "priorities": {
     "title": "Your priorities for this farm",
+    "jumpToComparison": "Jump to comparison",
+    "presets": {
+      "label": "Quick priority profiles",
+      "save_water": "Save water",
+      "more_income": "More income",
+      "build_soil": "Build soil",
+      "balanced": "Balanced (reset)"
+    },
     "intro": "Tell us what matters most. These values change the scores in the comparison below. They are saved for this farm only.",
     "starting": "All priorities start at 50 out of 100. Use Reset to defaults to go back to the starting values.",
     "decision": "The scores support your decision. They do not replace your own knowledge or a local expert.",

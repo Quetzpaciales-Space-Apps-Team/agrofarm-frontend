@@ -62,10 +62,25 @@ export function RotationComparison({
   else if (stale) body = <Comparison set={stale} busy />;
   else body = <LoadingState label={t('rotations.loading')} />;
 
+  const backToPriorities = () => {
+    const target = document.getElementById('priorities-title');
+    if (target) {
+      target.focus();
+      target.scrollIntoView?.({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section aria-labelledby="rotations-title" className="card stack">
       <div>
-        <h3 id="rotations-title">{t('rotations.title')}</h3>
+        <div className="rotations-header-row">
+          <h3 id="rotations-title" tabIndex={-1}>
+            {t('rotations.title')}
+          </h3>
+          <button type="button" className="button button--secondary" onClick={backToPriorities}>
+            {t('rotations.backToPriorities')}
+          </button>
+        </div>
         <p>{t('rotations.intro')}</p>
       </div>
       {body}
