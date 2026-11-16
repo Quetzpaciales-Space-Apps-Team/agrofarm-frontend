@@ -16,6 +16,7 @@
     "types": "openapi-typescript docs/contract/openapi.yaml -o src/infrastructure/api/schema.d.ts"
   },
   "dependencies": {
+    "driver.js": "^1.14.0",
     "i18next": "^27.1.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

@@ -27,6 +27,23 @@
     "light": "Switch to light mode",
     "dark": "Switch to dark mode"
   },
+  "tour": {
+    "button": "Demo Tour",
+    "startAria": "Start interactive guided demo tour",
+    "next": "Next",
+    "prev": "Previous",
+    "done": "Finish",
+    "step1Title": "Platform Navigation",
+    "step1Desc": "Access farm profiles, uploaded farm data, weather scenarios, crop recommendations, and climate history from the sidebar.",
+    "step2Title": "Farm & Parcel Selector",
+    "step2Desc": "Inspect your active farm or switch parcels. Registered farmers can add new parcels with custom geographic boundaries.",
+    "step3Title": "Farm Zone & Geometry",
+    "step3Desc": "Check verified hectares, current crop rotation, and the interactive geographic zone map.",
+    "step4Title": "Decision Workflow",
+    "step4Desc": "Jump directly to data uploads, weather stress simulations, agronomic rotation rankings, and NASA POWER climate data.",
+    "step5Title": "Theme & Session Control",
+    "step5Desc": "Switch between dark and light themes at any time, or exit the demo session when finished."
+  },
   "landing": {
     "title": "See how weather and El Nino could change your crops",
     "intro": "AgroFarm compares crop rotations under different rainfall, temperature and El Nino conditions. It gives ranges, not promises.",
@@ -172,6 +189,20 @@
     "rotation": "Current rotation",
     "noRotation": "No rotation recorded for this farm yet.",
     "selectFarm": "Select farm",
+    "map": {
+      "title": "Geographic Zone Map",
+      "subtitle": "Parcel boundary and coordinates",
+      "coordinates": "Coordinates",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "bbox": "Bounding Box",
+      "openOsm": "OpenStreetMap ↗",
+      "openGmaps": "Google Maps ↗",
+      "viewExternal": "Open external map",
+      "boundaryVector": "Boundary Geometry",
+      "mapView": "Map View",
+      "noCoordinates": "No geographic boundary coordinates recorded for this farm."
+    },
     "create": {
       "title": "Create your farm",
       "description": "Register your parcel boundary and initial crop rotation to connect satellite climate records and yield models.",

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSession } from '../features/auth/state/session';
 import { Navigation } from '../app/Navigation';
 import { ThemeToggle } from './ThemeToggle';
+import { TourButton } from './TourButton';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
@@ -22,6 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <p className="app-header__tagline">{t('app.shell.tagline')}</p>
         </div>
         <div className="app-header__actions">
+          {isAuthenticated ? <TourButton /> : null}
           <ThemeToggle />
           {isAuthenticated ? (
             <>

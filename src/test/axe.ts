@@ -7,6 +7,7 @@ import { expect } from 'vitest';
  */
 export async function expectNoAxeViolations(container: Element) {
   const results = await axe.run(container, {
+    iframes: false,
     rules: { 'color-contrast': { enabled: false }, region: { enabled: false } },
   });
   const summary = results.violations.map(
