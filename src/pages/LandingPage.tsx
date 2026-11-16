@@ -272,6 +272,15 @@ export function LandingPage() {
   const rootRef = useRef<HTMLDivElement>(null);
   useLandingEffects(rootRef);
 
+  const launchDemo = () => {
+    try {
+      sessionStorage.setItem('agrofarm_auto_tour', 'true');
+    } catch {
+      // ignore in private browsing
+    }
+    void startDemo();
+  };
+
   const onHeroMove = (event: PointerEvent<HTMLElement>) => {
     if (event.pointerType !== 'mouse' || prefersReducedMotion()) return;
     const box = event.currentTarget.getBoundingClientRect();
@@ -311,7 +320,7 @@ export function LandingPage() {
                 className="button landing-primary-btn"
                 disabled={starting}
                 aria-busy={starting}
-                onClick={() => void startDemo()}
+                onClick={launchDemo}
               >
                 {starting ? t('landing.starting') : t('landing.tryDemo')}
                 <Arrow />
@@ -444,7 +453,7 @@ export function LandingPage() {
               type="button"
               className="button landing-primary-btn"
               disabled={starting}
-              onClick={() => void startDemo()}
+              onClick={launchDemo}
             >
               {t('landing.finalCta.button')}
               <Arrow />

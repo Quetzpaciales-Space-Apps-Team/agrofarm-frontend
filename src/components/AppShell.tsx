@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSession } from '../features/auth/state/session';
 import { Navigation } from '../app/Navigation';
 import { ThemeToggle } from './ThemeToggle';
+import { TourButton, startDemoTour } from './TourButton';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
@@ -22,14 +23,28 @@ export function AppShell({ children }: { children: ReactNode }) {
           <p className="app-header__tagline">{t('app.shell.tagline')}</p>
         </div>
         <div className="app-header__actions">
-          <ThemeToggle />
           {isAuthenticated ? (
             <>
-              {isDemoGuest ? <span className="demo-badge">{t('app.shell.demo')}</span> : null}
-              <button type="button" className="header-action" onClick={leave}>
-                {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
-              </button>
+              {isDemoGuest ? (
+                <button
+                  type="button"
+                  className="demo-badge demo-badge--interactive"
+                  onClick={() => startDemoTour(t)}
+                  title={t('tour.startAria')}
+                  aria-label={t('tour.startAria')}
+                >
+                  <span className="demo-badge__dot" aria-hidden="true" />
+                  <span>{t('app.shell.demo')}</span>
+                </button>
+              ) : null}
+              <TourButton />
             </>
+          ) : null}
+          <ThemeToggle />
+          {isAuthenticated ? (
+            <button type="button" className="header-action" onClick={leave}>
+              {t(isDemoGuest ? 'dashboard.leave' : 'dashboard.logout')}
+            </button>
           ) : (
             <>
               <a className="header-action" href="#/login">

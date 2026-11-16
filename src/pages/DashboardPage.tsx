@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFocusOnMount } from '../components/useFocusOnMount';
 import { Drawer } from '../components/Drawer';
+import { startDemoTour } from '../components/TourButton';
 import { ClimatePanel } from '../features/climate/components/ClimatePanel';
 import { FarmDashboard } from '../features/farms/components/FarmDashboard';
 import { CreateFarmForm } from '../features/farms/components/CreateFarmForm';
@@ -83,6 +84,20 @@ export function DashboardPage({ farmId, isDemoGuest = true }: DashboardPageProps
 
   const [farms, setFarms] = useState<Farm[]>([]);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('agrofarm_auto_tour') === 'true') {
+        sessionStorage.removeItem('agrofarm_auto_tour');
+        const timer = setTimeout(() => {
+          startDemoTour(t);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    } catch {
+      // ignore
+    }
+  }, [t]);
 
   useEffect(() => {
     if (isDemoGuest) return;
