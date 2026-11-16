@@ -45,9 +45,9 @@
     "step5Desc": "Switch between dark and light themes at any time, or exit the demo session when finished."
   },
   "landing": {
-    "title": "See how weather and El Nino could change your crops",
-    "intro": "AgroFarm compares crop rotations under different rainfall, temperature and El Nino conditions. It gives ranges, not promises.",
-    "demoNote": "The demo uses example data for a pilot farm near Guatemala City. You do not need an account.",
+    "title": "Plan the season before the rain does",
+    "intro": "See how rain, heat and El Nino could change your maize, and which rotation holds up best.",
+    "demoNote": "Example farm near Guatemala City. No account needed.",
     "tryDemo": "Try the demo",
     "starting": "Starting the demo...",
     "accountNote": "Have your own farm data?",
@@ -68,7 +68,129 @@
         "description": "Empowers agronomists and farmers with clear risk indicators and explicit reminders for local validation."
       }
     },
-    "badge": "Agroforestry & Crops"
+    "badge": "Agroforestry & Crops",
+    "what": {
+      "eyebrow": "What is AgroFarm?",
+      "title": "Try a season before you live it",
+      "body1": "Guatemalan smallholders plan each season with rain that arrives early, late or not at all. AgroFarm takes a farm's own data, adds public weather, soil and satellite records, and estimates how a crop could grow under different conditions, including El Nino and La Nina years.",
+      "body2": "It then compares several crop rotations side by side, such as maize followed by beans or by a fallow year. Every result is a range with its reasons, its evidence and its gaps, so a farmer and a local agronomist can discuss it and decide."
+    },
+    "how": {
+      "title": "How it works",
+      "steps": {
+        "data": {
+          "title": "Bring the farm's data",
+          "description": "Upload plots, soil tests and past harvests. The tool checks what was accepted and says what is missing."
+        },
+        "scenario": {
+          "title": "Choose a season",
+          "description": "Move rainfall, temperature and the El Nino or La Nina phase to see how the likely yield range shifts."
+        },
+        "compare": {
+          "title": "Compare rotations",
+          "description": "Strategies are scored with the priorities you set: water, income, soil and more."
+        },
+        "decide": {
+          "title": "Read the reasons and the limits",
+          "description": "Each recommendation shows its evidence, its risks and what we do not know. The decision stays with you."
+        }
+      },
+      "hint": "Tap to flip",
+      "back": "Back to the step"
+    },
+    "crops": {
+      "title": "Built around the crops that feed and fund the region",
+      "maize": {
+        "name": "Maize",
+        "description": "The staple of the milpa and the crop the demo simulates today, with rotation partners such as beans."
+      },
+      "cacao": {
+        "name": "Cacao",
+        "description": "A tree crop that is very sensitive to rain and heat. It shows the kind of long-lived crop this approach should reach later; it is not modelled yet."
+      },
+      "credit": "Photos: Wikimedia Commons, public domain or CC0."
+    },
+    "hero": {
+      "rangeTitle": "Maize yield versus a normal year",
+      "rangeNote": "Example range from the demo",
+      "low": "-12 %",
+      "high": "+11 %",
+      "scene": "A rendered ear of maize with its husk peeled back and golden kernels in tidy rows"
+    },
+    "principles": {
+      "title": "What we promise, and what we do not"
+    },
+    "finalCta": {
+      "title": "See it with an example farm",
+      "body": "The demo needs no account. It loads a pilot farm near Guatemala City so you can move the sliders and read a real comparison.",
+      "button": "Open the demo farm"
+    },
+    "nav": {
+      "label": "Page blocks",
+      "journey": "From field to decision",
+      "how": "How it works",
+      "decisions": "Decisions",
+      "crops": "Crops",
+      "limits": "Limits",
+      "project": "The project"
+    },
+    "journey": {
+      "title": "From the field to one decision",
+      "scrollHint": "Scroll to move closer",
+      "steps": {
+        "field": {
+          "title": "The weather",
+          "body": "AgroFarm starts wide: the rain, the heat and the El Nino or La Nina phase expected for your area."
+        },
+        "plant": {
+          "title": "The plant",
+          "body": "Then it looks at the crop. Satellite readings of how green the plants are tell how a season is going."
+        },
+        "cob": {
+          "title": "The harvest",
+          "body": "It estimates the yield as a range compared with a normal year, never as a single promised number."
+        },
+        "decision": {
+          "title": "The decision",
+          "body": "Last it compares rotations and shows its reasons, risks and gaps. Then you and your agronomist decide."
+        }
+      },
+      "scene": "A maize ear that turns and moves closer as you scroll, then its kernels pop out"
+    },
+    "decisions": {
+      "title": "Decisions this helps you make",
+      "intro": "Each question below is one the demo can already help you think through. The last column says where the tool stops.",
+      "columns": {
+        "question": "The question",
+        "shows": "What AgroFarm shows",
+        "limit": "What it cannot decide"
+      },
+      "rows": {
+        "rotate": {
+          "question": "Maize again, or rotate to beans?",
+          "shows": "Several rotations side by side, each scored with your priorities for water, income and soil.",
+          "limit": "Your market prices and your own plot history are yours to weigh."
+        },
+        "dry": {
+          "question": "Is a dry El Nino season too risky?",
+          "shows": "How the likely yield range moves when you lower rainfall or switch the El Nino or La Nina phase.",
+          "limit": "It cannot say when the rain will fall, only how the range shifts."
+        },
+        "fallow": {
+          "question": "Should a plot rest this year?",
+          "shows": "The fallow option next to the planted ones, with the reasons it ranks where it does.",
+          "limit": "Local soil tests and an agronomist must confirm it."
+        },
+        "doubt": {
+          "question": "How much can I trust this answer?",
+          "shows": "The evidence behind each result, the data that is missing and the risks, written in plain words.",
+          "limit": "It never replaces a visit from someone who knows your land."
+        }
+      }
+    },
+    "cta": {
+      "arrow": "Go"
+    }
   },
   "auth": {
     "demo": {
